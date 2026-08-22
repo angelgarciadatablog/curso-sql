@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Conectarse y explorar · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DBeaver y psql. \dt, \d tabla, information_schema" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Conectarse y explorar" />
+  <meta property="og:description" content="DBeaver y psql. \dt, \d tabla, information_schema" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(3 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 3 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><span class="activo">Conectarse y explorar</span></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 1 · Antes de escribir SQL</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Conectarse y explorar</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../leer-un-esquema-desconocido/">leer-un-esquema-desconocido</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Antes de escribir SQL hay que <strong>llegar</strong> a la base de datos. Y hay dos formas, que no compiten: se usan para cosas distintas.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>psql</code> (terminal)</th>
+<th>DBeaver (gráfico)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Explorar rápido</td>
+<td>✅ Comandos de una letra</td>
+<td>Requiere navegar el árbol</td>
+</tr>
+<tr>
+<td>Ejecutar un archivo <code>.sql</code></td>
+<td>✅ <code>psql -f archivo.sql</code></td>
+<td>Torpe</td>
+</tr>
+<tr>
+<td>Leer resultados anchos</td>
+<td>❌ Se descuadra</td>
+<td>✅ Tabla con scroll</td>
+</tr>
+<tr>
+<td>Ver el esquema visualmente</td>
+<td>❌</td>
+<td>✅ Diagrama automático</td>
+</tr>
+<tr>
+<td>Escribir consultas largas</td>
+<td>❌</td>
+<td>✅ Autocompletado, historial</td>
+</tr>
+</tbody>
+</table>
+<p><strong>En la práctica: <code>psql</code> para cargar y explorar, DBeaver para trabajar.</strong></p>
+<h2 id="2-c-mo-se-conecta">2. Cómo se conecta</h2>
+<p>Cualquier cliente necesita lo mismo: <strong>host, puerto, base, usuario y contraseña</strong>. Cambia solo la forma de dárselos.</p>
+<div class="hl"><pre><span></span><code><span class="c1"># En local, con los valores por defecto</span>
+psql<span class="w"> </span>-d<span class="w"> </span>northwind
+
+<span class="c1"># Con la cadena completa (nube, o cualquier servidor remoto)</span>
+psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/northwind?sslmode=require"</span>
+</code></pre></div>
+
+<p>La cadena de conexión desarmada pieza por pieza está en <code>anatomia-de-una-conexion-a-postgresql</code>. Aquí basta saber que es la dirección y las llaves.</p>
+<h2 id="3-los-comandos-de-psql-que-vas-a-usar">3. Los comandos de psql que vas a usar</h2>
+<p>Empiezan con <code>\</code> y <strong>no son SQL</strong> — los interpreta <code>psql</code>, no el servidor. Por eso no funcionan si los pegas en DBeaver.</p>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\l</code></td>
+<td>Lista las bases de datos del servidor</td>
+</tr>
+<tr>
+<td><code>\dt</code></td>
+<td>Lista las tablas</td>
+</tr>
+<tr>
+<td><code>\d tabla</code></td>
+<td><strong>Describe una tabla</strong>: columnas, tipos, PK, FK y quién le apunta</td>
+</tr>
+<tr>
+<td><code>\d+ tabla</code></td>
+<td>Lo mismo, más tamaño</td>
+</tr>
+<tr>
+<td><code>\dn</code></td>
+<td>Lista los esquemas</td>
+</tr>
+<tr>
+<td><code>\du</code></td>
+<td>Lista los usuarios y sus permisos</td>
+</tr>
+<tr>
+<td><code>\x</code></td>
+<td>Alterna la vista vertical — salva la vida con tablas anchas</td>
+</tr>
+<tr>
+<td><code>\timing</code></td>
+<td>Muestra cuánto tardó cada consulta</td>
+</tr>
+<tr>
+<td><code>\i archivo.sql</code></td>
+<td>Ejecuta un archivo</td>
+</tr>
+<tr>
+<td><code>\q</code></td>
+<td>Salir</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Los dos que más vas a escribir son <code>\dt</code> y <code>\d tabla</code>.</strong> Con esos dos te orientas en cualquier base.</p>
+<blockquote>
+<p><code>\x</code> merece una mención aparte. Cuando una tabla tiene 14 columnas, el resultado se desborda y no se lee nada. Activas <code>\x</code> y cada fila se muestra en vertical, un campo por línea.</p>
+</blockquote>
+<h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<p><strong>Dónde estoy parado.</strong> Útil cuando tienes varias conexiones abiertas y no sabes cuál es cuál:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">current_database</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="k">current_user</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">usuario</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   base    |      usuario
+-----------+-------------------
+ northwind | angelgarciachanga
+</code></pre></div>
+
+<p><strong>Qué tablas hay y cuánto pesan.</strong> Es la primera consulta que conviene lanzar en una base desconocida — te dice de un vistazo dónde están los datos de verdad:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">relname</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span><span class="w"> </span><span class="n">n_live_tup</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_user_tables</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n_live_tup</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     tabla     | filas
+---------------+-------
+ order_details |  2155
+ orders        |   830
+ customers     |    91
+ products      |    77
+</code></pre></div>
+
+<p>Las dos primeras son las <strong>tablas de hechos</strong> — lo que pasó. El resto son <strong>dimensiones</strong> — quién, qué, dónde. Esa proporción se repite en casi cualquier base de negocio.</p>
+<p><strong>Las columnas de una tabla, sin <code>\d</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'shippers'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> column_name  |     data_type     | is_nullable
+--------------+-------------------+-------------
+ shipper_id   | integer           | NO
+ company_name | character varying | NO
+ phone        | character varying | YES
+</code></pre></div>
+
+<p>Esta versión es SQL puro: <strong>funciona en DBeaver, en la nube y en otros motores.</strong> <code>\d</code> solo funciona en <code>psql</code>.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong>Pegar comandos <code>\</code> en DBeaver.</strong> No son SQL. DBeaver dirá que hay un error de sintaxis y tendrá razón.</li>
+<li><strong>Confundir <code>\l</code> con <code>-l</code>.</strong> Dentro de <code>psql</code> es <code>\l</code>; desde la terminal es <code>psql -l</code>, con <strong>ele minúscula</strong>. Escribir <code>psql -1</code> (un uno) da el error <em>"-1 sólo puede ser usado en modo no interactivo"</em>, que no ayuda nada.</li>
+<li><strong>Olvidar el punto y coma.</strong> En <code>psql</code>, una sentencia SQL no se ejecuta hasta el <code>;</code>. Si el prompt cambia de <code>=#</code> a <code>-#</code>, es que sigue esperando.</li>
+<li><strong>Dejar la conexión abierta contra una base en la nube.</strong> En local no pasa nada; en la nube consume cuota. Ver <code>postgresql-en-la-nube-con-neon</code> § 8.</li>
+</ol>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Entra a <code>northwind</code> con <code>psql</code> y averigua cuántas columnas tiene <code>orders</code> sin usar <code>SELECT *</code>.</li>
+<li>Usa <code>\d employees</code> y encuentra la clave foránea que apunta a la propia tabla.</li>
+<li>Activa <code>\x</code> y vuelve a consultar una fila de <code>orders</code>. ¿En qué caso lo preferirías?</li>
+<li>Escribe una consulta contra <code>information_schema.columns</code> que devuelva todas las columnas de tipo fecha de toda la base, con su tabla.</li>
+<li>Con <code>\timing</code> activado, compara cuánto tarda <code>SELECT count(*) FROM order_details</code> contra <code>SELECT count(*) FROM customers</code>.</li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Llegas a una base de datos que no conoces, con 40 tablas. Tienes cinco minutos antes de una reunión donde te van a preguntar de qué va. ¿Qué ejecutas?</em></p>
+</blockquote>
+<p>Piensa en el orden. No es una sola consulta.</p></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>14</strong>. O con <code>\d orders</code>, contando.</p>
+<p><strong>2.</strong> En la salida de <code>\d employees</code> aparece:</p>
+<div class="hl"><pre><span></span><code>Restricciones de llave foránea:
+    "fk_employees_employees" FOREIGN KEY (reports_to) REFERENCES employees(employee_id)
+Referenciada por:
+    TABLE "employee_territories" CONSTRAINT ... FOREIGN KEY (employee_id) ...
+    TABLE "employees" CONSTRAINT "fk_employees_employees" FOREIGN KEY (reports_to) ...
+    TABLE "orders" CONSTRAINT "fk_orders_employees" FOREIGN KEY (employee_id) ...
+</code></pre></div>
+
+<p><code>reports_to</code> apunta a <code>employee_id</code> de la misma tabla: la jerarquía de jefes.</p>
+<p>Fíjate además en <strong>«Referenciada por»</strong>: <code>\d</code> no solo te dice a quién apunta la tabla, sino <strong>quién le apunta a ella</strong>. <code>employees</code> aparece en su propia lista, que es otra forma de ver la autorreferencia.</p>
+<blockquote>
+<p>Los títulos salen en español o en inglés según el idioma de tu sistema. Si tu <code>psql</code> está en inglés verás <code>Foreign-key constraints:</code> y <code>Referenced by:</code>.</p>
+</blockquote>
+<p><strong>3.</strong> Cuando la tabla es <strong>ancha</strong>. <code>orders</code> tiene 14 columnas y en horizontal se desborda. En vertical se lee cada campo con su nombre al lado. Regla práctica: más de 8 columnas, <code>\x</code>.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'date'</span><span class="p">,</span><span class="w"> </span><span class="s1">'timestamp without time zone'</span><span class="p">,</span><span class="w"> </span><span class="s1">'timestamp with time zone'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Salen las de <code>orders</code> (<code>order_date</code>, <code>required_date</code>, <code>shipped_date</code>) y las de <code>employees</code> (<code>birth_date</code>, <code>hire_date</code>). <strong>Buscar las columnas de fecha es de lo primero que se hace en una base nueva</strong>: son las que permiten cualquier análisis temporal.</p>
+<p><strong>5.</strong> Ambas son instantáneas — 2.155 y 91 filas no son nada. El ejercicio no busca que veas una diferencia, sino que <strong>te acostumbres a mirar el tiempo</strong>. En una tabla de millones de filas esa costumbre es la que te avisa de que algo va mal antes de que se queje el usuario.</p>
+<p><strong>Pregunta de negocio:</strong> en este orden.</p>
+<ol>
+<li><code>\dt</code> — cuántas tablas y cómo se llaman.</li>
+<li>La consulta de <code>pg_stat_user_tables</code> — <strong>cuáles tienen datos de verdad.</strong> Con 40 tablas, probablemente 5 concentran el 95% de las filas. Esas son el negocio; el resto son catálogos.</li>
+<li>La consulta de claves foráneas del tema anterior — <strong>el mapa de conexiones.</strong></li>
+<li><code>\d</code> sobre las 3 o 4 tablas más grandes, para entender su grano.</li>
+<li>Las columnas de fecha, para saber qué periodo cubre.</li>
+</ol>
+<p>En cinco minutos puedes decir: <em>"son ventas, con tantos clientes y tantos pedidos, entre tal y tal fecha, y esto se conecta así"</em>. <strong>Nada de eso requiere que alguien te explique la base.</strong></p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../leer-un-esquema-desconocido/"><span>Anterior</span><strong>Leer un esquema desconocido</strong></a><a class="nav-next" href="../select-y-from/"><span>Siguiente</span><strong>SELECT y FROM</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-c-mo-se-conecta">2. Cómo se conecta</a>
+<a href="#3-los-comandos-de-psql-que-vas-a-usar">3. Los comandos de psql que vas a usar</a>
+<a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

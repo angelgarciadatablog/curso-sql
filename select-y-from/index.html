@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>SELECT y FROM · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="La consulta mínima. Alias. Por qué SELECT * es mala costumbre" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/select-y-from/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="SELECT y FROM" />
+  <meta property="og:description" content="La consulta mínima. Alias. Por qué SELECT * es mala costumbre" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/select-y-from/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(4 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 4 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><span class="activo">SELECT y FROM</span></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 2 · La consulta</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>SELECT y FROM</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../conectarse-y-explorar/">conectarse-y-explorar</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p><code>SELECT</code> es la única sentencia que <strong>pregunta</strong>. Todo lo demás en SQL crea, modifica o borra; <code>SELECT</code> solo lee.</p>
+<p>Y tiene una propiedad que conviene entender desde el primer minuto: <strong><code>SELECT</code> no devuelve la tabla, devuelve una tabla nueva</strong>. La original no se toca. Puedes equivocarte todas las veces que quieras.</p>
+<p>Las dos piezas mínimas:</p>
+<ul>
+<li><strong><code>FROM</code></strong> — de dónde saco las filas.</li>
+<li><strong><code>SELECT</code></strong> — qué columnas quiero ver, y en qué forma.</li>
+</ul>
+<p>Todo lo demás (filtrar, agrupar, ordenar) se le añade encima.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">columna1</span><span class="p">,</span><span class="w"> </span><span class="n">columna2</span><span class="p">,</span><span class="w"> </span><span class="n">expresión</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">alias</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Reglas que valen desde ya:</p>
+<ul>
+<li>Las columnas van separadas por coma. <strong>La coma sobrante antes del <code>FROM</code> es el error de sintaxis más frecuente del mundo.</strong></li>
+<li>El <code>;</code> cierra la sentencia. En <code>psql</code> es obligatorio; en DBeaver puedes ejecutar sin él, pero acostúmbrate.</li>
+<li>Las mayúsculas en las palabras clave son <strong>convención, no obligación</strong>. <code>select</code> funciona igual. Se escriben en mayúscula para que el ojo separe el esqueleto de la consulta de los nombres de tus tablas.</li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>La consulta mínima.</strong> Dos columnas de una tabla:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name         | unit_price
+------------------------------+------------
+ Chai                         |      18.00
+ Chang                        |      19.00
+ Aniseed Syrup                |      10.00
+ Chef Anton's Cajun Seasoning |      22.00
+ Chef Anton's Gumbo Mix       |      21.35
+</code></pre></div>
+
+<blockquote>
+<p><code>LIMIT 5</code> corta la salida a 5 filas. Se ve en detalle en <a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>; aquí lo uso solo para que los ejemplos quepan en pantalla.</p>
+</blockquote>
+<p><strong>Renombrar con <code>AS</code>.</strong> El alias cambia el título de la columna en el resultado, no en la tabla:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">producto</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_unitario</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>           producto           | precio_unitario
+------------------------------+-----------------
+ Chai                         |           18.00
+ Chang                        |           19.00
+</code></pre></div>
+
+<p><code>AS</code> es opcional (<code>unit_price precio_unitario</code> funciona), pero <strong>escríbelo siempre</strong>. Sin él, una coma olvidada convierte dos columnas en una sola con alias, en silencio y sin error.</p>
+<p><strong>El <code>SELECT</code> calcula.</strong> No estás limitado a las columnas que existen — puedes crear columnas nuevas:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_en_stock</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name         | unit_price | units_in_stock | valor_en_stock
+------------------------------+------------+----------------+----------------
+ Chai                         |      18.00 |             39 |         702.00
+ Chang                        |      19.00 |             17 |         323.00
+ Aniseed Syrup                |      10.00 |             13 |         130.00
+ Chef Anton's Cajun Seasoning |      22.00 |             53 |        1166.00
+ Chef Anton's Gumbo Mix       |      21.35 |              0 |           0.00
+</code></pre></div>
+
+<p><code>valor_en_stock</code> no existe en ninguna parte de la base. Se calcula al vuelo, fila por fila. <strong>Eso es el 80% del trabajo analítico: columnas que no estaban.</strong></p>
+<p><strong>Concatenar texto con <code>||</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="n">title</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     empleado     |         title
+------------------+-----------------------
+ Nancy Davolio    | Sales Representative
+ Andrew Fuller    | Vice President, Sales
+ Janet Leverling  | Sales Representative
+</code></pre></div>
+
+<p><strong><code>FROM</code> es opcional.</strong> Si no lees ninguna tabla, no hace falta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">resultado</span><span class="p">,</span><span class="w"> </span><span class="k">current_date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> resultado |    hoy
+-----------+------------
+         4 | 2026-08-20
+</code></pre></div>
+
+<p>Esto es más útil de lo que parece: es la forma de <strong>probar una función</strong> sin arrastrar una tabla detrás.</p>
+<p><strong>Alias de tabla.</strong> Se le pone un nombre corto a la tabla y se prefijan las columnas:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Con una sola tabla es innecesario. <strong>En cuanto haya dos, deja de serlo</strong> — ver <span class="xref-pend" title="Aún no publicado">inner-join</span>.</p>
+<h3>Sobre <code>SELECT *</code></h3>
+<p><code>SELECT * FROM products</code> devuelve todas las columnas. Es cómodo para asomarse una vez, y <strong>mala costumbre en todo lo demás</strong>:</p>
+<ol>
+<li>Traes datos que no necesitas — más red, más memoria, más lento.</li>
+<li>Si mañana alguien añade una columna a la tabla, tu consulta cambia de forma sin que tú la toques. Todo lo que dependa de ella se rompe.</li>
+<li>No documenta nada. Quien lea tu consulta dentro de seis meses no sabrá qué esperabas.</li>
+</ol>
+<p><strong>Regla: <code>*</code> para explorar, nunca para producir.</strong></p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li>
+<p><strong>Coma sobrante antes del <code>FROM</code>.</strong>
+   <code>ERROR:  syntax error at or near "FROM"</code>
+   Cuenta las comas: deben ser una menos que las columnas.</p>
+</li>
+<li>
+<p><strong>Usar el alias en el <code>WHERE</code>.</strong> Esto falla:
+   <code>sql
+   SELECT product_name, unit_price * 1.18 AS con_igv
+   FROM products
+   WHERE con_igv &gt; 20;</code>
+   <code>ERROR:  column "con_igv" does not exist</code>
+   No es un capricho: cuando se evalúa el <code>WHERE</code>, el <code>SELECT</code> <strong>todavía no ha ocurrido</strong>. El porqué completo está en <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>, el tema siguiente.</p>
+</li>
+<li>
+<p><strong>Comillas dobles donde no van.</strong> En PostgreSQL, <code>"algo"</code> significa <em>identificador exacto, respeta mayúsculas</em>:
+   <code>sql
+   SELECT "Product_Name" FROM products;</code>
+   <code>ERROR:  column "Product_Name" does not exist</code>
+   Sin comillas, PostgreSQL pasa todo a minúsculas y encuentra la columna. Con comillas, busca literalmente <code>Product_Name</code>, que no existe.</p>
+</li>
+<li>
+<p><strong>Comillas simples para nombres de columna.</strong> <code>'product_name'</code> no es la columna: es el <strong>texto</strong> <code>product_name</code>, repetido en todas las filas. No da error, que es lo peligroso. <strong>Simples = texto. Dobles = identificador.</strong></p>
+</li>
+<li>
+<p><strong><code>SELECT *</code> en un informe que alguien va a mantener.</strong> Ver arriba.</p>
+</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Concatenar</td>
+<td><code>||</code></td>
+<td><code>+</code> (o <code>CONCAT</code>)</td>
+</tr>
+<tr>
+<td>Identificador con espacios</td>
+<td><code>"Mi columna"</code></td>
+<td><code>[Mi columna]</code></td>
+</tr>
+<tr>
+<td>Limitar filas</td>
+<td><code>LIMIT 5</code></td>
+<td><code>TOP 5</code></td>
+</tr>
+<tr>
+<td>Fecha de hoy</td>
+<td><code>current_date</code></td>
+<td><code>GETDATE()</code></td>
+</tr>
+</tbody>
+</table>
+<p>La primera duele: en SQL Server <code>'a' + 'b'</code> concatena; en PostgreSQL, <code>||</code>. Y <code>+</code> sobre dos textos en PostgreSQL da error de tipo, no un resultado raro — que al menos avisa.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Lista el nombre y el país de los proveedores, con las columnas tituladas <code>proveedor</code> y <code>pais</code>.</li>
+<li>Muestra el nombre de cada producto y su precio con 18% de IGV añadido, en una columna llamada <code>precio_con_igv</code>.</li>
+<li>Devuelve una sola columna llamada <code>empleado</code> con el formato <code>Apellido, Nombre</code>.</li>
+<li>Averigua cuántas columnas devuelve <code>SELECT * FROM orders</code> — sin contarlas a ojo.</li>
+<li>Devuelve el nombre y la ciudad de los clientes con los títulos exactos <code>Nombre de la empresa</code> y <code>Ciudad</code>, con espacios y mayúsculas.</li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Finanzas quiere saber cuánto dinero hay parado en el almacén: el valor total del inventario producto por producto, del más caro al más barato.</em></p>
+</blockquote>
+<p>No hace falta ninguna función que no hayas visto. Sí hace falta decidir <strong>qué es "valor"</strong>.</p></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedor</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>             proveedor              | pais
+------------------------------------+-------
+ Exotic Liquids                     | UK
+ New Orleans Cajun Delights         | USA
+ Grandma Kelly's Homestead          | USA
+ Tokyo Traders                      | Japan
+ Cooperativa de Quesos 'Las Cabras' | Spain
+</code></pre></div>
+
+<p>29 filas en total.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">18</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_con_igv</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name         | unit_price | precio_con_igv
+------------------------------+------------+----------------
+ Chai                         |      18.00 |        21.2400
+ Chef Anton's Gumbo Mix       |      21.35 |        25.1930
+</code></pre></div>
+
+<p>Fíjate en los <strong>4 decimales</strong>: <code>numeric(10,2) * 1.18</code> no devuelve <code>numeric(10,2)</code>, devuelve la precisión que hace falta para no perder nada. Redondear es una decisión tuya, no del motor — ver <span class="xref-pend" title="Aún no publicado">funciones-dentro-del-select</span>.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     empleado
+-------------------
+ Davolio, Nancy
+ Fuller, Andrew
+ Leverling, Janet
+</code></pre></div>
+
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>14</strong>. La respuesta a ojo con <code>\d orders</code> vale igual; la consulta vale cuando la tabla tiene 200 columnas.</p>
+<p><strong>5.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="ss">"Nombre de la empresa"</span><span class="p">,</span>
+<span class="w">       </span><span class="n">city</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="ss">"Ciudad"</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>        Nombre de la empresa        |   Ciudad
+------------------------------------+-------------
+ Alfreds Futterkiste                | Berlin
+ Ana Trujillo Emparedados y helados | México D.F.
+</code></pre></div>
+
+<p><strong>Este es el único caso donde las comillas dobles se usan a propósito.</strong> Un alias con espacios o mayúsculas las necesita. Un alias normal, no.</p>
+<p><strong>Pregunta de negocio.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_inventario</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">valor_inventario</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       product_name        | unit_price | units_in_stock | valor_inventario
+---------------------------+------------+----------------+------------------
+ Côte de Blaye             |     263.50 |             17 |          4479.50
+ Raclette Courdavault      |      55.00 |             79 |          4345.00
+ Queso Manchego La Pastora |      38.00 |             86 |          3268.00
+ Sir Rodney's Marmalade    |      81.00 |             40 |          3240.00
+ Sirop d'érable            |      28.50 |            113 |          3220.50
+</code></pre></div>
+
+<p>Dos cosas que este ejercicio enseña de verdad:</p>
+<ul>
+<li><strong><code>ORDER BY</code> sí acepta el alias</strong> (<code>valor_inventario</code>), aunque <code>WHERE</code> no. No es incoherencia: <code>ORDER BY</code> se ejecuta <em>después</em> del <code>SELECT</code>. Otra vez, <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>.</li>
+<li><strong>"Valor" es ambiguo y hay que preguntarlo.</strong> <code>unit_price</code> es el precio de <strong>venta</strong>. El valor contable de un inventario normalmente es el de <strong>coste</strong>, que Northwind no guarda. Lo que has calculado es <em>cuánto facturarías si lo vendieras todo</em>, que no es lo mismo. Decirlo al entregar el dato es lo que separa a alguien que ejecuta SQL de alguien que analiza.</li>
+</ul></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../conectarse-y-explorar/"><span>Anterior</span><strong>Conectarse y explorar</strong></a><a class="nav-next" href="../orden-logico-de-ejecucion/"><span>Siguiente</span><strong>El orden lógico de ejecución</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

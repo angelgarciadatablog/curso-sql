@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>{{TITULO}}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{{DESCRIPCION}}" />
+  <link rel="canonical" href="{{CANONICAL}}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{OGTITULO}}" />
+  <meta property="og:description" content="{{DESCRIPCION}}" />
+  <meta property="og:url" content="{{CANONICAL}}" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="{{ASSETS}}/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="topbar">
+  <a class="marca" href="/">Angel García <span>· Curso SQL</span></a>
+  <div class="progreso"><div class="cuenta">{{PUBLICADOS}} de {{TOTAL}} temas disponibles</div></div>
+</div>
+
+<header class="hero">
+  <div class="contenedor hero-in">
+    <div>
+      <h1>SQL desde cero, sobre una base real</h1>
+      <p class="lead">{{LEAD}}</p>
+      <div class="hero-datos">
+        <div class="dato"><b>{{BLOQUES}}</b><span>Bloques</span></div>
+        <div class="dato"><b>{{TOTAL}}</b><span>Temas</span></div>
+        <div class="dato"><b>12</b><span>Tablas</span></div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="demo-cab"><i></i><i></i><i></i><span>northwind=&gt;</span></div>
+<pre><span class="kw">SELECT</span> c.company_name, <span class="kw">count</span>(*) <span class="kw">AS</span> pedidos
+<span class="kw">FROM</span> customers c
+<span class="kw">JOIN</span> orders o <span class="kw">ON</span> o.customer_id = c.customer_id
+<span class="kw">GROUP BY</span> c.company_name
+<span class="kw">ORDER BY</span> pedidos <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> 4;
+<span class="out">    company_name    | pedidos
+--------------------+---------
+ Save-a-lot Markets |      31
+ Ernst Handel       |      30
+ QUICK-Stop         |      28
+ Folk och fä HB     |      19</span></pre>
+    </div>
+  </div>
+</header>
+
+<div class="contenedor">
+  <div class="malla-tit">
+    <h2>La ruta completa</h2>
+    <p>{{PUBLICADOS}} temas disponibles · el resto en camino</p>
+  </div>
+  <main class="malla">
+{{BLOQUES_HTML}}
+  </main>
+</div>
+</body>
+</html>

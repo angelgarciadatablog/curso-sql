@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>DISTINCT y duplicados · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DISTINCT, DISTINCT ON, cuándo esconde un error de JOIN" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="DISTINCT y duplicados" />
+  <meta property="og:description" content="DISTINCT, DISTINCT ON, cuándo esconde un error de JOIN" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(10 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 10 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><span class="activo">DISTINCT y duplicados</span></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 2 · La consulta</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>DISTINCT y duplicados</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../ordenar-y-limitar/">ordenar-y-limitar</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p><code>DISTINCT</code> elimina <strong>filas de resultado repetidas</strong>. Es el paso 6 del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>: actúa sobre lo que el <code>SELECT</code> ya produjo, no sobre la tabla.</p>
+<p>Y ahí está todo lo importante del tema, en dos frases:</p>
+<ul>
+<li><strong><code>DISTINCT</code> compara la fila entera del <code>SELECT</code></strong>, no la primera columna.</li>
+<li><strong><code>DISTINCT</code> es a veces la respuesta y muchas veces una tirita.</strong> Cuando aparece para "arreglar" filas duplicadas que no esperabas, casi siempre está tapando un error en el <code>FROM</code>.</li>
+</ul>
+<p>Este último punto es el que hace que este tema cierre el bloque 1 y no lo abra.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">columna1</span><span class="p">,</span><span class="w"> </span><span class="n">columna2</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="p">;</span><span class="w">        </span><span class="c1">-- filas únicas</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">columna</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="p">;</span><span class="w">            </span><span class="c1">-- cuántos valores distintos</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="n">columna</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span><span class="w"> </span><span class="n">otra</span><span class="p">;</span><span class="w">   </span><span class="c1">-- solo PostgreSQL</span>
+</code></pre></div>
+
+<p><code>DISTINCT</code> va <strong>justo después de <code>SELECT</code></strong> y afecta a todas las columnas. No existe <code>SELECT col1, DISTINCT col2</code>.</p>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Los valores distintos de una columna:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  country
+-----------
+ Argentina
+ Austria
+ Belgium
+ Brazil
+ ...
+</code></pre></div>
+
+<p><strong>21 países</strong> para 91 clientes.</p>
+<p><strong>Contar distintos sin listarlos:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">city</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">ciudades</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> filas | paises | ciudades
+-------+--------+----------
+    91 |     21 |       69
+</code></pre></div>
+
+<p>Esas tres cifras juntas son un <strong>perfilado</strong>: 91 clientes repartidos en 69 ciudades y 21 países. Con eso ya sabes que la ciudad casi identifica al cliente y el país no.</p>
+<h3><code>DISTINCT</code> mira la fila entera</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  country  |     city
+-----------+--------------
+ Argentina | Buenos Aires
+ Austria   | Graz
+ Austria   | Salzburg
+ Belgium   | Bruxelles
+ Belgium   | Charleroi
+</code></pre></div>
+
+<p><strong>69 filas</strong>, no 21. <code>Austria</code> sale dos veces porque las <strong>parejas</strong> son distintas. Si esperabas 21, estabas pensando en <code>DISTINCT country</code> y escribiste otra cosa.</p>
+<h3><code>DISTINCT</code> sí junta los <code>NULL</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>19 filas</strong>: 18 regiones más una fila vacía. Pero:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">region</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 18</span>
+</code></pre></div>
+
+<p><strong><code>DISTINCT</code> trata todos los <code>NULL</code> como uno solo y los devuelve; <code>count(DISTINCT ...)</code> los ignora.</strong> No es contradictorio —<code>count</code> ignora nulos siempre, <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>— pero explica por qué la lista tiene una fila más que el conteo. Si comparas las dos cifras sin saberlo, parecen un error.</p>
+<h3><code>DISTINCT</code> vs <code>GROUP BY</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Idénticas</strong>: mismo resultado y mismo plan de ejecución. La diferencia es de intención:</p>
+<ul>
+<li><code>DISTINCT</code> dice <em>"quita repetidos"</em>.</li>
+<li><code>GROUP BY</code> dice <em>"agrupa"</em>, y deja la puerta abierta a añadir un <code>count(*)</code> o un <code>sum()</code>.</li>
+</ul>
+<p>Usa <code>DISTINCT</code> cuando solo quieras la lista, y <code>GROUP BY</code> en cuanto vayas a agregar algo. Casi siempre acabas queriendo agregar algo.</p>
+<h3>La parte importante: <code>DISTINCT</code> como tirita</h3>
+<p>Este es el ejemplo que hay que entender. Un <code>JOIN</code> entre pedidos y sus líneas:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">                                    </span><span class="c1">--  830</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span><span class="w">              </span><span class="c1">-- 2155</span>
+</code></pre></div>
+
+<p>El <code>JOIN</code> <strong>multiplicó las filas</strong>: cada pedido aparece una vez por cada línea que tiene. Es correcto —así funciona un join, <span class="xref-pend" title="Aún no publicado">inner-join</span>— pero rompe cualquier suma sobre columnas del pedido:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">                                </span><span class="c1">--  64942.69  ← el real</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span><span class="w">              </span><span class="c1">-- 207306.10  ← inflado</span>
+</code></pre></div>
+
+<p><strong>Un 219% de más.</strong> Y ahora la tentación, que es exactamente lo que hace todo el mundo la primera vez:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span><span class="w">              </span><span class="c1">--  64526.94</span>
+</code></pre></div>
+
+<p><strong>64.526,94.</strong> Se parece muchísimo al bueno. Y está mal.</p>
+<p><code>sum(DISTINCT ...)</code> no suma "un flete por pedido": suma <strong>valores de flete distintos</strong>. Dos pedidos que casualmente costaron 32,38 de flete cuentan una sola vez. La diferencia son 415,75 escondidos entre casi 65.000 — <strong>el tipo de error que pasa todas las revisiones</strong>, porque el número es plausible.</p>
+<blockquote>
+<p><strong>Regla: si <code>DISTINCT</code> aparece para arreglar filas de más, el problema está en el <code>FROM</code>, no en el <code>SELECT</code>.</strong> La solución correcta es agregar al nivel adecuado, no deduplicar al final. Es el tema <span class="xref-pend" title="Aún no publicado">joins-multiples-y-granularidad</span>, y por eso este ejemplo se planta aquí: para que cuando llegues allí ya te suene el peligro.</p>
+</blockquote>
+<p>Nota complementaria: <code>count(DISTINCT o.order_id)</code> sobre ese mismo join <strong>sí</strong> devuelve 830 correctamente. Contar distintos suele ser legítimo; <strong>sumar distintos casi nunca lo es.</strong></p>
+<h3><code>DISTINCT ON</code> — el atajo de PostgreSQL</h3>
+<p><em>El último pedido de cada cliente:</em></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+<span class="w">       </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | order_id | order_date
+-------------+----------+------------
+ ALFKI       |    11011 | 1998-04-09
+ ANATR       |    10926 | 1998-03-04
+ ANTON       |    10856 | 1998-01-28
+ AROUT       |    11016 | 1998-04-10
+</code></pre></div>
+
+<p>Se queda con <strong>la primera fila de cada grupo</strong>, y "primera" la define el <code>ORDER BY</code>.</p>
+<p>Dos reglas que no son negociables:</p>
+<ol>
+<li><strong>El <code>ORDER BY</code> debe empezar por las mismas columnas del <code>DISTINCT ON</code>.</strong> Si no, error.</li>
+<li><strong>Lo que venga después decide cuál se queda.</strong> Sin <code>order_date DESC</code> te quedas con un pedido cualquiera del cliente, no con el último.</li>
+</ol>
+<p><code>DISTINCT ON</code> <strong>no existe en el estándar SQL ni en SQL Server</strong>. Es de las cosas más cómodas de PostgreSQL y de las menos portables. El equivalente universal es <code>ROW_NUMBER()</code> (<span class="xref-pend" title="Aún no publicado">ranking-row-number-rank-ntile</span>).</p>
+<h3>Encontrar duplicados, que no es lo mismo que quitarlos</h3>
+<p><code>DISTINCT</code> los <strong>esconde</strong>. Para <strong>verlos</strong> se usa <code>GROUP BY</code> + <code>HAVING</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | order_date | count
+-------------+------------+-------
+ LACOR       | 1998-03-24 |     2
+ LINOD       | 1998-01-19 |     2
+ SAVEA       | 1997-10-22 |     2
+</code></pre></div>
+
+<p><strong>7 casos</strong> de un cliente con dos pedidos el mismo día. ¿Son duplicados? Vamos a mirar:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">freight</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'LACOR'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'1998-03-24'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | customer_id | order_date | employee_id | freight
+----------+-------------+------------+-------------+---------
+    10972 | LACOR       | 1998-03-24 |           4 |    0.02
+    10973 | LACOR       | 1998-03-24 |           6 |   15.17
+</code></pre></div>
+
+<p><strong>No son duplicados.</strong> Distinto id, distinto empleado, distinto flete: son dos pedidos reales del mismo cliente el mismo día. Y esa es la lección del ejercicio:</p>
+<blockquote>
+<p><strong><code>GROUP BY ... HAVING count(*) &gt; 1</code> no encuentra duplicados. Encuentra repeticiones de la clave que tú elegiste.</strong> Si eliges mal la clave, todo parece duplicado. Decidir qué combinación de columnas <em>debería</em> ser única es una pregunta de negocio, no de SQL.</p>
+</blockquote>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong>Creer que <code>DISTINCT</code> aplica solo a la primera columna.</strong> Aplica a la fila entera.</li>
+<li><strong>Usar <code>DISTINCT</code> para tapar un <code>JOIN</code> que multiplica filas.</strong> Ver arriba. Arregla el <code>FROM</code>.</li>
+<li><strong><code>sum(DISTINCT x)</code> o <code>avg(DISTINCT x)</code>.</strong> Casi siempre da un número equivocado y creíble.</li>
+<li><strong>Comparar <code>DISTINCT col</code> con <code>count(DISTINCT col)</code> y asustarse por la diferencia de uno.</strong> Es el <code>NULL</code>.</li>
+<li><strong><code>DISTINCT ON</code> sin el <code>ORDER BY</code> correcto.</strong> O da error, o te devuelve una fila arbitraria del grupo.</li>
+<li><strong>Poner <code>DISTINCT</code> "por si acaso".</strong> Cuesta una ordenación o un hash sobre todo el resultado, y sobre todo <strong>te quita el aviso</strong>: si sobran filas, quieres enterarte.</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Filas únicas</td>
+<td><code>SELECT DISTINCT</code></td>
+<td><code>SELECT DISTINCT</code> — igual</td>
+</tr>
+<tr>
+<td>Contar distintos</td>
+<td><code>count(DISTINCT col)</code></td>
+<td><code>COUNT(DISTINCT col)</code> — igual</td>
+</tr>
+<tr>
+<td>Primera fila por grupo</td>
+<td><strong><code>DISTINCT ON</code></strong></td>
+<td>❌ No existe → <code>ROW_NUMBER() OVER (PARTITION BY ...)</code></td>
+</tr>
+<tr>
+<td><code>count(DISTINCT)</code> con ventana</td>
+<td>No permitido</td>
+<td>No permitido</td>
+</tr>
+</tbody>
+</table>
+<p><code>DISTINCT ON</code> es el único punto de divergencia, y es grande: una consulta con <code>DISTINCT ON</code> no se puede pegar en SQL Server. <strong>Si el material tiene que valer para los dos motores, escribe la versión con <code>ROW_NUMBER()</code>.</strong></p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Los cargos (<code>title</code>) distintos que existen en <code>employees</code>, y cuántos hay.</li>
+<li>Cuántos países distintos aparecen como destino de un pedido (<code>ship_country</code>), y si coinciden con los países de los clientes.</li>
+<li>Las parejas país-ciudad distintas de <code>suppliers</code>, ordenadas.</li>
+<li>El pedido más antiguo de cada cliente, en una sola consulta.</li>
+<li>Explica por qué estas dos consultas dan números distintos y cuál es la correcta para "cuántos clientes han comprado":
+   <code>sql
+   SELECT count(*)                  FROM orders;
+   SELECT count(DISTINCT customer_id) FROM orders;</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Te piden "cuántos clientes distintos compraron en 1997 y de qué países". Un compañero ya la escribió y le salen 89 clientes, pero la empresa solo tiene 91 clientes en total y sabe que muchos no compraron ese año. ¿Qué pasó?</em></p>
+</blockquote></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">title</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 4</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>          title
+--------------------------
+ Inside Sales Coordinator
+ Sales Manager
+ Sales Representative
+ Vice President, Sales
+</code></pre></div>
+
+<p><strong>4 cargos para 9 empleados.</strong> Y como aquí sí quieres saber cuántos hay de cada uno, la consulta que de verdad quieres es un <code>GROUP BY</code>, no un <code>DISTINCT</code>.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 21</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span><span class="w"> </span><span class="c1">-- 21</span>
+</code></pre></div>
+
+<p>Coinciden: <strong>21 y 21</strong>. Pero coincidir en el número no es coincidir en la lista — eso se comprueba con <code>EXCEPT</code>, que está en <span class="xref-pend" title="Aún no publicado">union-intersect-except</span>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">EXCEPT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 0 filas</span>
+</code></pre></div>
+
+<p><strong>Comprobarlo importa:</strong> <code>ship_country</code> es la dirección de envío, que puede ser distinta del país del cliente. Que aquí coincidan es un hecho de estos datos, no una garantía del modelo.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>29 filas para 29 proveedores</strong>: ningún proveedor comparte ciudad con otro.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+<span class="w">       </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Igual que el ejemplo del último pedido, pero <strong>sin <code>DESC</code></strong>. Devuelve <strong>89 filas</strong>, no 91: dos clientes no han comprado nunca y no aparecen en <code>orders</code>. Ese detalle es el corazón de la pregunta de negocio.</p>
+<p><strong>5.</strong> <code>count(*)</code> sobre <code>orders</code> cuenta <strong>pedidos</strong>: 830. <code>count(DISTINCT customer_id)</code> cuenta <strong>clientes que aparecen en la tabla de pedidos</strong>: 89.</p>
+<p>La correcta para "cuántos clientes han comprado" es la segunda. La primera responde a otra pregunta. <strong>Cuando una métrica se llama "clientes" y sale un número parecido al de pedidos, hay un <code>DISTINCT</code> olvidado.</strong></p>
+<p><strong>Pregunta de negocio.</strong></p>
+<p>Lo que pasó: <strong>le falta el filtro de año.</strong> La consulta de tu compañero es esta o equivalente:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 89, de todos los años</span>
+</code></pre></div>
+
+<p>La correcta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes_1997</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> clientes_1997
+---------------
+            86
+</code></pre></div>
+
+<p>Y con países:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Las tres cosas que enseña este caso:</strong></p>
+<ol>
+<li><strong>89 no era un error de <code>DISTINCT</code>, era un <code>WHERE</code> que faltaba.</strong> El <code>DISTINCT</code> estaba bien puesto. Cuando un número sale raro, la primera sospecha no siempre es la última cláusula que escribiste.</li>
+<li><strong>86 de 91 clientes compraron en 1997.</strong> Que casi todos los clientes de la tabla compren cada año dice algo del dataset: <code>customers</code> no es un histórico de altas, es la cartera activa.</li>
+<li><strong>El país es del cliente, no del pedido.</strong> He usado <code>c.country</code> y no <code>o.ship_country</code> a propósito, porque la pregunta era "de qué países son los clientes". Si la pregunta hubiera sido "a dónde enviamos", la columna sería la otra. <strong>Son dos informes distintos con nombres casi iguales</strong>, y equivocarse no da ningún error.</li>
+</ol></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../ordenar-y-limitar/"><span>Anterior</span><strong>Ordenar y limitar</strong></a><span></span></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

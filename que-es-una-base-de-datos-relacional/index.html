@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Qué es una base de datos relacional · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tabla, fila, columna, clave. Por qué relacional y no una hoja de cálculo" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Qué es una base de datos relacional" />
+  <meta property="og:description" content="Tabla, fila, columna, clave. Por qué relacional y no una hoja de cálculo" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(1 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 1 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><span class="activo">Qué es una base de datos relacional</span></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 1 · Antes de escribir SQL</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Qué es una base de datos relacional</h1>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Una base de datos relacional guarda información en <strong>tablas</strong>, y las tablas se <strong>conectan entre sí</strong>.</p>
+<p>Eso es todo. La palabra "relacional" no viene de que las tablas se relacionen —aunque también—, sino de <em>relación</em>, el nombre matemático de lo que tú llamas tabla.</p>
+<p>Una tabla tiene tres reglas que una hoja de cálculo no cumple:</p>
+<ol>
+<li><strong>Filas y columnas</strong>, con encabezados.</li>
+<li><strong>Cada columna tiene un solo tipo de dato.</strong> Si <code>precio</code> es numérico, no puedes escribir "consultar" en una celda.</li>
+<li><strong>Cada encabezado es distinto.</strong> No hay dos columnas llamadas igual.</li>
+</ol>
+<h2 id="2-por-qu-no-una-hoja-de-c-lculo">2. Por qué no una hoja de cálculo</h2>
+<p>Imagina que llevas los pedidos de tu negocio en Excel. Una fila por pedido:</p>
+<table>
+<thead>
+<tr>
+<th>pedido</th>
+<th>cliente</th>
+<th>teléfono</th>
+<th>ciudad</th>
+<th>producto</th>
+<th>cantidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1001</td>
+<td>Panadería Sol</td>
+<td>555-1234</td>
+<td>Lima</td>
+<td>Café</td>
+<td>10</td>
+</tr>
+<tr>
+<td>1002</td>
+<td>Panadería Sol</td>
+<td>555-1234</td>
+<td>Lima</td>
+<td>Azúcar</td>
+<td>5</td>
+</tr>
+<tr>
+<td>1003</td>
+<td>Panadería Sol</td>
+<td>555-<strong>9999</strong></td>
+<td>Lima</td>
+<td>Café</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>Tres problemas, y los tres son el mismo:</p>
+<ol>
+<li><strong>El teléfono está repetido tres veces.</strong> Si cambia, hay que cambiarlo en todas — y en la fila 1003 ya se te escapó una.</li>
+<li><strong>No sabes cuál es el correcto.</strong> ¿555-1234 o 555-9999? La hoja no tiene forma de decírtelo.</li>
+<li><strong>Si borras los pedidos, pierdes el teléfono.</strong> El dato del cliente vivía dentro del pedido.</li>
+</ol>
+<p>El modelo relacional resuelve los tres de un golpe: <strong>cada cosa se guarda una sola vez, en su propia tabla.</strong></p>
+<div class="hl"><pre><span></span><code>clientes                          pedidos
++----+----------------+------+    +------+----+------------+
+| id | nombre         | tel  |    | id   | id_cliente | fecha |
++----+----------------+------+    +------+----+------------+
+| 7  | Panadería Sol  | 555… |◄───| 1001 | 7  | 2026-03-01 |
++----+----------------+------+    | 1002 | 7  | 2026-03-02 |
+                                   +------+----+------------+
+</code></pre></div>
+
+<p>El teléfono existe <strong>una vez</strong>. Los pedidos no lo guardan: guardan <strong>a quién apuntan</strong>.</p>
+<h2 id="3-las-tres-piezas-del-vocabulario">3. Las tres piezas del vocabulario</h2>
+<h3>3.1 Clave primaria (PRIMARY KEY)</h3>
+<p>La columna que identifica a cada fila sin ambigüedad. No se repite y no puede estar vacía.</p>
+<p>En Northwind, <code>customers.customer_id</code> es la clave primaria de los clientes.</p>
+<h3>3.2 Clave foránea (FOREIGN KEY)</h3>
+<p>Una columna que <strong>apunta</strong> a la clave primaria de otra tabla. <code>orders.customer_id</code> apunta a <code>customers.customer_id</code>.</p>
+<p>Y aquí está la parte que importa: <strong>el motor la hace cumplir</strong>. Si intentas registrar un pedido de un cliente que no existe, lo rechaza:</p>
+<div class="hl"><pre><span></span><code><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span>
+<span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">'ZZZZZ'</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR: insert or update on table "orders" violates foreign key constraint
+</code></pre></div>
+
+<p>No es una advertencia. Es una negativa. Tu base <strong>no puede</strong> quedar en un estado incoherente.</p>
+<blockquote>
+<p>Esto distingue a una base de datos relacional de un almacén analítico como BigQuery, donde las claves foráneas son solo documentación y nadie las comprueba. Ver <code>produccion-vs-analisis-oltp-y-olap</code>.</p>
+</blockquote>
+<h3>3.3 Cardinalidad</h3>
+<p>Cuántas filas de una tabla se corresponden con cuántas de la otra.</p>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Ejemplo en Northwind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Uno a muchos</strong></td>
+<td>Un cliente tiene muchos pedidos</td>
+</tr>
+<tr>
+<td><strong>Muchos a muchos</strong></td>
+<td>Un pedido lleva muchos productos, y un producto aparece en muchos pedidos</td>
+</tr>
+</tbody>
+</table>
+<p>El "muchos a muchos" <strong>no se puede guardar directo</strong> — hace falta una tabla en medio. En Northwind es <code>order_details</code>, y por eso existe.</p>
+<h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<p>Cuántos pedidos tiene cada cliente — un "uno a muchos" en acción:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    company_name    | pedidos
+--------------------+---------
+ Save-a-lot Markets |      31
+ Ernst Handel       |      30
+ QUICK-Stop         |      28
+</code></pre></div>
+
+<p>Y la tabla del medio, <code>order_details</code>, que resuelve el "muchos a muchos":</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">lineas</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | lineas
+----------+--------
+    11077 |     25
+    10657 |      6
+</code></pre></div>
+
+<p>El pedido 11077 tiene 25 productos distintos. Sin <code>order_details</code>, esos 25 no cabrían en una fila de <code>orders</code>.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong>Creer que "relacional" significa "las tablas se relacionan".</strong> Significa que los datos se guardan como relaciones (tablas). Que se conecten es consecuencia, no definición.</li>
+<li><strong>Meter varios valores en una celda.</strong> <code>"Café, Azúcar, Harina"</code> en una columna es exactamente lo que el modelo relacional viene a evitar. Eso son tres filas.</li>
+<li><strong>Confundir clave primaria con "la primera columna".</strong> Es la que identifica, esté donde esté. En <code>order_details</code> son <strong>dos columnas juntas</strong>: <code>order_id</code> y <code>product_id</code>.</li>
+</ol>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Sin ejecutar nada: si un cliente cambia de teléfono, ¿cuántas filas hay que modificar en Northwind? ¿Y en la hoja de cálculo del punto 2?</li>
+<li>Lista las claves primarias de las 12 tablas. Pista: <code>information_schema.table_constraints</code> unida con <code>information_schema.key_column_usage</code>.</li>
+<li>¿Qué tabla tiene una clave primaria formada por <strong>dos</strong> columnas? ¿Por qué tiene sentido que sea así?</li>
+<li>Encuentra en Northwind otra relación "muchos a muchos" distinta de la de pedidos y productos.</li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>El gerente quiere saber si hay clientes registrados que nunca hayan comprado nada, para llamarlos.</em></p>
+</blockquote>
+<p>No te digo qué columnas ni qué tablas. Piensa primero qué significa "nunca compró" en términos de las dos tablas.</p></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Una sola fila, en <code>customers</code>. Los pedidos no guardan el teléfono, solo apuntan al cliente. En la hoja de cálculo habría que cambiar todas las filas de ese cliente — y basta olvidar una para que la hoja quede mintiendo.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">string_agg</span><span class="p">(</span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="n">ordinal_position</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clave_primaria</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">table_constraints</span><span class="w"> </span><span class="n">tc</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">key_column_usage</span><span class="w"> </span><span class="n">kcu</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">constraint_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'PRIMARY KEY'</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      table_name      |      clave_primaria
+----------------------+---------------------------
+ categories           | category_id
+ customers            | customer_id
+ employee_territories | employee_id, territory_id
+ employees            | employee_id
+ order_details        | order_id, product_id
+ orders               | order_id
+ products             | product_id
+ region               | region_id
+ shippers             | shipper_id
+ suppliers            | supplier_id
+ territories          | territory_id
+ us_states            | state_id
+</code></pre></div>
+
+<p><strong>3.</strong> Dos: <code>order_details</code> (<code>order_id</code>, <code>product_id</code>) y <code>employee_territories</code> (<code>employee_id</code>, <code>territory_id</code>). Ambas son tablas del medio de un "muchos a muchos". Lo que identifica una línea de pedido no es el pedido ni el producto por separado, sino <strong>la combinación</strong>: el producto 42 dentro del pedido 10248.</p>
+<p><strong>4.</strong> <code>employee_territories</code>: un empleado cubre varios territorios y un territorio lo atienden varios empleados.</p>
+<p><strong>Pregunta de negocio:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">phone</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Son <strong>2 clientes</strong>. La clave es el <code>LEFT JOIN</code>: conserva todos los clientes, y los que no encontraron pedido quedan con <code>NULL</code> en las columnas de <code>orders</code>. Filtrar por ese <code>NULL</code> es preguntar <em>"¿quiénes no tuvieron pareja?"</em>. Se ve en detalle en el tema <span class="xref-pend" title="Aún no publicado">anti-join-y-semi-join</span>.</p></div></details>
+    <nav class="navpies"><span></span><a class="nav-next" href="../leer-un-esquema-desconocido/"><span>Siguiente</span><strong>Leer un esquema desconocido</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-por-qu-no-una-hoja-de-c-lculo">2. Por qué no una hoja de cálculo</a>
+<a href="#3-las-tres-piezas-del-vocabulario">3. Las tres piezas del vocabulario</a>
+<a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

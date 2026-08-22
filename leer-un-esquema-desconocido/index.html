@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Leer un esquema desconocido · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PK, FK, cardinalidad. Las 4 preguntas ante una tabla nueva" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/leer-un-esquema-desconocido/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Leer un esquema desconocido" />
+  <meta property="og:description" content="PK, FK, cardinalidad. Las 4 preguntas ante una tabla nueva" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/leer-un-esquema-desconocido/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(2 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 2 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><span class="activo">Leer un esquema desconocido</span></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 1 · Antes de escribir SQL</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Leer un esquema desconocido</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../que-es-una-base-de-datos-relacional/">que-es-una-base-de-datos-relacional</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Te sientan frente a una base de datos que no conoces. Cuarenta tablas, nombres en inglés, nadie que te explique nada. <strong>Esto pasa el primer día de casi cualquier trabajo con datos.</strong></p>
+<p>Este tema es el método para orientarte sin depender de que alguien te lo cuente.</p>
+<h2 id="2-las-cuatro-preguntas">2. Las cuatro preguntas</h2>
+<p>Ante cualquier tabla nueva, en este orden:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Pregunta</th>
+<th>Qué te dice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>¿Cuál es el grano?</strong></td>
+<td>Qué representa <strong>una fila</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>¿Cuál es la clave primaria?</strong></td>
+<td>Qué identifica esa fila</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>¿A qué apunta y quién le apunta?</strong></td>
+<td>Cómo se conecta con el resto</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>¿Qué pregunta de negocio responde?</strong></td>
+<td>Para qué existe</td>
+</tr>
+</tbody>
+</table>
+<h3>2.1 El grano es la más importante</h3>
+<p><strong>Grano = qué representa una fila.</strong> Y se dice en una frase con sujeto:</p>
+<ul>
+<li><code>orders</code> → <em>"un pedido"</em></li>
+<li><code>order_details</code> → <em>"un producto dentro de un pedido"</em></li>
+<li><code>customers</code> → <em>"un cliente"</em></li>
+</ul>
+<p>Si no puedes decirlo en una frase, todavía no entendiste la tabla.</p>
+<p><strong>Por qué importa tanto:</strong> el grano determina qué puedes sumar sin equivocarte. <code>orders.freight</code> es el flete <strong>del pedido</strong>. Si unes <code>orders</code> con <code>order_details</code> y sumas <code>freight</code>, lo estás sumando una vez por cada línea del pedido. El pedido 11077 tiene 25 líneas: su flete contaría 25 veces.</p>
+<p>Ese error no da ningún mensaje. Solo da un número más grande.</p>
+<h2 id="3-c-mo-obtener-las-respuestas">3. Cómo obtener las respuestas</h2>
+<h3>3.1 Con DBeaver</h3>
+<p>Doble clic en la tabla y ahí están las pestañas: <strong>Columns</strong>, <strong>Constraints</strong>, <strong>Foreign Keys</strong>, <strong>References</strong>. La pestaña <strong>ER Diagram</strong> dibuja el esquema solo.</p>
+<h3>3.2 Con <code>psql</code></h3>
+<div class="hl"><pre><span></span><code>\dt              lista las tablas
+\d orders        describe una tabla: columnas, tipos, PK, FK y quién le apunta
+\d+ orders       lo mismo, más tamaño y comentarios
+</code></pre></div>
+
+<p><code>\d orders</code> es el comando que más vas a usar en tu vida con PostgreSQL.</p>
+<h3>3.3 Con SQL puro</h3>
+<p>Cuando el cliente no ayuda, <code>information_schema</code> siempre está. <strong>Es SQL estándar: funciona en PostgreSQL, SQL Server, MySQL y casi cualquier motor.</strong></p>
+<p>Todas las conexiones del esquema de un vistazo:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">       </span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
+<span class="w">       </span><span class="n">ccu</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">table_constraints</span><span class="w"> </span><span class="n">tc</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">key_column_usage</span><span class="w"> </span><span class="n">kcu</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">constraint_column_usage</span><span class="w"> </span><span class="n">ccu</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">ccu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">constraint_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'FOREIGN KEY'</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>        tabla         |   columna    |  apunta_a
+----------------------+--------------+-------------
+ employee_territories | employee_id  | employees
+ employee_territories | territory_id | territories
+ employees            | reports_to   | employees      ← apunta a sí misma
+ order_details        | order_id     | orders
+ order_details        | product_id   | products
+ orders               | customer_id  | customers
+ orders               | employee_id  | employees
+ orders               | ship_via     | shippers
+ products             | category_id  | categories
+ products             | supplier_id  | suppliers
+ territories          | region_id    | region
+</code></pre></div>
+
+<p><strong>Once claves foráneas y ahí está el mapa completo.</strong> En treinta segundos, sin que nadie te explique nada.</p>
+<p>Y mira la tercera fila: <code>employees.reports_to</code> apunta a <code>employees</code>. Una tabla que se apunta a sí misma <strong>es siempre una jerarquía</strong> — aquí, quién le reporta a quién.</p>
+<h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<p><strong>Comprobar el grano.</strong> Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_distintos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> filas | pedidos_distintos
+-------+-------------------
+   830 |               830
+</code></pre></div>
+
+<p>Iguales: el grano es "un pedido". <strong>Si no fueran iguales, tu idea del grano estaría mal</strong> — y toda suma que hagas después, también.</p>
+<p><strong>Ver qué puede faltar.</strong> Las columnas que admiten <code>NULL</code> te dicen dónde el negocio permite ausencias:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>shipped_date</code> admite <code>NULL</code>. Eso no es un descuido: significa <strong>"pedido aún no despachado"</strong>. El esquema te está contando una regla de negocio.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong>Empezar por <code>SELECT *</code> en la tabla más grande.</strong> Ver 2.155 filas no te dice nada del modelo. Empieza por las claves foráneas.</li>
+<li><strong>Asumir el grano por el nombre.</strong> Una tabla llamada <code>ventas</code> puede tener una fila por venta, por línea de venta o por venta y día. Compruébalo con el <code>count(*)</code> contra <code>count(DISTINCT)</code>.</li>
+<li><strong>Ignorar los <code>NULL</code>.</strong> Cada columna nullable es una regla de negocio escrita en el esquema.</li>
+<li><strong>No mirar si una tabla se apunta a sí misma.</strong> Es la señal de una jerarquía, y cambia por completo cómo se consulta.</li>
+</ol>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Describe el grano de las 12 tablas de Northwind, en una frase cada una.</li>
+<li>Comprueba con SQL que el grano de <code>order_details</code> es <em>"un producto dentro de un pedido"</em>.</li>
+<li>¿Cuántas tablas apuntan a <code>employees</code>? ¿Qué significa cada una?</li>
+<li><code>us_states</code> no tiene ninguna clave foránea. ¿Se puede unir de todas formas con alguna tabla? ¿Con cuál y por qué columna?</li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Te acaban de dar acceso a Northwind y tu jefe pregunta: "¿por qué canal llegan los pedidos más caros?". Antes de escribir una sola consulta, ¿qué tablas necesitas y cómo se conectan?</em></p>
+</blockquote>
+<p>Responde con el camino de tablas, no con SQL.</p></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tabla</th>
+<th>Grano</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>region</code></td>
+<td>una región comercial</td>
+</tr>
+<tr>
+<td><code>territories</code></td>
+<td>un territorio de venta</td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td>una categoría de producto</td>
+</tr>
+<tr>
+<td><code>suppliers</code></td>
+<td>un proveedor</td>
+</tr>
+<tr>
+<td><code>shippers</code></td>
+<td>un transportista</td>
+</tr>
+<tr>
+<td><code>employees</code></td>
+<td>un empleado</td>
+</tr>
+<tr>
+<td><code>employee_territories</code></td>
+<td>la asignación de un empleado a un territorio</td>
+</tr>
+<tr>
+<td><code>customers</code></td>
+<td>un cliente</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td>un producto</td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td>un pedido</td>
+</tr>
+<tr>
+<td><code>order_details</code></td>
+<td><strong>un producto dentro de un pedido</strong></td>
+</tr>
+<tr>
+<td><code>us_states</code></td>
+<td>un estado de EE.UU.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="p">(</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">combinaciones</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Ambos dan <strong>2.155</strong>. Si en cambio cuentas <code>DISTINCT order_id</code> salen 830: eso confirma que el pedido <strong>no</strong> identifica la fila por sí solo. Hacen falta las dos columnas.</p>
+<p><strong>3.</strong> Dos: <code>orders.employee_id</code> (qué empleado tomó el pedido) y <code>employee_territories.employee_id</code> (qué territorios cubre). Más una tercera especial: <strong><code>employees.reports_to</code>, que apunta a la propia tabla</strong> — la jerarquía de jefes.</p>
+<p><strong>4.</strong> Sí. <code>customers.region</code> guarda abreviaturas de estado para los clientes de EE.UU., así que se puede unir con <code>us_states.state_abbr</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">us_states</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">state_abbr</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>13</strong>. Es una unión <strong>sin clave foránea declarada</strong>: funciona porque los valores coinciden, pero nada garantiza que sigan coincidiendo. El motor no la protege.</p>
+<p><strong>Pregunta de negocio:</strong> el camino es</p>
+<div class="hl"><pre><span></span><code>shippers ──&lt; orders ──&lt; order_details &gt;── products
+</code></pre></div>
+
+<p><code>shippers</code> da el canal (<code>company_name</code>), <code>orders</code> conecta el pedido con su transportista (<code>ship_via</code>), y el importe <strong>no está en <code>orders</code></strong> — hay que calcularlo desde <code>order_details</code> como <code>unit_price * quantity * (1 - discount)</code>.</p>
+<p>El punto del ejercicio es notar que <strong><code>orders</code> no guarda el total del pedido</strong>. Es el error más común al llegar a Northwind: buscar una columna "total" que no existe, porque el importe vive a otro grano.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../que-es-una-base-de-datos-relacional/"><span>Anterior</span><strong>Qué es una base de datos relacional</strong></a><a class="nav-next" href="../conectarse-y-explorar/"><span>Siguiente</span><strong>Conectarse y explorar</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-las-cuatro-preguntas">2. Las cuatro preguntas</a>
+<a href="#3-c-mo-obtener-las-respuestas">3. Cómo obtener las respuestas</a>
+<a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

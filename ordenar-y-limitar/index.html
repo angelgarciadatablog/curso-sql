@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Ordenar y limitar · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ORDER BY, ASC/DESC, NULLS FIRST/LAST, LIMIT, OFFSET" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/ordenar-y-limitar/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Ordenar y limitar" />
+  <meta property="og:description" content="ORDER BY, ASC/DESC, NULLS FIRST/LAST, LIMIT, OFFSET" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/ordenar-y-limitar/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(9 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 9 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><span class="activo">Ordenar y limitar</span></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 2 · La consulta</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Ordenar y limitar</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../buscar-texto-like-y-regex/">buscar-texto-like-y-regex</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Una tabla <strong>no tiene orden</strong>. Es un conjunto de filas, y el motor las devuelve como le conviene. Si quieres un orden, tienes que pedirlo.</p>
+<p><code>ORDER BY</code> es el paso 7 del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a> y <code>LIMIT</code> el 8. De ahí salen las dos ideas del tema:</p>
+<ul>
+<li><strong><code>ORDER BY</code> ve el resultado terminado</strong>, así que acepta alias y expresiones.</li>
+<li><strong><code>LIMIT</code> sin <code>ORDER BY</code> es una pregunta mal hecha</strong>, porque no hay nada que garantice qué filas te toca.</li>
+</ul>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">...</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">columna</span><span class="w"> </span><span class="p">[</span><span class="k">ASC</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">DESC</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">NULLS</span><span class="w"> </span><span class="k">FIRST</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">],</span><span class="w"> </span><span class="n">columna2</span><span class="w"> </span><span class="p">...</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="n">n</span>
+<span class="k">OFFSET</span><span class="w"> </span><span class="n">m</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li><code>ASC</code> es el valor por defecto y casi nadie lo escribe.</li>
+<li><strong><code>DESC</code> se aplica a una sola columna</strong>, no a las que vienen detrás. <code>ORDER BY a, b DESC</code> ordena <code>a</code> ascendente y <code>b</code> descendente.</li>
+<li>Se puede ordenar por <strong>columna, alias, expresión o número de posición</strong>.</li>
+<li><code>OFFSET m</code> salta las primeras <code>m</code> filas.</li>
+<li>La forma del estándar SQL es <code>OFFSET m ROWS FETCH FIRST n ROWS ONLY</code>. PostgreSQL acepta ambas; <code>LIMIT</code> es más corta y es la que se usa.</li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Lo básico — los cinco productos más caros:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price
+-------------------------+------------
+ Côte de Blaye           |     263.50
+ Thüringer Rostbratwurst |     123.79
+ Mishi Kobe Niku         |      97.00
+ Sir Rodney's Marmalade  |      81.00
+ Carnarvon Tigers        |      62.50
+</code></pre></div>
+
+<p><strong>Dos criterios, y el <code>DESC</code> que solo afecta a uno:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  country  |     city     |        company_name
+-----------+--------------+----------------------------
+ Argentina | Buenos Aires | Océano Atlántico Ltda.
+ Argentina | Buenos Aires | Rancho grande
+ Argentina | Buenos Aires | Cactus Comidas para llevar
+ Austria   | Salzburg     | Piccolo und mehr
+ Austria   | Graz         | Ernst Handel
+ Belgium   | Charleroi    | Suprêmes délices
+</code></pre></div>
+
+<p>País ascendente (Argentina antes que Austria), ciudad <strong>descendente</strong> dentro de cada país (Salzburg antes que Graz). Para que las dos fueran descendentes habría que escribir <code>ORDER BY country DESC, city DESC</code>.</p>
+<p>Y fíjate en las tres empresas de Buenos Aires: <strong>su orden entre sí no está definido.</strong> Empatan en las dos columnas del <code>ORDER BY</code>, así que el motor las coloca como quiere.</p>
+<h3>Paginación con <code>OFFSET</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">            </span><span class="c1">-- página 1</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">OFFSET</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">   </span><span class="c1">-- página 2</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     product_name      | unit_price
+-----------------------+------------
+ Raclette Courdavault  |      55.00
+ Manjimup Dried Apples |      53.00
+ Tarte au sucre        |      49.30
+ Ipoh Coffee           |      46.00
+ Rössle Sauerkraut     |      45.60
+</code></pre></div>
+
+<p>Página <em>n</em> = <code>OFFSET (n-1) * tamaño LIMIT tamaño</code>. Funciona, y tiene dos problemas que conviene saber desde ya:</p>
+<ol>
+<li><strong><code>OFFSET</code> no salta gratis.</strong> Para darte las filas 100.001 a 100.010, el motor produce y descarta las 100.000 anteriores. En tablas grandes la paginación se vuelve más lenta cuanto más avanzas.</li>
+<li><strong>Si el orden no es determinista, las páginas se solapan o pierden filas.</strong> Ver abajo.</li>
+</ol>
+<h3>El empate: por qué <code>LIMIT</code> necesita desempate</h3>
+<p>Cuatro productos cuestan exactamente 18.00:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="p">.</span><span class="mi">00</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   product_name   | unit_price
+------------------+------------
+ Chai             |      18.00
+ Steeleye Stout   |      18.00
+ Chartreuse verte |      18.00
+ Lakkalikööri     |      18.00
+</code></pre></div>
+
+<p>Si pides <em>"los 20 productos más caros"</em> y el corte cae en mitad de ese empate, <strong>cuál de los cuatro entra no está definido</strong>. Puede cambiar al reejecutar, al insertar filas, o al actualizar el motor. Nadie te avisará: cada ejecución devuelve 20 filas y todas parecen bien.</p>
+<p><strong>La solución es siempre la misma: añade una columna de desempate única.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>product_id</code> es la clave primaria, así que <strong>el orden pasa a ser único y reproducible</strong>. Regla práctica: si un <code>ORDER BY</code> va a alimentar una paginación, un informe que se compara entre semanas, o un <code>LIMIT</code>, <strong>termínalo con la clave primaria</strong>.</p>
+<h3>Los <code>NULL</code> al ordenar</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            | region
+------------------------------------+--------
+ Ana Trujillo Emparedados y helados |
+ Antonio Moreno Taquería            |
+ Around the Horn                    |
+</code></pre></div>
+
+<p>En PostgreSQL el valor por defecto es <strong><code>NULLS LAST</code> en <code>ASC</code> y <code>NULLS FIRST</code> en <code>DESC</code></strong> — los nulos se tratan como si fueran el valor más grande. Se cambia a mano:</p>
+<div class="hl"><pre><span></span><code><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">ASC</span><span class="w">  </span><span class="n">NULLS</span><span class="w"> </span><span class="k">FIRST</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span>
+</code></pre></div>
+
+<p><strong>Escríbelo siempre que haya nulos y el orden importe.</strong> Es el punto donde PostgreSQL y SQL Server dan resultados distintos con la misma consulta (§ 5).</p>
+<h3>Ordenar texto: el <em>collation</em></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Esta consulta no tiene una única respuesta correcta.</strong> Depende de dónde la ejecutes:</p>
+<div class="hl"><pre><span></span><code> en tu PostgreSQL local        en Neon
+ (en_US.UTF-8)                 (C.UTF-8)
+------------------------      --------------
+ Aachen                        Aachen
+ Albuquerque                   Albuquerque
+ Anchorage                     Anchorage
+ Århus                         Barcelona
+ Barcelona                     Barquisimeto
+ Barquisimeto                  Bergamo
+ Bergamo                       Berlin
+ Berlin                        Bern
+</code></pre></div>
+
+<p>En local, <code>Århus</code> sale cuarto: la <code>Å</code> se ordena como una <code>A</code>. En Neon <strong>desaparece del top 8</strong>, porque allí el orden es por código de byte y la <code>Å</code> se va detrás de la <code>Z</code>.</p>
+<p>No es magia ni un error: es el <strong>collation</strong> de la base, la regla que decide qué texto va antes que cuál. Y no está en la consulta ni en los datos, sino en la configuración de la base:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">datlocprovider</span><span class="p">,</span><span class="w"> </span><span class="n">datcollate</span><span class="p">,</span><span class="w"> </span><span class="n">datlocale</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_database</span><span class="p">();</span>
+</code></pre></div>
+
+<p>Se puede forzar en la propia consulta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">COLLATE</span><span class="w"> </span><span class="ss">"C"</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Si un informe ordenado alfabéticamente sale distinto en dos servidores, el collation es el primer sospechoso.</strong> Es un tema con suficiente enjundia como para tener el suyo propio, desarrollado en el vault: <code>temas/sql/collation-y-orden-del-texto</code>.</p>
+<h3>Ordenar por algo que no está en el <code>SELECT</code></h3>
+<p>Es legal y a veces útil:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve solo los nombres, ordenados por un precio que no se ve. <strong>Cómodo, y peligroso en un informe</strong>: quien lo lea no puede verificar el orden. Si el criterio importa, enséñalo.</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong><code>LIMIT</code> sin <code>ORDER BY</code>.</strong> No es "las primeras filas": es "unas filas cualesquiera". Puede cambiar entre ejecuciones.</li>
+<li><strong><code>ORDER BY</code> con empates y sin desempate.</strong> El caso de los cuatro productos a 18.00.</li>
+<li><strong>Creer que <code>DESC</code> afecta a todas las columnas.</strong> Afecta solo a la suya.</li>
+<li><strong>Ordenar por número de posición en código que se guarda.</strong> <code>ORDER BY 2</code> es cómodo para probar; el día que alguien añade una columna al <code>SELECT</code>, el orden cambia solo y en silencio.</li>
+<li><strong>Esperar que <code>LIMIT 10</code> haga rápida una consulta lenta.</strong> Es el último paso: antes ya se ordenó todo. Ver <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a> § 5.</li>
+<li><strong>Paginar con <code>OFFSET</code> sobre un orden no determinista.</strong> La fila 10 de la página 1 puede repetirse como fila 1 de la página 2.</li>
+<li><strong>Ordenar un número guardado como texto.</strong> <code>'10' &lt; '9'</code> es cierto en texto. Si una columna de importes está en <code>varchar</code>, el orden será alfabético y parecerá aleatorio.</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Limitar</td>
+<td><code>LIMIT 5</code></td>
+<td><code>TOP 5</code> (dentro del <code>SELECT</code>)</td>
+</tr>
+<tr>
+<td>Saltar y limitar</td>
+<td><code>OFFSET 5 LIMIT 5</code></td>
+<td><code>ORDER BY ... OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY</code></td>
+</tr>
+<tr>
+<td>Nulos en <code>ASC</code></td>
+<td><strong>Al final</strong></td>
+<td><strong>Al principio</strong></td>
+</tr>
+<tr>
+<td><code>NULLS FIRST/LAST</code></td>
+<td>Sí</td>
+<td>❌ No existe; se emula con <code>ORDER BY CASE WHEN col IS NULL THEN 1 ELSE 0 END, col</code></td>
+</tr>
+<tr>
+<td>Sensibilidad del orden</td>
+<td><em>Collation</em> de la base o de la columna</td>
+<td><em>Collation</em>, y por defecto suele ser insensible a mayúsculas</td>
+</tr>
+</tbody>
+</table>
+<p><strong>La fila de los nulos es la que rompe migraciones.</strong> La misma consulta, los mismos datos, y las filas sin región salen arriba en un motor y abajo en el otro. Si alguien compara los dos informes fila a fila, no cuadran — y la causa no está a la vista en la consulta.</p>
+<p>Detalle de entrevista: en SQL Server, <code>TOP</code> <strong>sin</strong> <code>ORDER BY</code> no garantiza nada, exactamente igual que <code>LIMIT</code>. Es la misma trampa con otro nombre.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Los 10 pedidos con mayor flete, del más caro al más barato, mostrando id, cliente y flete.</li>
+<li>Clientes ordenados por país y, dentro de cada país, por ciudad — ambos ascendentes — y con los que no tienen región <strong>primero</strong>.</li>
+<li>Los productos ordenados de más caro a más barato, garantizando que dos ejecuciones dan exactamente el mismo orden.</li>
+<li>La <strong>segunda página</strong> de empleados, con páginas de 3, ordenados por apellido.</li>
+<li>Sin ejecutarla, di qué problema tiene:
+   <code>sql
+   SELECT customer_id, order_date FROM orders ORDER BY order_date DESC LIMIT 10;</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere "el top 10 de productos más caros" para una presentación, y lo va a repetir cada trimestre para comparar. ¿Qué consulta entregas y qué le adviertes?</em></p>
+</blockquote></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">freight</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | customer_id | freight
+----------+-------------+----------
+    10540 | QUICK       | 1007.64
+    10372 | QUEEN       |  890.78
+    11030 | SAVEA       |  830.75
+</code></pre></div>
+
+<p>El flete máximo es <strong>1007,64</strong>, casi trece veces la media de 78,24.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">FIRST</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Ojo con dónde va el <code>NULLS FIRST</code>: <strong>modifica solo a la columna que tiene al lado</strong>, no a todo el <code>ORDER BY</code>.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">;</span>
+</code></pre></div>
+
+<p>La clave está en el <code>product_id</code> final. <strong>Sin él, los cuatro productos a 18.00 pueden salir en cualquier orden</strong>, y "el mismo orden en dos ejecuciones" deja de estar garantizado.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span>
+<span class="k">OFFSET</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | last_name | first_name
+-------------+-----------+------------
+           9 | Dodsworth | Anne
+           2 | Fuller    | Andrew
+           7 | King      | Robert
+</code></pre></div>
+
+<p>Página 2 = saltar 3, tomar 3. La primera se salta a Buchanan, Callahan y Davolio. El <code>employee_id</code> al final está por lo mismo que en el ejercicio 3: <strong>paginar sobre un orden no determinista hace que las páginas se solapen.</strong></p>
+<p><strong>5.</strong> Dos problemas, y el segundo es el grave:</p>
+<ol>
+<li><strong><code>order_date</code> es <code>date</code>, sin hora, y hay varios pedidos por día.</strong> Los últimos 10 "por fecha" están llenos de empates: cuáles entran no está definido. Se arregla con <code>ORDER BY order_date DESC, order_id DESC</code>.</li>
+<li><strong>No hay <code>WHERE</code>, así que incluye pedidos sin enviar y no distingue nada.</strong> Pero sobre todo: la consulta dice <em>"los 10 más recientes"</em> y solo garantiza <em>"10 filas de entre las más recientes"</em>. <strong>En un informe que alguien va a comparar con el del mes pasado, eso es un fallo, no un detalle.</strong></li>
+</ol>
+<p><strong>Pregunta de negocio.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Las tres advertencias, por orden de importancia:</p>
+<ol>
+<li><strong>Los empates.</strong> Aquí el corte cae limpio —el décimo cuesta 40,00 y el undécimo 38,00— pero <strong>dentro del top hay un empate</strong>: <code>Schoggi Schokolade</code> y <code>Vegie-spread</code> cuestan los dos 43,90 y ocupan los puestos 8 y 9 por <code>product_id</code>, no por precio. El día que el corte caiga sobre un empate así, el <code>product_id</code> hará la consulta reproducible — <strong>pero reproducible no es justo</strong>: habrá un producto fuera del top por un criterio que no tiene nada que ver con el precio. La respuesta honesta ese día es enseñar 11 filas y decir que hay empate.</li>
+<li><strong>"Producto más caro" no es "producto que más factura".</strong> <code>unit_price</code> es el precio de catálogo; un producto carísimo que nadie compra encabeza esta lista. Si la pregunta de Dirección es de negocio, la métrica probablemente sea <code>sum(unit_price * quantity)</code> sobre <code>order_details</code>, no <code>unit_price</code> — y eso necesita un JOIN (<span class="xref-pend" title="Aún no publicado">joins-multiples-y-granularidad</span>).</li>
+<li><strong>"Cada trimestre" implica comparar.</strong> He filtrado los descatalogados a propósito: si no, un producto puede salir del top no por bajar de precio sino por dejar de venderse, y la comparación entre trimestres mezcla dos causas distintas. <strong>Esa decisión hay que contarla, no esconderla en el <code>WHERE</code>.</strong></li>
+</ol></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../buscar-texto-like-y-regex/"><span>Anterior</span><strong>Buscar texto: LIKE, ILIKE y expresiones regulares</strong></a><a class="nav-next" href="../distinct-y-duplicados/"><span>Siguiente</span><strong>DISTINCT y duplicados</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

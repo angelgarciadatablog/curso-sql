@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>El orden lógico de ejecución · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. El tema que explica la mitad de los errores" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="El orden lógico de ejecución" />
+  <meta property="og:description" content="FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. El tema que explica la mitad de los errores" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(5 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 5 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><span class="activo">El orden lógico de ejecución</span></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 2 · La consulta</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>El orden lógico de ejecución</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../select-y-from/">select-y-from</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Una consulta <strong>se escribe en un orden y se ejecuta en otro</strong>. Ese desajuste explica la mitad de los errores de SQL, y una vez que lo tienes claro dejas de memorizar reglas sueltas.</p>
+<p><strong>Se escribe así:</strong></p>
+<div class="hl"><pre><span></span><code>SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT
+</code></pre></div>
+
+<p><strong>Se ejecuta así:</strong></p>
+<div class="hl"><pre><span></span><code>FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT
+</code></pre></div>
+
+<p><code>SELECT</code> —lo primero que escribes— es <strong>lo penúltimo que ocurre</strong>. Todo lo demás se deduce de ahí.</p>
+<p>Este orden es <strong>lógico, no físico</strong>. Es el orden en que el motor está obligado a <em>comportarse como si</em> hiciera las cosas. Por dentro puede reordenarlas todo lo que quiera mientras el resultado no cambie (§ 5 lo demuestra).</p>
+<h2 id="2-los-siete-pasos-uno-por-uno">2. Los siete pasos, uno por uno</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Paso</th>
+<th>Qué hace</th>
+<th>Qué existe ya</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>FROM</code></td>
+<td>Trae las filas de la tabla (o las une, si hay JOIN)</td>
+<td>Columnas de la tabla</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>WHERE</code></td>
+<td>Descarta filas, <strong>una por una</strong></td>
+<td>Columnas de la tabla</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>GROUP BY</code></td>
+<td>Colapsa las filas supervivientes en grupos</td>
+<td>Columnas de la tabla</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>HAVING</code></td>
+<td>Descarta <strong>grupos</strong></td>
+<td>Columnas agrupadas + agregados</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>SELECT</code></td>
+<td>Calcula las columnas de salida y <strong>crea los alias</strong></td>
+<td>Todo lo anterior</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>DISTINCT</code></td>
+<td>Elimina filas de salida repetidas</td>
+<td>Columnas de salida</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>ORDER BY</code></td>
+<td>Ordena el resultado</td>
+<td><strong>Alias incluidos</strong></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>LIMIT</code></td>
+<td>Corta</td>
+<td>El resultado ya ordenado</td>
+</tr>
+</tbody>
+</table>
+<p>De esa tabla salen, sin memorizar nada, las cuatro reglas que todo el mundo aprende a golpes:</p>
+<ul>
+<li><strong><code>WHERE</code> no puede usar un alias del <code>SELECT</code></strong> → el alias todavía no existe (paso 5 &gt; paso 2).</li>
+<li><strong><code>WHERE</code> no puede usar funciones de agregación</strong> → no hay grupos todavía (paso 3 &gt; paso 2).</li>
+<li><strong><code>ORDER BY</code> sí puede usar un alias</strong> → se ejecuta después del <code>SELECT</code>.</li>
+<li><strong><code>HAVING</code> filtra grupos; <code>WHERE</code> filtra filas.</strong></li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Una consulta con todos los pasos.</strong> Países con más de 10 pedidos caros:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  pais   | pedidos
+---------+---------
+ USA     |      61
+ Germany |      58
+ Austria |      33
+ Brazil  |      32
+ France  |      27
+</code></pre></div>
+
+<p>Ahora <strong>el embudo, medido de verdad</strong>, paso a paso:</p>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Qué queda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. <code>FROM orders</code></td>
+<td><strong>830 filas</strong></td>
+</tr>
+<tr>
+<td>2. <code>WHERE freight &gt; 50</code></td>
+<td><strong>360 filas</strong></td>
+</tr>
+<tr>
+<td>3. <code>GROUP BY pais</code></td>
+<td><strong>21 grupos</strong></td>
+</tr>
+<tr>
+<td>4. <code>HAVING count(*) &gt; 10</code></td>
+<td><strong>10 grupos</strong></td>
+</tr>
+<tr>
+<td>5-7. <code>SELECT</code>, <code>ORDER BY</code>, <code>LIMIT 5</code></td>
+<td><strong>5 filas</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Cada número de esa tabla se puede comprobar por separado:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">                      </span><span class="c1">-- 830</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 360</span>
+</code></pre></div>
+
+<p><strong>El error clásico 1 — alias en el <code>WHERE</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">pais</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Peru'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  column "pais" does not exist
+</code></pre></div>
+
+<p>Cuando el <code>WHERE</code> se evalúa, <code>pais</code> no se ha inventado todavía. La solución es repetir la expresión: <code>WHERE ship_country = 'Peru'</code>.</p>
+<p><strong>El error clásico 2 — agregado en el <code>WHERE</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  aggregate functions are not allowed in WHERE
+</code></pre></div>
+
+<p>Aquí PostgreSQL es explícito, y con razón: en el paso 2 cada fila está sola, no pertenece a ningún grupo, así que no hay nada que contar. Eso es exactamente para lo que existe <code>HAVING</code>.</p>
+<p><strong>La asimetría que sorprende a todo el mundo.</strong> <code>GROUP BY</code> <strong>sí</strong> acepta el alias:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pais</span><span class="w">            </span><span class="c1">-- ✅ funciona</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">     </span><span class="c1">-- ❌ ERROR: column "pedidos" does not exist</span>
+</code></pre></div>
+
+<p>Si el orden lógico manda, <code>GROUP BY</code> (paso 3) tampoco debería ver el alias. Y en teoría no lo ve: <strong>es una comodidad que el estándar SQL concede solo a <code>GROUP BY</code> y a <code>ORDER BY</code></strong>, no a <code>WHERE</code> ni a <code>HAVING</code>. La regla práctica es la que importa:</p>
+<blockquote>
+<p>En <code>GROUP BY</code> y <code>ORDER BY</code> puedes usar el alias. En <code>WHERE</code> y <code>HAVING</code>, nunca.</p>
+</blockquote>
+<p><strong><code>ORDER BY</code> también acepta el número de posición:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price
+-------------------------+------------
+ Côte de Blaye           |     263.50
+ Thüringer Rostbratwurst |     123.79
+ Mishi Kobe Niku         |      97.00
+</code></pre></div>
+
+<p><code>2</code> es la segunda columna del <code>SELECT</code>. Funciona porque <code>ORDER BY</code> ve el resultado ya construido. <strong>Cómodo para probar, frágil para guardar</strong>: el día que alguien añade una columna al <code>SELECT</code>, el orden cambia solo.</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong>Poner en <code>HAVING</code> lo que va en <code>WHERE</code>.</strong> Filtrar por una columna de la tabla en <code>HAVING</code> funciona, pero es confuso de leer y solo es correcto si esa columna está en el <code>GROUP BY</code>. Si no, error. <strong>Filtra filas en <code>WHERE</code>, grupos en <code>HAVING</code>.</strong></li>
+<li><strong>Esperar que <code>LIMIT</code> acelere una consulta lenta.</strong> <code>LIMIT</code> es el paso 8. Antes de cortar, el motor ya escaneó, filtró, agrupó y <strong>ordenó</strong> todo. <code>LIMIT 10</code> sobre un <code>ORDER BY</code> de un millón de filas no evita ordenar el millón.</li>
+<li><strong>Creer que <code>WHERE</code> se evalúa de izquierda a derecha y protege al resto.</strong> No hay garantía de orden dentro del <code>WHERE</code>. <code>WHERE x &lt;&gt; 0 AND 100/x &gt; 5</code> puede dar división por cero. Para eso está <code>CASE</code> (<span class="xref-pend" title="Aún no publicado">case-condicionales-en-sql</span>).</li>
+<li><strong>Confundir este orden con el rendimiento.</strong> Es un orden <em>lógico</em>, no una instrucción de ejecución. Ver abajo.</li>
+</ol>
+<h2 id="5-orden-l-gico-orden-real">5. Orden lógico ≠ orden real</h2>
+<p>Se demuestra en 20 segundos. Estas dos consultas dan lo mismo (83 pedidos de Brasil), pero la segunda "debería" agrupar los 21 países y descartar 20 después:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w">  </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Pidiéndole al motor su plan con <code>EXPLAIN</code>, salen <strong>idénticos</strong>:</p>
+<div class="hl"><pre><span></span><code> GroupAggregate  (cost=0.00..25.59 rows=1 width=14)
+   -&gt;  Seq Scan on orders  (cost=0.00..25.38 rows=83 width=6)
+         Filter: ((ship_country)::text = 'Brazil'::text)
+</code></pre></div>
+
+<p>El planificador <strong>empujó el filtro hacia abajo</strong> y filtró antes de agrupar, aunque escribieras <code>HAVING</code>. Puede hacerlo porque el resultado es demostrablemente el mismo.</p>
+<blockquote>
+<p><strong>Esto no es permiso para escribir mal.</strong> El motor optimiza los casos evidentes; los no evidentes se quedan como los escribiste. Y quien lea tu consulta no tiene un planificador dentro. Ver <span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>.</p>
+</blockquote>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<p>El orden lógico es <strong>idéntico</strong> — es del estándar SQL, no del motor. Cambia solo el último paso: SQL Server usa <code>TOP n</code> (que va <strong>dentro</strong> del <code>SELECT</code>) u <code>OFFSET ... FETCH</code>, y PostgreSQL usa <code>LIMIT</code>.</p>
+<p>Detalle de entrevista: en SQL Server, <code>TOP</code> sin <code>ORDER BY</code> no garantiza qué filas devuelve. En PostgreSQL, <code>LIMIT</code> sin <code>ORDER BY</code> tampoco. <strong>Es la misma trampa con distinto nombre.</strong></p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>Arregla esta consulta sin cambiar lo que devuelve:
+   <code>sql
+   SELECT unit_price * units_in_stock AS valor FROM products WHERE valor &gt; 1000;</code></li>
+<li>Arregla esta:
+   <code>sql
+   SELECT customer_id, count(*) FROM orders WHERE count(*) &gt; 20 GROUP BY customer_id;</code></li>
+<li>Sin ejecutarla, di cuántas filas devuelve y por qué:
+   <code>sql
+   SELECT ship_city FROM orders WHERE ship_country = 'Brazil' GROUP BY ship_city LIMIT 3;</code></li>
+<li>Escribe la consulta que responde: <em>empleados que gestionaron más de 100 pedidos, del que más al que menos.</em> Usa las cinco cláusulas.</li>
+<li>Explica en una línea por qué esto <strong>no</strong> da error, aunque <code>precio_final</code> sea un alias:
+   <code>sql
+   SELECT product_name, unit_price * 1.18 AS precio_final FROM products ORDER BY precio_final DESC;</code></li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Un compañero te enseña una consulta que tarda 40 segundos y te dice: "le puse <code>LIMIT 10</code>, no entiendo por qué sigue tardando lo mismo". ¿Qué le respondes, y qué le propones mirar primero?</em></p>
+</blockquote></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Repetir la expresión en el <code>WHERE</code>. El alias no existe en el paso 2:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>25 productos</strong>. (La alternativa elegante —calcularlo una sola vez— es una tabla derivada o un CTE: <span class="xref-pend" title="Aún no publicado">cte-with</span>.)</p>
+<p><strong>2.</strong> El filtro es sobre grupos, así que va en <code>HAVING</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | count
+-------------+-------
+ ERNSH       |    30
+ QUICK       |    28
+ SAVEA       |    31
+</code></pre></div>
+
+<p><strong>3.</strong> <strong>3 filas</strong>, pero la pregunta real es <em>cuáles</em>. El embudo: <code>WHERE</code> deja 83 pedidos de Brasil, <code>GROUP BY ship_city</code> los colapsa en <strong>4 ciudades</strong> (Brasil entero se surte de cuatro), y <code>LIMIT 3</code> corta tres. <strong>Sin <code>ORDER BY</code>, cuáles tres no está definido</strong> — el motor devuelve las que le resulten cómodas, y puede cambiar de opinión mañana. <code>LIMIT</code> sin <code>ORDER BY</code> es una pregunta mal hecha.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">empleado</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> empleado | pedidos
+----------+---------
+        4 |     156
+        3 |     127
+        1 |     123
+        8 |     104
+</code></pre></div>
+
+<p>Cuatro de los nueve empleados. Que salga el <strong>id</strong> y no el nombre es una limitación real de este punto del curso: para eso hace falta un JOIN (<span class="xref-pend" title="Aún no publicado">inner-join</span>).</p>
+<p><strong>5.</strong> Porque <code>ORDER BY</code> es el paso 7 y <code>SELECT</code> el 5: <strong>cuando se ordena, el alias ya existe.</strong></p>
+<p><strong>Pregunta de negocio.</strong></p>
+<p>Qué le respondes: <strong><code>LIMIT</code> es el último paso.</strong> El motor primero escanea, filtra, agrupa y ordena el conjunto completo; solo cuando ya tiene el resultado final ordenado, se queda con 10 filas. <code>LIMIT</code> reduce lo que se te <em>envía</em>, no lo que se <em>trabaja</em>.</p>
+<p>Qué le propones mirar, en este orden:</p>
+<ol>
+<li><strong><code>EXPLAIN ANALYZE</code></strong> — dónde se va el tiempo de verdad (<span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>).</li>
+<li><strong>El <code>WHERE</code></strong> — si el filtro puede ser más selectivo, ahí se gana de verdad, porque es el paso 2 y reduce todo lo que viene detrás.</li>
+<li><strong>El <code>ORDER BY</code></strong> — ordenar millones de filas para enseñar diez es lo más caro de la consulta. Un índice sobre la columna de orden puede evitar el <code>Sort</code> entero (<span class="xref-pend" title="Aún no publicado">indices</span>).</li>
+</ol>
+<p>La frase que resume el tema: <strong>para que una consulta sea rápida hay que atacar el principio del embudo, no el final.</strong></p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../select-y-from/"><span>Anterior</span><strong>SELECT y FROM</strong></a><a class="nav-next" href="../where-y-operadores/"><span>Siguiente</span><strong>WHERE y los operadores</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-los-siete-pasos-uno-por-uno">2. Los siete pasos, uno por uno</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-orden-l-gico-orden-real">5. Orden lógico ≠ orden real</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

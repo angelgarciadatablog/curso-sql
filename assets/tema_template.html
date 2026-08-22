@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>{{TITULO}} · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{{DESCRIPCION}}" />
+  <link rel="canonical" href="{{CANONICAL}}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{{OGTITULO}}" />
+  <meta property="og:description" content="{{DESCRIPCION}}" />
+  <meta property="og:url" content="{{CANONICAL}}" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="{{ASSETS}}/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="{{RAIZ}}">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc({{ORDEN}} / {{TOTAL}} * 100%)"></i></div>
+    <div class="cuenta">Tema {{ORDEN}} de {{TOTAL}}</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    {{SIDEBAR}}
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque {{BLOQUE_NUM}} · {{BLOQUE_NOMBRE}}</span>
+      <span class="pill">{{MOTOR}}</span>
+      <span class="pill">{{DATASET}}</span>
+    </div>
+    <h1>{{TITULO}}</h1>
+    {{REQUIERE}}
+    <div class="post-body">{{CUERPO}}</div>
+    {{SOLUCIONES}}
+    <nav class="navpies">{{PREV}}{{NEXT}}</nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    {{TOC}}
+  </aside>
+</div>
+</body>
+</html>

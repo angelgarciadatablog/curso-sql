@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>NULL y la lógica de tres valores · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IS NULL, por qué = NULL nunca funciona, COALESCE, NULLIF" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/null-y-la-logica-de-tres-valores/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="NULL y la lógica de tres valores" />
+  <meta property="og:description" content="IS NULL, por qué = NULL nunca funciona, COALESCE, NULLIF" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/null-y-la-logica-de-tres-valores/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(7 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 7 de 57</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><span class="activo">NULL y la lógica de tres valores</span></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 2 · La consulta</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>NULL y la lógica de tres valores</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../where-y-operadores/">where-y-operadores</a></div>
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p><code>NULL</code> <strong>no es cero. No es cadena vacía. No es "falso".</strong> <code>NULL</code> significa <strong>desconocido</strong>.</p>
+<p>Y de ahí sale todo lo demás: si un valor es desconocido, <strong>cualquier comparación con él es también desconocida</strong>. No verdadera, no falsa: desconocida. SQL tiene tres valores lógicos, no dos:</p>
+<div class="hl"><pre><span></span><code>TRUE · FALSE · UNKNOWN
+</code></pre></div>
+
+<p><code>WHERE</code> solo deja pasar <code>TRUE</code>. <code>FALSE</code> y <code>UNKNOWN</code> se descartan igual — y esa es la fuente de casi todos los resultados silenciosamente incompletos que verás en tu vida.</p>
+<p>En Northwind hay <code>NULL</code> por todas partes y significan cosas distintas:</p>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th><code>NULL</code> significa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customers.region</code></td>
+<td>El país no usa regiones (60 de 91 clientes)</td>
+</tr>
+<tr>
+<td><code>orders.shipped_date</code></td>
+<td><strong>Todavía no se ha enviado</strong> (21 pedidos)</td>
+</tr>
+<tr>
+<td><code>employees.reports_to</code></td>
+<td>No tiene jefe — es el director</td>
+</tr>
+</tbody>
+</table>
+<p>Fíjate: en un caso es <em>"no aplica"</em>, en otro <em>"aún no", y en otro </em>"no existe"<em>. </em><em>SQL usa el mismo <code>NULL</code> para los tres.</em>* Interpretarlo es tu trabajo, no del motor.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="n">columna</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+<span class="n">columna</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="n">columna</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">valor</span><span class="w">        </span><span class="c1">-- comparación que sí trata NULL como un valor</span>
+<span class="n">columna</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">valor</span>
+
+<span class="k">coalesce</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">)</span><span class="w">     </span><span class="c1">-- el primero que no sea NULL</span>
+<span class="k">nullif</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w">          </span><span class="c1">-- NULL si a = b; si no, a</span>
+</code></pre></div>
+
+<p><strong><code>= NULL</code> no da error y nunca es cierto.</strong> Ese es el problema: no avisa.</p>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>La demostración de una línea:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">igual</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">distinto</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">es_nulo</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> igual | distinto | es_nulo
+-------+----------+---------
+       |          | t
+</code></pre></div>
+
+<p>Las dos primeras columnas salen <strong>vacías</strong>: no son <code>t</code> ni <code>f</code>, son <code>NULL</code>. <em>"¿Es un desconocido igual a otro desconocido?"</em> — no se puede saber. La tercera, <code>IS NULL</code>, sí responde: <strong><code>IS NULL</code> es el único operador que pregunta por la ausencia sin caer en la trampa.</strong></p>
+<p><strong>El mismo error, en la práctica:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">    </span><span class="c1">--  0</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 60</span>
+</code></pre></div>
+
+<p>La primera <strong>no da error</strong>. Devuelve cero y parece una respuesta.</p>
+<p><strong>Contar nulos:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">con_region</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nulos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> filas | con_region | nulos
+-------+------------+-------
+    91 |         31 |    60
+</code></pre></div>
+
+<p><code>count(*)</code> cuenta <strong>filas</strong>. <code>count(columna)</code> cuenta <strong>valores no nulos</strong>. Restarlos es la forma más corta de auditar una columna, y conviene hacerlo con toda columna nueva antes de fiarse de ella.</p>
+<h3>La aritmética y el texto se contagian</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'Lima-'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">concatenado</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> concatenado | suma
+-------------+------
+             |
+</code></pre></div>
+
+<p><strong>Ambas dan <code>NULL</code>.</strong> Un solo <code>NULL</code> en una expresión la vuelve <code>NULL</code> entera. Si construyes una dirección concatenando calle, ciudad y región, y la región es <code>NULL</code>, <strong>te quedas sin dirección</strong>, no sin región.</p>
+<h3>Pero las agregaciones lo ignoran</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">no_nulos</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma</span><span class="p">,</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="mi">20</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="k">NULL</span><span class="p">))</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> filas | no_nulos | suma |        media
+-------+----------+------+---------------------
+     3 |        2 |   30 | 15.0000000000000000
+</code></pre></div>
+
+<p>La media es <strong>15, no 10</strong>. <code>avg</code> sumó 30 y dividió entre <strong>2</strong>, no entre 3: los <code>NULL</code> no entran en el denominador. Casi siempre es lo que quieres. <strong>Casi.</strong> Si esos nulos significaban "cero ventas", tu media está inflada y nadie te avisará.</p>
+<h3>La tabla de verdad</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<span class="w">       </span><span class="k">true</span><span class="w"> </span><span class="k">OR</span><span class="w">  </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">c</span><span class="p">,</span><span class="w"> </span><span class="k">false</span><span class="w"> </span><span class="k">OR</span><span class="w">  </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">d</span><span class="p">,</span>
+<span class="w">       </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> a | b | c | d | e
+---+---+---+---+---
+   | f | t |   |
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Expresión</th>
+<th>Resultado</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TRUE AND NULL</code></td>
+<td><code>NULL</code></td>
+<td>Depende de lo que no sé</td>
+</tr>
+<tr>
+<td><code>FALSE AND NULL</code></td>
+<td><strong><code>FALSE</code></strong></td>
+<td>Ya es falso, da igual lo demás</td>
+</tr>
+<tr>
+<td><code>TRUE OR NULL</code></td>
+<td><strong><code>TRUE</code></strong></td>
+<td>Ya es cierto, da igual lo demás</td>
+</tr>
+<tr>
+<td><code>FALSE OR NULL</code></td>
+<td><code>NULL</code></td>
+<td>Depende de lo que no sé</td>
+</tr>
+<tr>
+<td><code>NOT NULL</code></td>
+<td><code>NULL</code></td>
+<td>Lo contrario de un desconocido sigue siendo desconocido</td>
+</tr>
+</tbody>
+</table>
+<p>Las dos filas en negrita son las únicas donde el <code>NULL</code> <strong>no</strong> contagia: cuando el otro operando ya decide el resultado por sí solo.</p>
+<h3>El complemento que no suma</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w">     </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">;</span><span class="w">   </span><span class="c1">--  37</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="p">(</span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">);</span><span class="w"> </span><span class="c1">-- 772</span>
+</code></pre></div>
+
+<p>37 + 772 = <strong>809</strong>. La tabla tiene <strong>830 pedidos</strong>. Faltan <strong>21</strong>: exactamente los que tienen <code>shipped_date</code> en <code>NULL</code>.</p>
+<p>Y esos 21 son los peores posibles: <strong>son los que no se han enviado todavía.</strong> Si te piden "los pedidos que no llegaron tarde" y escribes el <code>NOT</code>, dejas fuera precisamente los que están sin entregar. La respuesta correcta depende de la pregunta real, y hay que decidirla a mano:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- "no llegó tarde" incluyendo los aún no enviados como no-tarde</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">required_date</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+</code></pre></div>
+
+<h3>La trampa grande: <code>NOT IN</code> con <code>NULL</code></h3>
+<p><em>Empleados que no son jefe de nadie.</em> La consulta natural:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | first_name
+-------------+------------
+(0 filas)
+</code></pre></div>
+
+<p><strong>Cero filas.</strong> Y es falso: hay siete empleados que no dirigen a nadie.</p>
+<p>El motivo: <code>reports_to</code> contiene un <code>NULL</code> (Andrew, el director, no reporta a nadie). Así que <code>NOT IN</code> se convierte en:</p>
+<div class="hl"><pre><span></span><code>employee_id &lt;&gt; 2 AND employee_id &lt;&gt; 5 AND employee_id &lt;&gt; NULL
+</code></pre></div>
+
+<p>Y esa última comparación es <code>UNKNOWN</code> <strong>para todas las filas</strong>. <code>TRUE AND UNKNOWN</code> = <code>UNKNOWN</code> → no pasa el <code>WHERE</code> → <strong>ninguna fila sobrevive, pase lo que pase</strong>.</p>
+<p>Con el <code>NULL</code> fuera de la lista:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | first_name
+-------------+------------
+           1 | Nancy
+           3 | Janet
+           4 | Margaret
+           6 | Michael
+           7 | Robert
+           8 | Laura
+           9 | Anne
+</code></pre></div>
+
+<p>Siete. La forma <strong>inmune</strong> a este problema es <code>NOT EXISTS</code>, y está en <span class="xref-pend" title="Aún no publicado">anti-join-y-semi-join</span>.</p>
+<blockquote>
+<p><strong>Regla: <code>NOT IN</code> sobre una subconsulta es una bomba de relojería.</strong> Si la columna admite <code>NULL</code>, algún día devolverá cero filas. Usa <code>NOT EXISTS</code>.</p>
+</blockquote>
+<h3>Sustituir el nulo: <code>coalesce</code> y <code>nullif</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="s1">'SIN REGION'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">region_limpia</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            | region | region_limpia
+------------------------------------+--------+---------------
+ Alfreds Futterkiste                |        | SIN REGION
+ Ana Trujillo Emparedados y helados |        | SIN REGION
+</code></pre></div>
+
+<p><code>coalesce</code> devuelve <strong>el primer argumento no nulo</strong>, y acepta los que quieras: <code>coalesce(movil, fijo, 'sin teléfono')</code>.</p>
+<p><code>nullif</code> es el inverso — convierte un valor <strong>en</strong> <code>NULL</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">nullif</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">nullif</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> a | b
+---+----
+   | 10
+</code></pre></div>
+
+<p>Su uso real es evitar la división por cero: <code>total / nullif(cantidad, 0)</code> devuelve <code>NULL</code> en vez de reventar.</p>
+<h3><code>IS DISTINCT FROM</code> — comparar tratando <code>NULL</code> como valor</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">iguales</span><span class="p">,</span>
+<span class="w">       </span><span class="s1">'A'</span><span class="w">  </span><span class="k">IS</span><span class="w">     </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">distintos</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> iguales | distintos
+---------+-----------
+ t       | t
+</code></pre></div>
+
+<p>Devuelve siempre <code>TRUE</code> o <code>FALSE</code>, <strong>nunca <code>UNKNOWN</code></strong>. Es lo que quieres cuando comparas dos versiones de un dato y "los dos están vacíos" debe contar como <em>iguales</em>.</p>
+<h3>Y al ordenar</h3>
+<p>En PostgreSQL, <code>ORDER BY</code> pone los <code>NULL</code> <strong>al final en orden ascendente</strong> y al principio en descendente. Se controla explícitamente:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">FIRST</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Más en <a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>.</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong><code>= NULL</code> o <code>&lt;&gt; NULL</code>.</strong> Nunca es cierto. No da error. Usa <code>IS NULL</code> / <code>IS NOT NULL</code>.</li>
+<li><strong>Creer que <code>WHERE x &lt;&gt; 'A'</code> devuelve "todo lo que no es A".</strong> Devuelve todo lo que <strong>se sabe</strong> que no es A. Los nulos se quedan fuera.</li>
+<li><strong><code>NOT IN</code> con una subconsulta que puede traer <code>NULL</code>.</strong> Cero filas silenciosas.</li>
+<li><strong>Concatenar sin <code>coalesce</code>.</strong> Un <code>NULL</code> en medio anula la cadena entera.</li>
+<li><strong>Confundir <code>NULL</code> con cadena vacía.</strong> <code>''</code> es un texto de longitud cero: <strong>existe</strong>. <code>''  IS NULL</code> es falso. En Oracle no —es la excepción del mundo— pero en PostgreSQL y SQL Server son cosas distintas.</li>
+<li><strong>Interpretar todos los <code>NULL</code> igual.</strong> "No aplica", "aún no" y "no lo sé" se escriben igual y significan cosas opuestas. Pregunta antes de rellenarlos.</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primer no nulo</td>
+<td><code>coalesce(a,b)</code></td>
+<td><code>COALESCE(a,b)</code> o <code>ISNULL(a,b)</code></td>
+</tr>
+<tr>
+<td>Comparar con nulos</td>
+<td><code>IS DISTINCT FROM</code></td>
+<td>No existe hasta SQL Server 2022; antes se emula con <code>EXISTS(SELECT a INTERSECT SELECT b)</code></td>
+</tr>
+<tr>
+<td>Orden de los nulos</td>
+<td>Al final en <code>ASC</code>, configurable con <code>NULLS FIRST/LAST</code></td>
+<td><strong>Al principio en <code>ASC</code></strong>, y no se puede cambiar directamente</td>
+</tr>
+<tr>
+<td><code>SET ANSI_NULLS OFF</code></td>
+<td>No existe</td>
+<td>Existe (obsoleto): hace que <code>= NULL</code> funcione. <strong>No lo uses</strong></td>
+</tr>
+</tbody>
+</table>
+<p>La tercera fila muerde: la misma consulta con <code>ORDER BY</code> da un orden distinto en cada motor. Si el orden importa, escríbelo.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Cuántos pedidos están sin enviar. Y cuántos clientes no tienen fax.</li>
+<li>Lista los clientes con su región, sustituyendo el nulo por el texto <code>n/a</code>.</li>
+<li>Corrige esta consulta, que pretende dar los productos que no son de la categoría 1:
+   <code>sql
+   SELECT product_name FROM products WHERE category_id &lt;&gt; 1;</code>
+   ¿Cuándo daría un resultado incompleto y cuándo no?</li>
+<li>Escribe una consulta que devuelva, por cada columna de <code>customers</code>, cuántos nulos tiene. Hazlo para <code>region</code>, <code>fax</code> y <code>postal_code</code> en una sola fila.</li>
+<li>Sin ejecutarla, di qué devuelve:
+   <code>sql
+   SELECT count(*) FROM orders WHERE shipped_date IS NULL OR shipped_date IS NOT NULL;</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Logística quiere el porcentaje de pedidos entregados con retraso. Te dan la definición: "retraso es cuando la fecha de envío es posterior a la fecha requerida".</em></p>
+</blockquote>
+<p>Da el número. Y da <strong>también</strong> la frase que tienes que decir al entregarlo.</p></div>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_enviar</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 21</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">fax</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">                                 </span><span class="c1">-- 22</span>
+</code></pre></div>
+
+<p>(<code>FILTER</code> se ve en <span class="xref-pend" title="Aún no publicado">agregacion-avanzada</span>; aquí vale igual <code>WHERE shipped_date IS NULL</code>.)</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="s1">'n/a'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">region</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>3.</strong> La consulta está bien <strong>si <code>category_id</code> no admite nulos</strong>, y en Northwind no los admite: es <code>NOT NULL</code>, así que devuelve los 65 productos correctos. Sería incompleta en cuanto un producto tuviera categoría desconocida — ese producto no es de la categoría 1, pero no aparecería. La versión defensiva:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Lo importante del ejercicio: la respuesta depende del esquema, no de la consulta.</strong> Antes de escribir un <code>&lt;&gt;</code>, mira si la columna admite nulos con <code>\d products</code>.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">region_nulos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">fax</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">fax_nulos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">postal_code</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cp_nulos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> region_nulos | fax_nulos | cp_nulos
+--------------+-----------+----------
+           60 |        22 |        1
+</code></pre></div>
+
+<p><strong>Este patrón es un perfilado de datos en una línea</strong> y es lo primero que se ejecuta contra una tabla que no conoces.</p>
+<p><strong>5.</strong> <strong>830</strong>, todas las filas. <code>IS NULL OR IS NOT NULL</code> cubre los tres estados sin dejar hueco, porque ambos operadores devuelven siempre <code>TRUE</code> o <code>FALSE</code>, nunca <code>UNKNOWN</code>. Con <code>= NULL OR &lt;&gt; NULL</code> habrían salido <strong>0</strong>.</p>
+<p><strong>Pregunta de negocio.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">)</span><span class="w">                                  </span><span class="k">AS</span><span class="w"> </span><span class="n">enviados</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                             </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                      </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_sobre_enviados</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> con_retraso | enviados | total | pct_sobre_enviados
+-------------+----------+-------+--------------------
+          37 |      809 |   830 |               4.57
+</code></pre></div>
+
+<p><strong>El número es 4,57%. La frase es esta:</strong></p>
+<blockquote>
+<p><em>"37 pedidos llegaron tarde. Es el 4,57% de los 809 que ya se enviaron, o el 4,46% de los 830 totales. He usado el primero, porque los 21 pedidos que faltan </em><em>no se han enviado todavía</em><em>: no se puede decir si llegaron tarde. Si alguno de esos 21 ya pasó su fecha requerida, el porcentaje real será mayor."</em></p>
+</blockquote>
+<p>Ahí están las tres cosas que hacen buena una respuesta: <strong>el número, el denominador que elegiste, y el <code>NULL</code> que no escondiste.</strong> Dividir entre 830 sin decir nada también da un número — y también es defendible — pero solo si lo dices.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../where-y-operadores/"><span>Anterior</span><strong>WHERE y los operadores</strong></a><a class="nav-next" href="../buscar-texto-like-y-regex/"><span>Siguiente</span><strong>Buscar texto: LIKE, ILIKE y expresiones regulares</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>
