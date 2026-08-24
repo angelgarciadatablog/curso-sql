@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/select-y-from/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <link rel="stylesheet" href="../assets/curso.css?v=14" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -35,7 +35,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="wrap">
   <aside class="side">
     <p class="side-tit">Ruta del curso</p>
-    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
 <details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><span class="activo">SELECT y FROM</span></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
 <details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
 <details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
@@ -45,7 +45,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
 <details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
 <details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
-<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
   </aside>
 
   <main>
@@ -56,6 +56,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <h1>SELECT y FROM</h1>
     <div class="requiere"><span class="lbl">Requiere</span><a href="../conectarse-y-explorar/">conectarse-y-explorar</a></div>
+    
     <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
 <p><code>SELECT</code> es la única sentencia que <strong>pregunta</strong>. Todo lo demás en SQL crea, modifica o borra; <code>SELECT</code> solo lee.</p>
 <p>Y tiene una propiedad que conviene entender desde el primer minuto: <strong><code>SELECT</code> no devuelve la tabla, devuelve una tabla nueva</strong>. La original no se toca. Puedes equivocarte todas las veces que quieras.</p>
@@ -323,7 +324,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>ORDER BY</code> sí acepta el alias</strong> (<code>valor_inventario</code>), aunque <code>WHERE</code> no. No es incoherencia: <code>ORDER BY</code> se ejecuta <em>después</em> del <code>SELECT</code>. Otra vez, <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>.</li>
 <li><strong>"Valor" es ambiguo y hay que preguntarlo.</strong> <code>unit_price</code> es el precio de <strong>venta</strong>. El valor contable de un inventario normalmente es el de <strong>coste</strong>, que Northwind no guarda. Lo que has calculado es <em>cuánto facturarías si lo vendieras todo</em>, que no es lo mismo. Decirlo al entregar el dato es lo que separa a alguien que ejecuta SQL de alguien que analiza.</li>
 </ul></div></details>
-    <nav class="navpies"><a class="nav-prev" href="../conectarse-y-explorar/"><span>Anterior</span><strong>Conectarse y explorar</strong></a><a class="nav-next" href="../orden-logico-de-ejecucion/"><span>Siguiente</span><strong>El orden lógico de ejecución</strong></a></nav>
+    <nav class="navpies"><a class="nav-prev" href="../leer-un-esquema-desconocido/"><span>Anterior</span><strong>Leer un esquema desconocido</strong></a><a class="nav-next" href="../orden-logico-de-ejecucion/"><span>Siguiente</span><strong>El orden lógico de ejecución</strong></a></nav>
   </main>
 
   <aside class="toc">

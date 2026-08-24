@@ -68,6 +68,35 @@ for f in sorted(SRC.glob("*/*.md")):
 temas.sort(key=lambda t: t["orden"])
 por_slug = {t["slug"]: t for t in temas}
 
+def extraer_video_id(url):
+    """Extrae el video ID de una URL de YouTube."""
+    match = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
+    return match.group(1) if match else url
+
+
+def normalizar_videos(value):
+    """Normaliza `video-youtube` a una lista de dicts {titulo, url}.
+
+    Campo polimórfico, misma convención que publish.py del blog:
+    - "" / None            -> []  (sin video)
+    - "https://..."        -> un video con título por defecto
+    - ["url1", "url2"]     -> varios videos sin título explícito
+    - [{titulo, url}, ...] -> varios videos, cada uno con su etiqueta
+    """
+    if not value:
+        return []
+    if isinstance(value, str):
+        return [{"titulo": "Video explicativo", "url": value}]
+    videos = []
+    for item in value:
+        if isinstance(item, str):
+            videos.append({"titulo": "Video explicativo", "url": item})
+        elif isinstance(item, dict) and item.get("url"):
+            videos.append({"titulo": item.get("titulo") or "Video explicativo",
+                           "url": item["url"]})
+    return videos
+
+
 def nb(b):
     """Número de bloque visible. El vault numera desde 0 (Bloque 0 = Antes de
     escribir SQL); en la web la ruta se presenta desde 1, para que el último
@@ -173,6 +202,15 @@ for i, t in enumerate(publicados):
                  f'<span class="sol-hint">Resuélvelos antes de abrir</span></summary>'
                  f'<div class="post-body">{sol_html}</div></details>') if sol_html else ""
 
+    # Video(s) de YouTube — campo polimórfico en el frontmatter del tema.
+    videos = normalizar_videos(t["meta"].get("video-youtube", ""))
+    video_html = ""
+    for v in videos:
+        video_html += (f'<div class="tema-video">'
+                       f'<div class="tema-video-tit">{v["titulo"]}</div>'
+                       f'<iframe src="https://www.youtube.com/embed/{extraer_video_id(v["url"])}"'
+                       f' title="{v["titulo"]}" loading="lazy" allowfullscreen></iframe></div>')
+
     descripcion = desc_tema.get(t["slug"], t["titulo"])
     canonical   = f"{BASE_URL}{BASE_PATH}/{t['slug']}/"
     html = (tema_tpl
@@ -189,6 +227,7 @@ for i, t in enumerate(publicados):
         .replace("{{MOTOR}}", str(t["meta"].get("motor", "")))
         .replace("{{DATASET}}", str(t["meta"].get("dataset", "")))
         .replace("{{REQUIERE}}", req_html)
+        .replace("{{VIDEO}}", video_html)
         .replace("{{SIDEBAR}}", sidebar(t["slug"], t["bloque"]))
         .replace("{{TOC}}", toc_html)
         .replace("{{CUERPO}}", cuerpo_html)

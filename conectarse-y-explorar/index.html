@@ -4,15 +4,15 @@
   <title>Conectarse y explorar · Curso SQL · Angel García</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="DBeaver y psql. \dt, \d tabla, information_schema" />
+  <meta name="description" content="Entrar a la base con DBeaver: los 5 campos y el SSL. Equivalencias con psql e information_schema" />
   <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="Conectarse y explorar" />
-  <meta property="og:description" content="DBeaver y psql. \dt, \d tabla, information_schema" />
+  <meta property="og:description" content="Entrar a la base con DBeaver: los 5 campos y el SSL. Equivalencias con psql e information_schema" />
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <link rel="stylesheet" href="../assets/curso.css?v=14" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -27,15 +27,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="topbar">
   <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
   <div class="progreso">
-    <div class="barra"><i style="width:calc(3 / 57 * 100%)"></i></div>
-    <div class="cuenta">Tema 3 de 57</div>
+    <div class="barra"><i style="width:calc(1 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 1 de 57</div>
   </div>
 </div>
 
 <div class="wrap">
   <aside class="side">
     <p class="side-tit">Ruta del curso</p>
-    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><span class="activo">Conectarse y explorar</span></li></ul></details>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><span class="activo">Conectarse y explorar</span></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
 <details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
 <details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
 <details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
@@ -45,7 +45,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
 <details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
 <details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
-<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
   </aside>
 
   <main>
@@ -55,48 +55,95 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="pill">northwind</span>
     </div>
     <h1>Conectarse y explorar</h1>
-    <div class="requiere"><span class="lbl">Requiere</span><a href="../leer-un-esquema-desconocido/">leer-un-esquema-desconocido</a></div>
+    
+    
     <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
-<p>Antes de escribir SQL hay que <strong>llegar</strong> a la base de datos. Y hay dos formas, que no compiten: se usan para cosas distintas.</p>
+<p>Antes de escribir SQL hay que <strong>llegar</strong> a la base de datos. Y una base de datos no se abre como un archivo: no hay nada que hacer doble clic. Necesitas un <strong>cliente</strong>, un programa que se conecta al servidor, le manda tus consultas y te devuelve los resultados.</p>
+<p>Hay dos, y no compiten: se usan para cosas distintas.</p>
 <table>
 <thead>
 <tr>
 <th></th>
-<th><code>psql</code> (terminal)</th>
 <th>DBeaver (gráfico)</th>
+<th><code>psql</code> (terminal)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Explorar rápido</td>
-<td>✅ Comandos de una letra</td>
-<td>Requiere navegar el árbol</td>
-</tr>
-<tr>
-<td>Ejecutar un archivo <code>.sql</code></td>
-<td>✅ <code>psql -f archivo.sql</code></td>
-<td>Torpe</td>
+<td>Escribir consultas</td>
+<td>✅ Autocompletado, historial</td>
+<td>❌ Sin ayuda</td>
 </tr>
 <tr>
 <td>Leer resultados anchos</td>
-<td>❌ Se descuadra</td>
 <td>✅ Tabla con scroll</td>
+<td>❌ Se descuadra</td>
 </tr>
 <tr>
 <td>Ver el esquema visualmente</td>
-<td>❌</td>
 <td>✅ Diagrama automático</td>
+<td>❌</td>
 </tr>
 <tr>
-<td>Escribir consultas largas</td>
-<td>❌</td>
-<td>✅ Autocompletado, historial</td>
+<td>Explorar rápido</td>
+<td>Navegar el árbol</td>
+<td>✅ Comandos de una letra</td>
+</tr>
+<tr>
+<td>Ejecutar un archivo <code>.sql</code></td>
+<td>Torpe</td>
+<td>✅ <code>psql -f archivo.sql</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>En la práctica: <code>psql</code> para cargar y explorar, DBeaver para trabajar.</strong></p>
+<blockquote>
+<p><strong>Cuál usas tú ahora mismo.</strong> Si estás con el acceso a la base en la nube, <strong>DBeaver es todo lo que necesitas</strong> — no tienes que instalar PostgreSQL ni abrir una terminal. <code>psql</code> aparece más adelante, cuando montes la base en tu propia máquina; viene incluido con PostgreSQL y no hay que instalarlo aparte.</p>
+</blockquote>
+<p>Este tema enseña los dos. Si algo dice «en <code>psql</code>» y tú aún no lo tienes, sáltatelo: <strong>al lado siempre está cómo hacer lo mismo en DBeaver.</strong></p>
 <h2 id="2-c-mo-se-conecta">2. Cómo se conecta</h2>
-<p>Cualquier cliente necesita lo mismo: <strong>host, puerto, base, usuario y contraseña</strong>. Cambia solo la forma de dárselos.</p>
+<p>Cualquier cliente necesita lo mismo — <strong>host, puerto, base, usuario y contraseña</strong>. Cambia solo la forma de dárselos.</p>
+<h3>2.1 Descarga e instala DBeaver</h3>
+<p>En <a href="https://dbeaver.io/download/">https://dbeaver.io/download/</a>. Dos avisos y ya:</p>
+<ul>
+<li><strong>Elige Community Edition</strong>, que es la gratuita. La otra que ofrecen es de pago y no la necesitas para nada de este curso.</li>
+<li><strong>En Mac hay dos versiones</strong>, Intel y Apple Silicon. Si tu Mac es de 2020 en adelante, casi seguro es Apple Silicon. En Windows es un instalador y siguiente-siguiente.</li>
+</ul>
+<p>No hace falta instalar PostgreSQL en tu máquina: DBeaver es solo el cliente, y la base ya está corriendo en otro sitio.</p>
+<h3>2.2 Crea la conexión</h3>
+<p>Nueva conexión → <strong>PostgreSQL</strong> → y rellenas cinco campos:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Qué es</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Host</strong></td>
+<td>La dirección del servidor. En local, <code>localhost</code></td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td><code>5432</code>, el puerto por defecto de PostgreSQL</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>El nombre de la base. Aquí, <code>northwind</code></td>
+</tr>
+<tr>
+<td><strong>Username</strong></td>
+<td>Tu usuario</td>
+</tr>
+<tr>
+<td><strong>Password</strong></td>
+<td>Tu contraseña</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>Si te conectas a una base en la nube, activa <code>SSL</code></strong> en la pestaña de ese nombre antes de probar la conexión. Es obligatorio, y es el fallo número uno: sin SSL la conexión se rechaza con un mensaje que no dice «te falta SSL», sino algo sobre el servidor cerrando la conexión inesperadamente.</p>
+<p>Después, <strong>Test Connection</strong> para comprobar antes de guardar. Si responde, ya está.</p>
+<h3>2.3 En la terminal</h3>
 <div class="hl"><pre><span></span><code><span class="c1"># En local, con los valores por defecto</span>
 psql<span class="w"> </span>-d<span class="w"> </span>northwind
 
@@ -104,62 +151,73 @@ psql<span class="w"> </span>-d<span class="w"> </span>northwind
 psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/northwind?sslmode=require"</span>
 </code></pre></div>
 
-<p>La cadena de conexión desarmada pieza por pieza está en <code>anatomia-de-una-conexion-a-postgresql</code>. Aquí basta saber que es la dirección y las llaves.</p>
-<h2 id="3-los-comandos-de-psql-que-vas-a-usar">3. Los comandos de psql que vas a usar</h2>
-<p>Empiezan con <code>\</code> y <strong>no son SQL</strong> — los interpreta <code>psql</code>, no el servidor. Por eso no funcionan si los pegas en DBeaver.</p>
+<p>Es exactamente la misma información que los cinco campos de arriba, empaquetada en una línea. La cadena desarmada pieza por pieza está en <code>anatomia-de-una-conexion-a-postgresql</code>.</p>
+<h2 id="3-los-comandos-de-psql-y-qu-haces-en-dbeaver">3. Los comandos de psql, y qué haces en DBeaver</h2>
+<p>Empiezan con <code>\</code> y <strong>no son SQL</strong> — los interpreta <code>psql</code>, no el servidor. Por eso dan error si los pegas en DBeaver. Pero todo lo que hacen tiene su equivalente:</p>
 <table>
 <thead>
 <tr>
-<th>Comando</th>
+<th>En <code>psql</code></th>
 <th>Qué hace</th>
+<th>En DBeaver</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>\l</code></td>
-<td>Lista las bases de datos del servidor</td>
+<td>Lista las bases del servidor</td>
+<td>El árbol de la izquierda, nivel <em>Databases</em></td>
 </tr>
 <tr>
 <td><code>\dt</code></td>
 <td>Lista las tablas</td>
+<td>Despliega tu base → <em>Schemas</em> → <code>public</code> → <em>Tables</em></td>
 </tr>
 <tr>
 <td><code>\d tabla</code></td>
-<td><strong>Describe una tabla</strong>: columnas, tipos, PK, FK y quién le apunta</td>
+<td><strong>Describe una tabla</strong>: columnas, tipos, PK, FK</td>
+<td>Doble clic en la tabla → pestañas <em>Columns</em>, <em>Keys</em>, <em>Foreign Keys</em></td>
 </tr>
 <tr>
 <td><code>\d+ tabla</code></td>
 <td>Lo mismo, más tamaño</td>
+<td>Pestaña <em>Statistics</em> de la tabla</td>
 </tr>
 <tr>
 <td><code>\dn</code></td>
 <td>Lista los esquemas</td>
+<td>El nivel <em>Schemas</em> del árbol</td>
 </tr>
 <tr>
 <td><code>\du</code></td>
-<td>Lista los usuarios y sus permisos</td>
+<td>Lista usuarios y permisos</td>
+<td><em>Security</em> → <em>Roles</em></td>
 </tr>
 <tr>
 <td><code>\x</code></td>
-<td>Alterna la vista vertical — salva la vida con tablas anchas</td>
+<td>Vista vertical, un campo por línea</td>
+<td>Botón <em>Grid / Text</em>, o el panel de valor a la derecha</td>
 </tr>
 <tr>
 <td><code>\timing</code></td>
-<td>Muestra cuánto tardó cada consulta</td>
+<td>Cuánto tardó la consulta</td>
+<td>Ya sale solo, abajo en la pestaña de resultados</td>
 </tr>
 <tr>
 <td><code>\i archivo.sql</code></td>
 <td>Ejecuta un archivo</td>
+<td><em>File → Open File</em>, y ejecutar</td>
 </tr>
 <tr>
 <td><code>\q</code></td>
 <td>Salir</td>
+<td>Cerrar la ventana</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Los dos que más vas a escribir son <code>\dt</code> y <code>\d tabla</code>.</strong> Con esos dos te orientas en cualquier base.</p>
+<p><strong>Los dos que más vas a usar son <code>\dt</code> y <code>\d tabla</code></strong> — o, en DBeaver, desplegar el árbol y hacer doble clic. Con eso te orientas en cualquier base.</p>
 <blockquote>
-<p><code>\x</code> merece una mención aparte. Cuando una tabla tiene 14 columnas, el resultado se desborda y no se lee nada. Activas <code>\x</code> y cada fila se muestra en vertical, un campo por línea.</p>
+<p><strong>Y hay una tercera vía que funciona en los dos</strong>: preguntarle a la propia base con SQL, consultando <code>information_schema</code>. Es más largo de escribir, pero es <strong>SQL puro</strong> — funciona en DBeaver, en <code>psql</code>, en la nube y en otros motores. Lo ves en la sección siguiente.</p>
 </blockquote>
 <h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
 <p><strong>Dónde estoy parado.</strong> Útil cuando tienes varias conexiones abiertas y no sabes cuál es cuál:</p>
@@ -185,7 +243,7 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
  products      |    77
 </code></pre></div>
 
-<p>Las dos primeras son las <strong>tablas de hechos</strong> — lo que pasó. El resto son <strong>dimensiones</strong> — quién, qué, dónde. Esa proporción se repite en casi cualquier base de negocio.</p>
+<p>Las dos primeras son las <strong>tablas de hechos</strong> — lo que pasó. El resto son <strong>dimensiones</strong> — quién, qué, dónde. (Los dos términos se ven en detalle en <a class="xref" href="../leer-un-esquema-desconocido/">leer-un-esquema-desconocido</a>; aquí basta con la intuición.) Esa proporción se repite en casi cualquier base de negocio.</p>
 <p><strong>Las columnas de una tabla, sin <code>\d</code>:</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
@@ -203,18 +261,21 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 <p>Esta versión es SQL puro: <strong>funciona en DBeaver, en la nube y en otros motores.</strong> <code>\d</code> solo funciona en <code>psql</code>.</p>
 <h2 id="5-errores-comunes">5. Errores comunes</h2>
 <ol>
-<li><strong>Pegar comandos <code>\</code> en DBeaver.</strong> No son SQL. DBeaver dirá que hay un error de sintaxis y tendrá razón.</li>
+<li><strong>No activar SSL contra una base en la nube.</strong> El error no menciona SSL: habla de que el servidor cerró la conexión de forma inesperada. Si te conectas a un servidor remoto y falla a la primera, empieza por ahí.</li>
+<li><strong>Pegar comandos <code>\</code> en DBeaver.</strong> No son SQL. DBeaver dirá que hay un error de sintaxis y tendrá razón. Usa la columna de la derecha de la tabla del § 3.</li>
+<li><strong><code>SASL authentication failed</code>.</strong> Usuario o contraseña incorrectos — <strong>o una credencial que ya caducó</strong>. Si antes funcionaba y de pronto no, es lo segundo: no has hecho nada mal, se te venció el acceso.</li>
 <li><strong>Confundir <code>\l</code> con <code>-l</code>.</strong> Dentro de <code>psql</code> es <code>\l</code>; desde la terminal es <code>psql -l</code>, con <strong>ele minúscula</strong>. Escribir <code>psql -1</code> (un uno) da el error <em>"-1 sólo puede ser usado en modo no interactivo"</em>, que no ayuda nada.</li>
-<li><strong>Olvidar el punto y coma.</strong> En <code>psql</code>, una sentencia SQL no se ejecuta hasta el <code>;</code>. Si el prompt cambia de <code>=#</code> a <code>-#</code>, es que sigue esperando.</li>
-<li><strong>Dejar la conexión abierta contra una base en la nube.</strong> En local no pasa nada; en la nube consume cuota. Ver <code>postgresql-en-la-nube-con-neon</code> § 8.</li>
+<li><strong>Olvidar el punto y coma.</strong> En <code>psql</code>, una sentencia no se ejecuta hasta el <code>;</code>. Si el prompt cambia de <code>=#</code> a <code>-#</code>, es que sigue esperando.</li>
+<li><strong>Dejar la conexión abierta contra una base en la nube.</strong> En local no pasa nada; en la nube consume cuota, aunque no estés haciendo nada. Cierra el cliente al terminar. Ver <code>postgresql-en-la-nube-con-neon</code> § 8.</li>
 </ol>
 <h2 id="6-ejercicios">6. Ejercicios</h2>
+<p>Todos se pueden resolver <strong>solo con DBeaver</strong>. Si tienes <code>psql</code>, en las soluciones está también el atajo.</p>
 <ol>
-<li>Entra a <code>northwind</code> con <code>psql</code> y averigua cuántas columnas tiene <code>orders</code> sin usar <code>SELECT *</code>.</li>
-<li>Usa <code>\d employees</code> y encuentra la clave foránea que apunta a la propia tabla.</li>
-<li>Activa <code>\x</code> y vuelve a consultar una fila de <code>orders</code>. ¿En qué caso lo preferirías?</li>
-<li>Escribe una consulta contra <code>information_schema.columns</code> que devuelva todas las columnas de tipo fecha de toda la base, con su tabla.</li>
-<li>Con <code>\timing</code> activado, compara cuánto tarda <code>SELECT count(*) FROM order_details</code> contra <code>SELECT count(*) FROM customers</code>.</li>
+<li>Conéctate a <code>northwind</code> y averigua cuántas columnas tiene <code>orders</code>, <strong>sin usar <code>SELECT *</code></strong>.</li>
+<li>Una <strong>clave foránea</strong> es una columna que apunta a la fila de otra tabla. Encuentra la de <code>employees</code> que apunta a <strong>la propia tabla</strong> — sí, se puede. (El concepto completo está en <a class="xref" href="../leer-un-esquema-desconocido/">leer-un-esquema-desconocido</a>.)</li>
+<li><code>orders</code> tiene 14 columnas y en horizontal no se lee. Consulta una fila y ponla <strong>en vertical</strong>. ¿En qué casos lo preferirías?</li>
+<li>Escribe una consulta contra <code>information_schema.columns</code> que devuelva <strong>todas las columnas de tipo fecha de toda la base</strong>, con su tabla.</li>
+<li>Compara cuánto tarda <code>SELECT count(*) FROM order_details</code> contra <code>SELECT count(*) FROM customers</code>.</li>
 </ol>
 <h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
 <blockquote>
@@ -226,7 +287,21 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 </code></pre></div>
 
 <p>Devuelve <strong>14</strong>. O con <code>\d orders</code>, contando.</p>
-<p><strong>2.</strong> En la salida de <code>\d employees</code> aparece:</p>
+<p><strong>2.</strong> <code>reports_to</code> apunta a <code>employee_id</code> de la misma tabla: es la <strong>jerarquía de jefes</strong>. Tres formas de encontrarlo:</p>
+<p><strong>En DBeaver</strong> — doble clic en <code>employees</code> → pestaña <strong>Foreign Keys</strong>. Verás una fila donde la tabla de destino es <code>employees</code>.</p>
+<p><strong>Con SQL</strong>, que funciona en cualquier cliente:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">conname</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">restriccion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_get_constraintdef</span><span class="p">(</span><span class="n">oid</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">definicion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_constraint</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">conrelid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'employees'</span><span class="p">::</span><span class="n">regclass</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">contype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      restriccion       |                    definicion
+------------------------+---------------------------------------------------
+ fk_employees_employees | FOREIGN KEY (reports_to) REFERENCES employees(employee_id)
+</code></pre></div>
+
+<p><strong>En <code>psql</code></strong>, con <code>\d employees</code>:</p>
 <div class="hl"><pre><span></span><code>Restricciones de llave foránea:
     "fk_employees_employees" FOREIGN KEY (reports_to) REFERENCES employees(employee_id)
 Referenciada por:
@@ -235,12 +310,11 @@ Referenciada por:
     TABLE "orders" CONSTRAINT "fk_orders_employees" FOREIGN KEY (employee_id) ...
 </code></pre></div>
 
-<p><code>reports_to</code> apunta a <code>employee_id</code> de la misma tabla: la jerarquía de jefes.</p>
-<p>Fíjate además en <strong>«Referenciada por»</strong>: <code>\d</code> no solo te dice a quién apunta la tabla, sino <strong>quién le apunta a ella</strong>. <code>employees</code> aparece en su propia lista, que es otra forma de ver la autorreferencia.</p>
+<p>Fíjate en <strong>«Referenciada por»</strong>: <code>\d</code> no solo dice a quién apunta la tabla, sino <strong>quién le apunta a ella</strong>. <code>employees</code> aparece en su propia lista, que es otra forma de ver la autorreferencia. En DBeaver eso es la pestaña <strong>References</strong>.</p>
 <blockquote>
-<p>Los títulos salen en español o en inglés según el idioma de tu sistema. Si tu <code>psql</code> está en inglés verás <code>Foreign-key constraints:</code> y <code>Referenced by:</code>.</p>
+<p>Los títulos de <code>psql</code> salen en español o en inglés según el idioma de tu sistema. Si está en inglés verás <code>Foreign-key constraints:</code> y <code>Referenced by:</code>.</p>
 </blockquote>
-<p><strong>3.</strong> Cuando la tabla es <strong>ancha</strong>. <code>orders</code> tiene 14 columnas y en horizontal se desborda. En vertical se lee cada campo con su nombre al lado. Regla práctica: más de 8 columnas, <code>\x</code>.</p>
+<p><strong>3.</strong> Cuando la tabla es <strong>ancha</strong>. En DBeaver, el botón <strong>Grid / Text</strong> o el panel de valor de la derecha; en <code>psql</code>, <code>\x</code>. En vertical se lee cada campo con su nombre al lado, uno por línea. Regla práctica: <strong>más de 8 columnas, vertical</strong>.</p>
 <p><strong>4.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
@@ -250,24 +324,24 @@ Referenciada por:
 </code></pre></div>
 
 <p>Salen las de <code>orders</code> (<code>order_date</code>, <code>required_date</code>, <code>shipped_date</code>) y las de <code>employees</code> (<code>birth_date</code>, <code>hire_date</code>). <strong>Buscar las columnas de fecha es de lo primero que se hace en una base nueva</strong>: son las que permiten cualquier análisis temporal.</p>
-<p><strong>5.</strong> Ambas son instantáneas — 2.155 y 91 filas no son nada. El ejercicio no busca que veas una diferencia, sino que <strong>te acostumbres a mirar el tiempo</strong>. En una tabla de millones de filas esa costumbre es la que te avisa de que algo va mal antes de que se queje el usuario.</p>
+<p><strong>5.</strong> En DBeaver el tiempo sale solo, abajo en la pestaña de resultados; en <code>psql</code> hay que activar <code>\timing</code> antes. Ambas consultas son instantáneas — 2.155 y 91 filas no son nada. El ejercicio no busca que veas una diferencia, sino que <strong>te acostumbres a mirar el tiempo</strong>. En una tabla de millones de filas esa costumbre es la que te avisa de que algo va mal antes de que se queje el usuario.</p>
 <p><strong>Pregunta de negocio:</strong> en este orden.</p>
 <ol>
-<li><code>\dt</code> — cuántas tablas y cómo se llaman.</li>
+<li><code>\dt</code>, o desplegar <em>Tables</em> en el árbol de DBeaver — cuántas tablas hay y cómo se llaman.</li>
 <li>La consulta de <code>pg_stat_user_tables</code> — <strong>cuáles tienen datos de verdad.</strong> Con 40 tablas, probablemente 5 concentran el 95% de las filas. Esas son el negocio; el resto son catálogos.</li>
 <li>La consulta de claves foráneas del tema anterior — <strong>el mapa de conexiones.</strong></li>
-<li><code>\d</code> sobre las 3 o 4 tablas más grandes, para entender su grano.</li>
+<li><code>\d</code> —o doble clic en DBeaver— sobre las 3 o 4 tablas más grandes, para entender su grano.</li>
 <li>Las columnas de fecha, para saber qué periodo cubre.</li>
 </ol>
 <p>En cinco minutos puedes decir: <em>"son ventas, con tantos clientes y tantos pedidos, entre tal y tal fecha, y esto se conecta así"</em>. <strong>Nada de eso requiere que alguien te explique la base.</strong></p></div></details>
-    <nav class="navpies"><a class="nav-prev" href="../leer-un-esquema-desconocido/"><span>Anterior</span><strong>Leer un esquema desconocido</strong></a><a class="nav-next" href="../select-y-from/"><span>Siguiente</span><strong>SELECT y FROM</strong></a></nav>
+    <nav class="navpies"><span></span><a class="nav-next" href="../que-es-una-base-de-datos-relacional/"><span>Siguiente</span><strong>Qué es una base de datos relacional</strong></a></nav>
   </main>
 
   <aside class="toc">
     <p class="toc-tit">En este tema</p>
     <a href="#1-qu-es">1. Qué es</a>
 <a href="#2-c-mo-se-conecta">2. Cómo se conecta</a>
-<a href="#3-los-comandos-de-psql-que-vas-a-usar">3. Los comandos de psql que vas a usar</a>
+<a href="#3-los-comandos-de-psql-y-qu-haces-en-dbeaver">3. Los comandos de psql, y qué haces en DBeaver</a>
 <a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
 <a href="#5-errores-comunes">5. Errores comunes</a>
 <a href="#6-ejercicios">6. Ejercicios</a>

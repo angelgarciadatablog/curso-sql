@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=4" />
+  <link rel="stylesheet" href="../assets/curso.css?v=14" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -27,15 +27,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="topbar">
   <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
   <div class="progreso">
-    <div class="barra"><i style="width:calc(1 / 57 * 100%)"></i></div>
-    <div class="cuenta">Tema 1 de 57</div>
+    <div class="barra"><i style="width:calc(2 / 57 * 100%)"></i></div>
+    <div class="cuenta">Tema 2 de 57</div>
   </div>
 </div>
 
 <div class="wrap">
   <aside class="side">
     <p class="side-tit">Ruta del curso</p>
-    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><span class="activo">Qué es una base de datos relacional</span></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li></ul></details>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><span class="activo">Qué es una base de datos relacional</span></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
 <details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
 <details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
 <details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
@@ -45,7 +45,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
 <details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
 <details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
-<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
   </aside>
 
   <main>
@@ -55,10 +55,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="pill">northwind</span>
     </div>
     <h1>Qué es una base de datos relacional</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../conectarse-y-explorar/">conectarse-y-explorar</a></div>
     
     <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
 <p>Una base de datos relacional guarda información en <strong>tablas</strong>, y las tablas se <strong>conectan entre sí</strong>.</p>
-<p>Eso es todo. La palabra "relacional" no viene de que las tablas se relacionen —aunque también—, sino de <em>relación</em>, el nombre matemático de lo que tú llamas tabla.</p>
 <p>Una tabla tiene tres reglas que una hoja de cálculo no cumple:</p>
 <ol>
 <li><strong>Filas y columnas</strong>, con encabezados.</li>
@@ -250,7 +250,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Son <strong>2 clientes</strong>. La clave es el <code>LEFT JOIN</code>: conserva todos los clientes, y los que no encontraron pedido quedan con <code>NULL</code> en las columnas de <code>orders</code>. Filtrar por ese <code>NULL</code> es preguntar <em>"¿quiénes no tuvieron pareja?"</em>. Se ve en detalle en el tema <span class="xref-pend" title="Aún no publicado">anti-join-y-semi-join</span>.</p></div></details>
-    <nav class="navpies"><span></span><a class="nav-next" href="../leer-un-esquema-desconocido/"><span>Siguiente</span><strong>Leer un esquema desconocido</strong></a></nav>
+    <nav class="navpies"><a class="nav-prev" href="../conectarse-y-explorar/"><span>Anterior</span><strong>Conectarse y explorar</strong></a><a class="nav-next" href="../leer-un-esquema-desconocido/"><span>Siguiente</span><strong>Leer un esquema desconocido</strong></a></nav>
   </main>
 
   <aside class="toc">

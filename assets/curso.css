@@ -221,3 +221,47 @@ h1{font-size:38px;line-height:1.15;letter-spacing:-.025em;margin:0 0 18px;
 .hl .nk,.hl .nl,.hl .nv,.hl .vg,.hl .vi{color:#cfcfcf}
 .hl .err{color:#cfcfcf;background:none;border:0}
 .hl .w{color:inherit}
+
+/* ── pasos de arranque (portada) ── */
+.pasos-tit{padding:52px 0 20px}
+.pasos{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:20px;margin:0;padding:0;align-items:start}
+.paso{display:flex;flex-direction:column;align-items:flex-start;gap:12px;
+  border:1px solid var(--borde);border-radius:10px;background:var(--superficie-2);
+  padding:20px 18px;transition:border-color .15s,background .15s}
+.paso:hover{border-color:#3a3a3a;background:#171717}
+
+.paso-cab{display:flex;align-items:center;gap:11px;width:100%}
+.paso-num{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:6px;
+  background:var(--superficie);color:var(--suave);font-size:12px;font-weight:700;
+  font-variant-numeric:tabular-nums;border:1px solid var(--borde)}
+.paso h3{margin:0;font-size:15.5px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+
+.paso-btn{display:inline-block;padding:9px 15px;border-radius:7px;
+  background:rgba(226,226,226,.10);border:1px solid rgba(226,226,226,.14);
+  color:var(--texto);font-size:13px;font-weight:600;
+  transition:background .15s,border-color .15s}
+.paso-btn:hover{background:rgba(226,226,226,.17);border-color:rgba(226,226,226,.24);
+  color:var(--texto)}
+.paso-nota{font-size:11.5px;color:var(--suave);line-height:1.45}
+
+.paso-mas{width:100%;margin-top:auto;border-top:1px solid var(--borde);padding-top:11px}
+.paso-mas summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px;
+  font-size:12px;color:var(--suave);font-weight:500}
+.paso-mas summary::-webkit-details-marker{display:none}
+.paso-mas summary:hover{color:var(--cuerpo)}
+.chev{flex:none;width:7px;height:7px;border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);
+  transition:transform .18s}
+.paso-mas[open] .chev{transform:rotate(225deg) translate(-2px,-2px)}
+.paso-mas p{margin:10px 0 0;font-size:13px;color:var(--cuerpo);line-height:1.55}
+
+@media(max-width:1080px){.pasos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.pasos{grid-template-columns:1fr}.pasos-tit{padding:36px 0 16px}}
+
+/* ── video del tema (campo video-youtube en el frontmatter) ── */
+.tema-video{margin:28px 0 8px}
+.tema-video + .tema-video{margin-top:20px}
+.tema-video-tit{font-size:13px;font-weight:600;color:var(--suave);margin-bottom:10px}
+.tema-video iframe{width:100%;aspect-ratio:16/9;border:1px solid var(--borde);
+  border-radius:10px;display:block;background:#000}
