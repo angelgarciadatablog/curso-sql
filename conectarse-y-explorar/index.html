@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=14" />
+  <link rel="stylesheet" href="../assets/curso.css?v=15" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -103,6 +103,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Este tema enseña los dos. Si algo dice «en <code>psql</code>» y tú aún no lo tienes, sáltatelo: <strong>al lado siempre está cómo hacer lo mismo en DBeaver.</strong></p>
 <h2 id="2-c-mo-se-conecta">2. Cómo se conecta</h2>
 <p>Cualquier cliente necesita lo mismo — <strong>host, puerto, base, usuario y contraseña</strong>. Cambia solo la forma de dárselos.</p>
+<div class="tema-video"><div class="tema-video-tit">Conectarse a la base del curso con DBeaver</div><iframe src="https://www.youtube.com/embed/OPHykPx5Px8" title="Conectarse a la base del curso con DBeaver" loading="lazy" allowfullscreen></iframe></div>
 <h3>2.1 Descarga e instala DBeaver</h3>
 <p>En <a href="https://dbeaver.io/download/">https://dbeaver.io/download/</a>. Dos avisos y ya:</p>
 <ul>
@@ -221,6 +222,7 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 <p><strong>Y hay una tercera vía que funciona en los dos</strong>: preguntarle a la propia base con SQL, consultando <code>information_schema</code>. Es más largo de escribir, pero es <strong>SQL puro</strong> — funciona en DBeaver, en <code>psql</code>, en la nube y en otros motores. Lo ves en la sección siguiente.</p>
 </blockquote>
 <h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<p><img alt="Explorar la base de datos" src="" /></p>
 <p><strong>Dónde estoy parado.</strong> Útil cuando tienes varias conexiones abiertas y no sabes cuál es cuál:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">current_database</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="k">current_user</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">usuario</span><span class="p">;</span>
 </code></pre></div>

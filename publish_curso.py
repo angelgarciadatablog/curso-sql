@@ -68,10 +68,57 @@ for f in sorted(SRC.glob("*/*.md")):
 temas.sort(key=lambda t: t["orden"])
 por_slug = {t["slug"]: t for t in temas}
 
+YT_URL = (r"https?://(?:www\.)?(?:youtube\.com/watch\?[^\s)]*v=[A-Za-z0-9_-]{11}[^\s)]*"
+          r"|youtu\.be/[A-Za-z0-9_-]{11}[^\s)]*)")
+# Un video solo en su línea: sintaxis de embed de Obsidian ![Título](url) o la URL pelada.
+VIDEO_LINEA = re.compile(rf"^[ \t]*(?:!\[(?P<tit>[^\]]*)\]\((?P<url1>{YT_URL})\)"
+                         rf"|(?P<url2>{YT_URL}))[ \t]*$")
+MARCA_VIDEO = "@@video-%d@@"
+
+
+def datos_video(url):
+    """(id, segundo_de_inicio) de una URL de YouTube. El `t=13s` de los enlaces
+    compartidos se traduce a `start=13` en el embed."""
+    m = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
+    vid = m.group(1) if m else url
+    ms = re.search(r"[?&]t=(\d+)s?", url)
+    return vid, int(ms.group(1)) if ms else 0
+
+
 def extraer_video_id(url):
     """Extrae el video ID de una URL de YouTube."""
-    match = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
-    return match.group(1) if match else url
+    return datos_video(url)[0]
+
+
+def html_video(titulo, url):
+    """Un bloque de video. Sin título no se pinta la etiqueta — dentro del cuerpo
+    el encabezado de la sección ya dice de qué va."""
+    vid, start = datos_video(url)
+    src = f"https://www.youtube.com/embed/{vid}" + (f"?start={start}" if start else "")
+    tit = (titulo or "").strip()
+    etiqueta = f'<div class="tema-video-tit">{tit}</div>' if tit else ""
+    return (f'<div class="tema-video">{etiqueta}<iframe src="{src}"'
+            f' title="{tit or "Video del tema"}" loading="lazy" allowfullscreen></iframe></div>')
+
+
+def extraer_videos_inline(cuerpo):
+    """Saca los videos que van dentro del cuerpo y los deja como marcador.
+
+    Devuelve (cuerpo_con_marcadores, [(titulo, url), ...]). Se sustituye antes de
+    convertir a Markdown para que el HTML del iframe no pase por el conversor;
+    lo que hay dentro de un bloque de código no se toca."""
+    videos, salida, en_codigo = [], [], False
+    for linea in cuerpo.splitlines():
+        if linea.lstrip().startswith("```"):
+            en_codigo = not en_codigo
+        if not en_codigo:
+            m = VIDEO_LINEA.match(linea)
+            if m:
+                videos.append((m.group("tit") or "", m.group("url1") or m.group("url2")))
+                salida += ["", MARCA_VIDEO % (len(videos) - 1), ""]
+                continue
+        salida.append(linea)
+    return "\n".join(salida), videos
 
 
 def normalizar_videos(value):
@@ -175,8 +222,11 @@ for i, t in enumerate(publicados):
         soluciones = cuerpo[m.end():].strip()
         cuerpo = cuerpo[:m.start()].rstrip().rstrip("-").rstrip()
     cuerpo = re.sub(r"^# .+\n", "", cuerpo, count=1)          # el h1 lo pone el template
+    cuerpo, videos_inline = extraer_videos_inline(cuerpo)
 
     cuerpo_html = render(cuerpo, t["slug"])
+    for n, (tit, url) in enumerate(videos_inline):
+        cuerpo_html = cuerpo_html.replace(f"<p>{MARCA_VIDEO % n}</p>", html_video(tit, url))
     sol_html    = render(soluciones, t["slug"]) if soluciones else ""
 
     # TOC + anclas en los h2
@@ -202,14 +252,14 @@ for i, t in enumerate(publicados):
                  f'<span class="sol-hint">Resuélvelos antes de abrir</span></summary>'
                  f'<div class="post-body">{sol_html}</div></details>') if sol_html else ""
 
-    # Video(s) de YouTube — campo polimórfico en el frontmatter del tema.
-    videos = normalizar_videos(t["meta"].get("video-youtube", ""))
+    # Video(s) de YouTube. Si el tema pone videos dentro del cuerpo, mandan esos y
+    # la cabecera se queda vacía; el campo del frontmatter es la vía sin posición.
     video_html = ""
-    for v in videos:
-        video_html += (f'<div class="tema-video">'
-                       f'<div class="tema-video-tit">{v["titulo"]}</div>'
-                       f'<iframe src="https://www.youtube.com/embed/{extraer_video_id(v["url"])}"'
-                       f' title="{v["titulo"]}" loading="lazy" allowfullscreen></iframe></div>')
+    if not videos_inline:
+        for v in normalizar_videos(t["meta"].get("video-youtube", "")):
+            video_html += html_video(v["titulo"], v["url"])
+    elif t["meta"].get("video-youtube"):
+        print(f"  ! {t['slug']}: tiene videos en el cuerpo — se ignora `video-youtube` del frontmatter")
 
     descripcion = desc_tema.get(t["slug"], t["titulo"])
     canonical   = f"{BASE_URL}{BASE_PATH}/{t['slug']}/"
