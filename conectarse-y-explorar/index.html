@@ -222,6 +222,7 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 <p><strong>Y hay una tercera vía que funciona en los dos</strong>: preguntarle a la propia base con SQL, consultando <code>information_schema</code>. Es más largo de escribir, pero es <strong>SQL puro</strong> — funciona en DBeaver, en <code>psql</code>, en la nube y en otros motores. Lo ves en la sección siguiente.</p>
 </blockquote>
 <h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<div class="tema-video"><div class="tema-video-tit">Primera vez usando DBeaver - Curso SQL</div><iframe src="https://www.youtube.com/embed/PJf8-GeF9tc" title="Primera vez usando DBeaver - Curso SQL" loading="lazy" allowfullscreen></iframe></div>
 <p><strong>Dónde estoy parado.</strong> Útil cuando tienes varias conexiones abiertas y no sabes cuál es cuál:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">current_database</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="k">current_user</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">usuario</span><span class="p">;</span>
 </code></pre></div>
