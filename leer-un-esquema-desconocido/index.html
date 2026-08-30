@@ -27,8 +27,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="topbar">
   <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
   <div class="progreso">
-    <div class="barra"><i style="width:calc(3 / 60 * 100%)"></i></div>
-    <div class="cuenta">Tema 3 de 60</div>
+    <div class="barra"><i style="width:calc(3 / 61 * 100%)"></i></div>
+    <div class="cuenta">Tema 3 de 61</div>
   </div>
 </div>
 
@@ -46,7 +46,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
 <details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
 <details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
-<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
   </aside>
 
   <main>
@@ -115,8 +115,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><code>\d orders</code> es el comando que más vas a usar en tu vida con PostgreSQL.</p>
 <h3>3.3 Con SQL puro</h3>
-<p>Cuando el cliente no ayuda, <code>information_schema</code> siempre está. <strong>Es SQL estándar: funciona en PostgreSQL, SQL Server, MySQL y casi cualquier motor.</strong></p>
-<p>Todas las conexiones del esquema de un vistazo:</p>
+<p>Cuando el cliente no ayuda, hay dos catálogos donde mirar. <strong>Las dos consultas de abajo responden exactamente a la misma pregunta y devuelven el mismo resultado</strong> — cambia quién puede ejecutarlas.</p>
+<h4>Opción A — <code>pg_catalog</code> (la que puedes ejecutar)</h4>
+<blockquote>
+<p><strong>✅ Funciona con tu usuario del curso</strong>: <code>pg_catalog</code> no filtra por permisos.
+A cambio es específica de PostgreSQL — no existe en SQL Server ni en MySQL.</p>
+</blockquote>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">conrelid</span><span class="p">::</span><span class="n">regclass</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">       </span><span class="n">a</span><span class="p">.</span><span class="n">attname</span><span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
+<span class="w">       </span><span class="n">confrelid</span><span class="p">::</span><span class="n">regclass</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_constraint</span><span class="w"> </span><span class="k">c</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">pg_attribute</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attrelid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">conrelid</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attnum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">ANY</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">conkey</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">contype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">connamespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">::</span><span class="n">regnamespace</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">conrelid</span><span class="p">::</span><span class="n">regclass</span><span class="p">::</span><span class="nb">text</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attname</span><span class="p">;</span>
+</code></pre></div>
+
+<h4>Opción B — <code>information_schema</code> (la portable)</h4>
+<blockquote>
+<p><strong>⚠️ En el curso te devolverá vacío, y no es un error tuyo</strong>: exige permisos de escritura.
+Es SQL estándar y funciona en cualquier motor, por eso hay que conocerla.
+Con un usuario administrador da el mismo resultado que la opción A. Ver § 3.4.</p>
+</blockquote>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
 <span class="w">       </span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
 <span class="w">       </span><span class="n">ccu</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
@@ -130,6 +150,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 </code></pre></div>
 
+<p><strong>El resultado, con cualquiera de las dos:</strong></p>
 <div class="hl"><pre><span></span><code>        tabla         |   columna    |  apunta_a
 ----------------------+--------------+-------------
  employee_territories | employee_id  | employees
@@ -147,8 +168,44 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><strong>Once claves foráneas y ahí está el mapa completo.</strong> En treinta segundos, sin que nadie te explique nada.</p>
 <p>Y mira la tercera fila: <code>employees.reports_to</code> apunta a <code>employees</code>. Una tabla que se apunta a sí misma <strong>es siempre una jerarquía</strong> — aquí, quién le reporta a quién.</p>
+<h3>3.4 Por qué <code>information_schema</code> a veces devuelve vacío</h3>
+<p>Las vistas de <code>information_schema</code> no muestran todo el esquema: filtran por los permisos del usuario que consulta. Y el filtro <strong>se decide vista por vista</strong>, no es uniforme.</p>
+<p>Mirando la definición de <code>information_schema.table_constraints</code>, los privilegios que acepta son <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>TRUNCATE</code>, <code>REFERENCES</code> y <code>TRIGGER</code>. <strong><code>SELECT</code> no está en la lista.</strong> Un usuario de solo lectura, como el del curso, obtiene cero filas — <strong>sin ningún mensaje de error</strong>, que es lo que hace perder la tarde: parece que la base no tuviera claves foráneas.</p>
+<p><code>information_schema.columns</code>, en cambio, <strong>sí</strong> acepta <code>SELECT</code>. Por eso las consultas de columnas de este mismo tema funcionan perfectamente con tu usuario.</p>
+<table>
+<thead>
+<tr>
+<th>Vista</th>
+<th>¿Acepta <code>SELECT</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>columns</code></td>
+<td>✅ Sí</td>
+</tr>
+<tr>
+<td><code>table_constraints</code></td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td><code>key_column_usage</code></td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td><code>constraint_column_usage</code></td>
+<td>❌ No — exige ser el dueño de la tabla</td>
+</tr>
+</tbody>
+</table>
+<p><code>pg_catalog</code> no filtra por permisos en ninguna de sus tablas, y por eso la opción A funciona siempre.</p>
+<blockquote>
+<p><strong>Lo que hay que llevarse.</strong> Un resultado vacío no siempre significa que no haya datos.
+También puede significar que no tienes permiso para verlos.
+Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creerte el resultado.</p>
+</blockquote>
 <h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
-<p><strong>Comprobar el grano.</strong> Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
+<p><strong>4.1 Comprobar el grano.</strong> Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_distintos</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
 </code></pre></div>
@@ -159,14 +216,65 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Iguales: el grano es "un pedido". <strong>Si no fueran iguales, tu idea del grano estaría mal</strong> — y toda suma que hagas después, también.</p>
-<p><strong>Ver qué puede faltar.</strong> Las columnas que admiten <code>NULL</code> te dicen dónde el negocio permite ausencias:</p>
+<p><strong>4.2 Ver qué puede faltar en una tabla.</strong> Las columnas que admiten <code>NULL</code> te dicen dónde el negocio permite ausencias:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
 <span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
 </code></pre></div>
 
+<div class="hl"><pre><span></span><code>   column_name    | is_nullable
+------------------+-------------
+ required_date    | YES
+ shipped_date     | YES
+ ship_via         | YES
+ freight          | YES
+ ship_name        | YES
+ ...
+</code></pre></div>
+
 <p><code>shipped_date</code> admite <code>NULL</code>. Eso no es un descuido: significa <strong>"pedido aún no despachado"</strong>. El esquema te está contando una regla de negocio.</p>
+<p><strong><code>ship_via</code></strong> también admite nulos, pero es una <strong>clave foránea</strong>, y ahí hay una trampa.</p>
+<p>Una FK promete que todo valor de esa columna existe en la otra tabla. Pero un <code>NULL</code> <strong>no es un valor</strong>: no hay nada que comprobar, así que la FK lo deja pasar. <strong>Una FK que admite nulos no garantiza al 100%</strong> — solo cubre las filas que tienen valor, y las que no lo tienen desaparecen en silencio al cruzar las tablas con un <code>JOIN</code>.</p>
+<p>O sea que <em>"aquí el negocio permite una ausencia"</em> y <em>"esta clave foránea garantiza la integridad"</em> <strong>se contradicen en la misma columna</strong>. Por eso en una FK lo recomendable es <code>NOT NULL</code>, y quitarlo solo cuando puedas decir en voz alta la frase que lo justifica: <em>"aún no se le ha asignado transportista"</em> es una regla de negocio; <em>"pues... podría pasar"</em> es un descuido de diseño.</p>
+<p>Y al leer un esquema conviene saber que <strong><code>NOT NULL</code> es la restricción más fiable de todas</strong>: no se puede añadir a medias. Si el histórico tiene un solo <code>NULL</code>, PostgreSQL rechaza la restricción hasta que lo limpies. Así que una columna <code>NOT NULL</code> te dice algo fuerte —alguien la puso desde el principio, o limpió los datos para poder ponerla—, mientras que ver una clave foránea declarada no garantiza lo mismo sobre el pasado.</p>
+<p><strong>4.3 Ver qué puede faltar en todo el modelo.</strong> La misma pregunta, pero de una vez para las 12 tablas. Primero el resumen, para saber dónde mirar:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columnas</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nulables</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">table_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">nulables</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="k">table_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>        tabla         | columnas | nulables
+----------------------+----------+----------
+ employees            |       16 |       13
+ orders               |       14 |       10
+ suppliers            |       12 |       10
+ customers            |       11 |        9
+ products             |       10 |        5
+ us_states            |        4 |        3
+ categories           |        3 |        1
+ shippers             |        3 |        1
+ employee_territories |        2 |        0
+ order_details        |        5 |        0
+ region               |        2 |        0
+ territories          |        3 |        0
+</code></pre></div>
+
+<p>Y el detalle, cuando quieras la lista completa:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span><span class="w"> </span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>52 columnas nulables</strong> en todo el esquema. Tres lecturas:</p>
+<p><strong>Cuatro tablas con cero.</strong> <code>order_details</code>, <code>employee_territories</code>, <code>region</code> y <code>territories</code> no admiten un solo hueco. Son las tablas de relación y de catálogo: todo obligatorio. Son las más rígidas del modelo, y por tanto las más fiables.</p>
+<p><strong><code>employees</code> con 13 de 16.</strong> Casi todo opcional —teléfono, dirección, notas, fecha de nacimiento—, que es lo razonable en datos de ficha que se rellenan cuando se tienen.</p>
+<p><strong>Y de las 52, solo dos son claves foráneas:</strong> <code>employees.reports_to</code> y <code>orders.ship_via</code>. Las otras cincuenta son atributos, donde un nulo significa nada más que "este dato falta". Esas dos son las únicas donde el nulo rompe una relación — que es exactamente lo que hay que ir a buscar.</p>
 <h2 id="5-errores-comunes">5. Errores comunes</h2>
 <ol>
 <li><strong>Empezar por <code>SELECT *</code> en la tabla más grande.</strong> Ver 2.155 filas no te dice nada del modelo. Empieza por las claves foráneas.</li>
