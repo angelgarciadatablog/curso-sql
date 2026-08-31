@@ -60,7 +60,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     
     <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
 <p><code>SELECT</code> es la única sentencia que <strong>pregunta</strong>. Todo lo demás en SQL crea, modifica o borra; <code>SELECT</code> solo lee.</p>
-<p>Y tiene una propiedad que conviene entender desde el primer minuto: <strong><code>SELECT</code> no devuelve la tabla, devuelve una tabla nueva</strong>. La original no se toca. Puedes equivocarte todas las veces que quieras.</p>
+<p>Y tiene una propiedad que conviene entender desde el primer minuto: <strong><code>SELECT</code> no devuelve la tabla, devuelve una tabla nueva</strong>. La original no se toca. </p>
 <p>Las dos piezas mínimas:</p>
 <ul>
 <li><strong><code>FROM</code></strong> — de dónde saco las filas.</li>
@@ -193,7 +193,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    Sin comillas, PostgreSQL pasa todo a minúsculas y encuentra la columna. Con comillas, busca literalmente <code>Product_Name</code>, que no existe.</p>
 </li>
 <li>
-<p><strong>Comillas simples para nombres de columna.</strong> <code>'product_name'</code> no es la columna: es el <strong>texto</strong> <code>product_name</code>, repetido en todas las filas. No da error, que es lo peligroso. <strong>Simples = texto. Dobles = identificador.</strong></p>
+<p><strong>Comillas simples para nombres de columna.</strong> Al colocar <code>'product_name'</code> dentro del SELECT, no hacemos referencia a la columna: es el <strong>texto</strong> <code>product_name</code>, repetido en todas las filas. No da error, que podría ser peligroso. <strong>Simples = texto. Dobles = columna.</strong></p>
 </li>
 <li>
 <p><strong><code>SELECT *</code> en un informe que alguien va a mantener.</strong> Ver arriba.</p>

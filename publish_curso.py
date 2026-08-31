@@ -145,10 +145,10 @@ def normalizar_videos(value):
 
 
 def nb(b):
-    """Número de bloque visible. El vault numera desde 0 (Bloque 0 = Antes de
-    escribir SQL); en la web la ruta se presenta desde 1, para que el último
-    bloque coincida con el total de bloques anunciado."""
-    return str(int(b) + 1)
+    """Número de bloque visible. Desde el 2026-08-30 el vault numera desde 1,
+    igual que la web: el desfase de +1 que había aquí no llegaba a la prosa de
+    los temas, que cita números del vault. La numeración la manda el vault."""
+    return str(b)
 
 
 def publicable(t):

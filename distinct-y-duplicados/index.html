@@ -65,7 +65,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>DISTINCT</code> compara la fila entera del <code>SELECT</code></strong>, no la primera columna.</li>
 <li><strong><code>DISTINCT</code> es a veces la respuesta y muchas veces una tirita.</strong> Cuando aparece para "arreglar" filas duplicadas que no esperabas, casi siempre está tapando un error en el <code>FROM</code>.</li>
 </ul>
-<p>Este último punto es el que hace que este tema cierre el bloque 1 y no lo abra.</p>
+<p>Este último punto es el que hace que este tema cierre el bloque 2 y no lo abra.</p>
 <h2 id="2-sintaxis">2. Sintaxis</h2>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">columna1</span><span class="p">,</span><span class="w"> </span><span class="n">columna2</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="p">;</span><span class="w">        </span><span class="c1">-- filas únicas</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">columna</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="p">;</span><span class="w">            </span><span class="c1">-- cuántos valores distintos</span>

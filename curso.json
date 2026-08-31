@@ -2,70 +2,70 @@
   {
     "slug": "conectarse-y-explorar",
     "titulo": "Conectarse y explorar",
-    "bloque": "0",
+    "bloque": "1",
     "orden": 1,
     "url": "https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/"
   },
   {
     "slug": "que-es-una-base-de-datos-relacional",
     "titulo": "Qué es una base de datos relacional",
-    "bloque": "0",
+    "bloque": "1",
     "orden": 2,
     "url": "https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/"
   },
   {
     "slug": "leer-un-esquema-desconocido",
     "titulo": "Leer un esquema desconocido",
-    "bloque": "0",
+    "bloque": "1",
     "orden": 3,
     "url": "https://www.angelgarciadatablog.com/curso-sql/leer-un-esquema-desconocido/"
   },
   {
     "slug": "select-y-from",
     "titulo": "SELECT y FROM",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 4,
     "url": "https://www.angelgarciadatablog.com/curso-sql/select-y-from/"
   },
   {
     "slug": "orden-logico-de-ejecucion",
     "titulo": "El orden lógico de ejecución",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 5,
     "url": "https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/"
   },
   {
     "slug": "where-y-operadores",
     "titulo": "WHERE y los operadores",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 6,
     "url": "https://www.angelgarciadatablog.com/curso-sql/where-y-operadores/"
   },
   {
     "slug": "null-y-la-logica-de-tres-valores",
     "titulo": "NULL y la lógica de tres valores",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 7,
     "url": "https://www.angelgarciadatablog.com/curso-sql/null-y-la-logica-de-tres-valores/"
   },
   {
     "slug": "buscar-texto-like-y-regex",
     "titulo": "Buscar texto: LIKE, ILIKE y expresiones regulares",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 8,
     "url": "https://www.angelgarciadatablog.com/curso-sql/buscar-texto-like-y-regex/"
   },
   {
     "slug": "ordenar-y-limitar",
     "titulo": "Ordenar y limitar",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 9,
     "url": "https://www.angelgarciadatablog.com/curso-sql/ordenar-y-limitar/"
   },
   {
     "slug": "distinct-y-duplicados",
     "titulo": "DISTINCT y duplicados",
-    "bloque": "1",
+    "bloque": "2",
     "orden": 10,
     "url": "https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/"
   }
