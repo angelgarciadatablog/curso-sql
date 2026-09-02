@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/select-y-from/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -245,6 +245,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><em>Finanzas quiere saber cuánto dinero hay parado en el almacén: el valor total del inventario producto por producto, del más caro al más barato.</em></p>
 </blockquote>
 <p>No hace falta ninguna función que no hayas visto. Sí hace falta decidir <strong>qué es "valor"</strong>.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_inventario</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">valor_inventario</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       product_name        | unit_price | units_in_stock | valor_inventario
+---------------------------+------------+----------------+------------------
+ Côte de Blaye             |     263.50 |             17 |          4479.50
+ Raclette Courdavault      |      55.00 |             79 |          4345.00
+ Queso Manchego La Pastora |      38.00 |             86 |          3268.00
+ Sir Rodney's Marmalade    |      81.00 |             40 |          3240.00
+ Sirop d'érable            |      28.50 |            113 |          3220.50
+</code></pre></div>
+
+<p>Dos cosas que este ejercicio enseña de verdad:</p>
+<ul>
+<li><strong><code>ORDER BY</code> sí acepta el alias</strong> (<code>valor_inventario</code>), aunque <code>WHERE</code> no. No es incoherencia: <code>ORDER BY</code> se ejecuta <em>después</em> del <code>SELECT</code>. Otra vez, <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>.</li>
+<li><strong>"Valor" es ambiguo y hay que preguntarlo.</strong> <code>unit_price</code> es el precio de <strong>venta</strong>. El valor contable de un inventario normalmente es el de <strong>coste</strong>, que Northwind no guarda. Lo que has calculado es <em>cuánto facturarías si lo vendieras todo</em>, que no es lo mismo. Decirlo al entregar el dato es lo que separa a alguien que ejecuta SQL de alguien que analiza.</li>
+</ul></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedor</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
@@ -301,30 +323,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  Ana Trujillo Emparedados y helados | México D.F.
 </code></pre></div>
 
-<p><strong>Este es el único caso donde las comillas dobles se usan a propósito.</strong> Un alias con espacios o mayúsculas las necesita. Un alias normal, no.</p>
-<p><strong>Pregunta de negocio.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="p">,</span>
-<span class="w">       </span><span class="n">units_in_stock</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_inventario</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">valor_inventario</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code>       product_name        | unit_price | units_in_stock | valor_inventario
----------------------------+------------+----------------+------------------
- Côte de Blaye             |     263.50 |             17 |          4479.50
- Raclette Courdavault      |      55.00 |             79 |          4345.00
- Queso Manchego La Pastora |      38.00 |             86 |          3268.00
- Sir Rodney's Marmalade    |      81.00 |             40 |          3240.00
- Sirop d'érable            |      28.50 |            113 |          3220.50
-</code></pre></div>
-
-<p>Dos cosas que este ejercicio enseña de verdad:</p>
-<ul>
-<li><strong><code>ORDER BY</code> sí acepta el alias</strong> (<code>valor_inventario</code>), aunque <code>WHERE</code> no. No es incoherencia: <code>ORDER BY</code> se ejecuta <em>después</em> del <code>SELECT</code>. Otra vez, <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>.</li>
-<li><strong>"Valor" es ambiguo y hay que preguntarlo.</strong> <code>unit_price</code> es el precio de <strong>venta</strong>. El valor contable de un inventario normalmente es el de <strong>coste</strong>, que Northwind no guarda. Lo que has calculado es <em>cuánto facturarías si lo vendieras todo</em>, que no es lo mismo. Decirlo al entregar el dato es lo que separa a alguien que ejecuta SQL de alguien que analiza.</li>
-</ul></div></details>
+<p><strong>Este es el único caso donde las comillas dobles se usan a propósito.</strong> Un alias con espacios o mayúsculas las necesita. Un alias normal, no.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../leer-un-esquema-desconocido/"><span>Anterior</span><strong>Leer un esquema desconocido</strong></a><a class="nav-next" href="../orden-logico-de-ejecucion/"><span>Siguiente</span><strong>El orden lógico de ejecución</strong></a></nav>
   </main>
 

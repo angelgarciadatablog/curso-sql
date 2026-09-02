@@ -221,6 +221,17 @@ for i, t in enumerate(publicados):
     if m:
         soluciones = cuerpo[m.end():].strip()
         cuerpo = cuerpo[:m.start()].rstrip().rstrip("-").rstrip()
+
+    # La respuesta a la pregunta de negocio sale de `## Soluciones` y va a su propio
+    # desplegable, pegado a la pregunta. El material usa dos convenciones para marcarla
+    # y las dos son ancla fiable: párrafo en negrita (bloques 1-7) y `###` (bloques 8-12).
+    # Si no aparece ninguna, la respuesta se queda donde estaba.
+    respuesta = ""
+    mr = re.search(r"^(?:\*\*Pregunta de negocio[.:]?\*\*|### Pregunta de negocio)\s*",
+                   soluciones, re.M)
+    if mr:
+        respuesta  = soluciones[mr.end():].strip()
+        soluciones = soluciones[:mr.start()].rstrip().rstrip("-").rstrip()
     cuerpo = re.sub(r"^# .+\n", "", cuerpo, count=1)          # el h1 lo pone el template
     cuerpo, videos_inline = extraer_videos_inline(cuerpo)
 
@@ -228,6 +239,7 @@ for i, t in enumerate(publicados):
     for n, (tit, url) in enumerate(videos_inline):
         cuerpo_html = cuerpo_html.replace(f"<p>{MARCA_VIDEO % n}</p>", html_video(tit, url))
     sol_html    = render(soluciones, t["slug"]) if soluciones else ""
+    resp_html   = render(respuesta, t["slug"]) if respuesta else ""
 
     # TOC + anclas en los h2
     toc = re.findall(r"<h2>(.*?)</h2>", cuerpo_html)
@@ -251,6 +263,10 @@ for i, t in enumerate(publicados):
     sol_block = (f'<details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones'
                  f'<span class="sol-hint">Resuélvelos antes de abrir</span></summary>'
                  f'<div class="post-body">{sol_html}</div></details>') if sol_html else ""
+
+    resp_block = (f'<details class="soluciones respuesta"><summary><span class="sol-ic">?</span> '
+                  f'Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary>'
+                  f'<div class="post-body">{resp_html}</div></details>') if resp_html else ""
 
     # Video(s) de YouTube. Si el tema pone videos dentro del cuerpo, mandan esos y
     # la cabecera se queda vacía; el campo del frontmatter es la vía sin posición.
@@ -281,6 +297,7 @@ for i, t in enumerate(publicados):
         .replace("{{SIDEBAR}}", sidebar(t["slug"], t["bloque"]))
         .replace("{{TOC}}", toc_html)
         .replace("{{CUERPO}}", cuerpo_html)
+        .replace("{{RESPUESTA}}", resp_block)
         .replace("{{SOLUCIONES}}", sol_block)
         .replace("{{PREV}}", f'<a class="nav-prev" href="../{prev["slug"]}/"><span>Anterior</span>'
                              f'<strong>{prev["titulo"]}</strong></a>' if prev else "<span></span>")

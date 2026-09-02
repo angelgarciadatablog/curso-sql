@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -297,6 +297,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <blockquote>
 <p><em>Un compañero te enseña una consulta que tarda 40 segundos y te dice: "le puse <code>LIMIT 10</code>, no entiendo por qué sigue tardando lo mismo". ¿Qué le respondes, y qué le propones mirar primero?</em></p>
 </blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>Qué le respondes: <strong><code>LIMIT</code> es el último paso.</strong> El motor primero escanea, filtra, agrupa y ordena el conjunto completo; solo cuando ya tiene el resultado final ordenado, se queda con 10 filas. <code>LIMIT</code> reduce lo que se te <em>envía</em>, no lo que se <em>trabaja</em>.</p>
+<p>Qué le propones mirar, en este orden:</p>
+<ol>
+<li><strong><code>EXPLAIN ANALYZE</code></strong> — dónde se va el tiempo de verdad (<span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>).</li>
+<li><strong>El <code>WHERE</code></strong> — si el filtro puede ser más selectivo, ahí se gana de verdad, porque es el paso 2 y reduce todo lo que viene detrás.</li>
+<li><strong>El <code>ORDER BY</code></strong> — ordenar millones de filas para enseñar diez es lo más caro de la consulta. Un índice sobre la columna de orden puede evitar el <code>Sort</code> entero (<span class="xref-pend" title="Aún no publicado">indices</span>).</li>
+</ol>
+<p>La frase que resume el tema: <strong>para que una consulta sea rápida hay que atacar el principio del embudo, no el final.</strong></p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Repetir la expresión en el <code>WHERE</code>. El alias no existe en el paso 2:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
@@ -337,16 +345,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Cuatro de los nueve empleados. Que salga el <strong>id</strong> y no el nombre es una limitación real de este punto del curso: para eso hace falta un JOIN (<span class="xref-pend" title="Aún no publicado">inner-join</span>).</p>
-<p><strong>5.</strong> Porque <code>ORDER BY</code> es el paso 7 y <code>SELECT</code> el 5: <strong>cuando se ordena, el alias ya existe.</strong></p>
-<p><strong>Pregunta de negocio.</strong></p>
-<p>Qué le respondes: <strong><code>LIMIT</code> es el último paso.</strong> El motor primero escanea, filtra, agrupa y ordena el conjunto completo; solo cuando ya tiene el resultado final ordenado, se queda con 10 filas. <code>LIMIT</code> reduce lo que se te <em>envía</em>, no lo que se <em>trabaja</em>.</p>
-<p>Qué le propones mirar, en este orden:</p>
-<ol>
-<li><strong><code>EXPLAIN ANALYZE</code></strong> — dónde se va el tiempo de verdad (<span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>).</li>
-<li><strong>El <code>WHERE</code></strong> — si el filtro puede ser más selectivo, ahí se gana de verdad, porque es el paso 2 y reduce todo lo que viene detrás.</li>
-<li><strong>El <code>ORDER BY</code></strong> — ordenar millones de filas para enseñar diez es lo más caro de la consulta. Un índice sobre la columna de orden puede evitar el <code>Sort</code> entero (<span class="xref-pend" title="Aún no publicado">indices</span>).</li>
-</ol>
-<p>La frase que resume el tema: <strong>para que una consulta sea rápida hay que atacar el principio del embudo, no el final.</strong></p></div></details>
+<p><strong>5.</strong> Porque <code>ORDER BY</code> es el paso 7 y <code>SELECT</code> el 5: <strong>cuando se ordena, el alias ya existe.</strong></p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../select-y-from/"><span>Anterior</span><strong>SELECT y FROM</strong></a><a class="nav-next" href="../where-y-operadores/"><span>Siguiente</span><strong>WHERE y los operadores</strong></a></nav>
   </main>
 

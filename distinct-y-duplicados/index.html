@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -270,6 +270,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <blockquote>
 <p><em>Te piden "cuántos clientes distintos compraron en 1997 y de qué países". Un compañero ya la escribió y le salen 89 clientes, pero la empresa solo tiene 91 clientes en total y sabe que muchos no compraron ese año. ¿Qué pasó?</em></p>
 </blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>Lo que pasó: <strong>le falta el filtro de año.</strong> La consulta de tu compañero es esta o equivalente:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 89, de todos los años</span>
+</code></pre></div>
+
+<p>La correcta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes_1997</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> clientes_1997
+---------------
+            86
+</code></pre></div>
+
+<p>Y con países:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Las tres cosas que enseña este caso:</strong></p>
+<ol>
+<li><strong>89 no era un error de <code>DISTINCT</code>, era un <code>WHERE</code> que faltaba.</strong> El <code>DISTINCT</code> estaba bien puesto. Cuando un número sale raro, la primera sospecha no siempre es la última cláusula que escribiste.</li>
+<li><strong>86 de 91 clientes compraron en 1997.</strong> Que casi todos los clientes de la tabla compren cada año dice algo del dataset: <code>customers</code> no es un histórico de altas, es la cartera activa.</li>
+<li><strong>El país es del cliente, no del pedido.</strong> He usado <code>c.country</code> y no <code>o.ship_country</code> a propósito, porque la pregunta era "de qué países son los clientes". Si la pregunta hubiera sido "a dónde enviamos", la columna sería la otra. <strong>Son dos informes distintos con nombres casi iguales</strong>, y equivocarse no da ningún error.</li>
+</ol></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">title</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 4</span>
@@ -308,38 +338,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Igual que el ejemplo del último pedido, pero <strong>sin <code>DESC</code></strong>. Devuelve <strong>89 filas</strong>, no 91: dos clientes no han comprado nunca y no aparecen en <code>orders</code>. Ese detalle es el corazón de la pregunta de negocio.</p>
 <p><strong>5.</strong> <code>count(*)</code> sobre <code>orders</code> cuenta <strong>pedidos</strong>: 830. <code>count(DISTINCT customer_id)</code> cuenta <strong>clientes que aparecen en la tabla de pedidos</strong>: 89.</p>
-<p>La correcta para "cuántos clientes han comprado" es la segunda. La primera responde a otra pregunta. <strong>Cuando una métrica se llama "clientes" y sale un número parecido al de pedidos, hay un <code>DISTINCT</code> olvidado.</strong></p>
-<p><strong>Pregunta de negocio.</strong></p>
-<p>Lo que pasó: <strong>le falta el filtro de año.</strong> La consulta de tu compañero es esta o equivalente:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 89, de todos los años</span>
-</code></pre></div>
-
-<p>La correcta:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes_1997</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> clientes_1997
----------------
-            86
-</code></pre></div>
-
-<p>Y con países:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
-<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
-</code></pre></div>
-
-<p><strong>Las tres cosas que enseña este caso:</strong></p>
-<ol>
-<li><strong>89 no era un error de <code>DISTINCT</code>, era un <code>WHERE</code> que faltaba.</strong> El <code>DISTINCT</code> estaba bien puesto. Cuando un número sale raro, la primera sospecha no siempre es la última cláusula que escribiste.</li>
-<li><strong>86 de 91 clientes compraron en 1997.</strong> Que casi todos los clientes de la tabla compren cada año dice algo del dataset: <code>customers</code> no es un histórico de altas, es la cartera activa.</li>
-<li><strong>El país es del cliente, no del pedido.</strong> He usado <code>c.country</code> y no <code>o.ship_country</code> a propósito, porque la pregunta era "de qué países son los clientes". Si la pregunta hubiera sido "a dónde enviamos", la columna sería la otra. <strong>Son dos informes distintos con nombres casi iguales</strong>, y equivocarse no da ningún error.</li>
-</ol></div></details>
+<p>La correcta para "cuántos clientes han comprado" es la segunda. La primera responde a otra pregunta. <strong>Cuando una métrica se llama "clientes" y sale un número parecido al de pedidos, hay un <code>DISTINCT</code> olvidado.</strong></p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../ordenar-y-limitar/"><span>Anterior</span><strong>Ordenar y limitar</strong></a><span></span></nav>
   </main>
 

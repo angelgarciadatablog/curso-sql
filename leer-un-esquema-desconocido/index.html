@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/leer-un-esquema-desconocido/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -115,7 +115,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><code>\d orders</code> es el comando que más vas a usar en tu vida con PostgreSQL.</p>
 <h3>3.3 Con SQL puro</h3>
-<p>Cuando el cliente no ayuda, hay dos catálogos donde mirar. <strong>Las dos consultas de abajo responden exactamente a la misma pregunta y devuelven el mismo resultado</strong> — cambia quién puede ejecutarlas.</p>
+<p>Cuando el programa (cliente) no ayuda, hay dos catálogos donde mirar. <strong>Las dos consultas de abajo responden exactamente a la misma pregunta y devuelven el mismo resultado</strong> — cambia quién puede ejecutarlas.</p>
 <h4>Opción A — <code>pg_catalog</code> (la que puedes ejecutar)</h4>
 <blockquote>
 <p><strong>✅ Funciona con tu usuario del curso</strong>: <code>pg_catalog</code> no filtra por permisos.
@@ -294,6 +294,12 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 <p><em>Te acaban de dar acceso a Northwind y tu jefe pregunta: "¿por qué canal llegan los pedidos más caros?". Antes de escribir una sola consulta, ¿qué tablas necesitas y cómo se conectan?</em></p>
 </blockquote>
 <p>Responde con el camino de tablas, no con SQL.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>el camino es</p>
+<div class="hl"><pre><span></span><code>shippers ──&lt; orders ──&lt; order_details &gt;── products
+</code></pre></div>
+
+<p><code>shippers</code> da el canal (<code>company_name</code>), <code>orders</code> conecta el pedido con su transportista (<code>ship_via</code>), y el importe <strong>no está en <code>orders</code></strong> — hay que calcularlo desde <code>order_details</code> como <code>unit_price * quantity * (1 - discount)</code>.</p>
+<p>El punto del ejercicio es notar que <strong><code>orders</code> no guarda el total del pedido</strong>. Es el error más común al llegar a Northwind: buscar una columna "total" que no existe, porque el importe vive a otro grano.</p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
 <table>
 <thead>
@@ -366,13 +372,7 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 <span class="k">JOIN</span><span class="w"> </span><span class="n">us_states</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">state_abbr</span><span class="p">;</span>
 </code></pre></div>
 
-<p>Devuelve <strong>13</strong>. Es una unión <strong>sin clave foránea declarada</strong>: funciona porque los valores coinciden, pero nada garantiza que sigan coincidiendo. El motor no la protege.</p>
-<p><strong>Pregunta de negocio:</strong> el camino es</p>
-<div class="hl"><pre><span></span><code>shippers ──&lt; orders ──&lt; order_details &gt;── products
-</code></pre></div>
-
-<p><code>shippers</code> da el canal (<code>company_name</code>), <code>orders</code> conecta el pedido con su transportista (<code>ship_via</code>), y el importe <strong>no está en <code>orders</code></strong> — hay que calcularlo desde <code>order_details</code> como <code>unit_price * quantity * (1 - discount)</code>.</p>
-<p>El punto del ejercicio es notar que <strong><code>orders</code> no guarda el total del pedido</strong>. Es el error más común al llegar a Northwind: buscar una columna "total" que no existe, porque el importe vive a otro grano.</p></div></details>
+<p>Devuelve <strong>13</strong>. Es una unión <strong>sin clave foránea declarada</strong>: funciona porque los valores coinciden, pero nada garantiza que sigan coincidiendo. El motor no la protege.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../que-es-una-base-de-datos-relacional/"><span>Anterior</span><strong>Qué es una base de datos relacional</strong></a><a class="nav-next" href="../select-y-from/"><span>Siguiente</span><strong>SELECT y FROM</strong></a></nav>
   </main>
 

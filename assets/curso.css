@@ -128,6 +128,12 @@ h1{font-size:38px;line-height:1.15;letter-spacing:-.025em;margin:0 0 18px;
 .soluciones .post-body{padding:24px 20px 8px}
 .soluciones .post-body h2{display:none}
 
+/* La respuesta a la pregunta de negocio: mismo mecanismo que las soluciones, pero
+   en su propio bloque y pegada a la pregunta. El azul la distingue del ámbar del
+   spoiler: son dos cosas distintas y no deben leerse como el mismo bloque. */
+.respuesta{margin-top:26px}
+.respuesta .sol-ic{background:rgba(96,165,250,.15);color:var(--acento-suave);font-weight:700}
+
 /* ── navegación ── */
 .navpies{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:52px;
   padding-top:26px;border-top:1px solid var(--borde)}

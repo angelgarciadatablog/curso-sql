@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/ordenar-y-limitar/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -271,6 +271,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <blockquote>
 <p><em>Dirección quiere "el top 10 de productos más caros" para una presentación, y lo va a repetir cada trimestre para comparar. ¿Qué consulta entregas y qué le adviertes?</em></p>
 </blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Las tres advertencias, por orden de importancia:</p>
+<ol>
+<li><strong>Los empates.</strong> Aquí el corte cae limpio —el décimo cuesta 40,00 y el undécimo 38,00— pero <strong>dentro del top hay un empate</strong>: <code>Schoggi Schokolade</code> y <code>Vegie-spread</code> cuestan los dos 43,90 y ocupan los puestos 8 y 9 por <code>product_id</code>, no por precio. El día que el corte caiga sobre un empate así, el <code>product_id</code> hará la consulta reproducible — <strong>pero reproducible no es justo</strong>: habrá un producto fuera del top por un criterio que no tiene nada que ver con el precio. La respuesta honesta ese día es enseñar 11 filas y decir que hay empate.</li>
+<li><strong>"Producto más caro" no es "producto que más factura".</strong> <code>unit_price</code> es el precio de catálogo; un producto carísimo que nadie compra encabeza esta lista. Si la pregunta de Dirección es de negocio, la métrica probablemente sea <code>sum(unit_price * quantity)</code> sobre <code>order_details</code>, no <code>unit_price</code> — y eso necesita un JOIN (<span class="xref-pend" title="Aún no publicado">joins-multiples-y-granularidad</span>).</li>
+<li><strong>"Cada trimestre" implica comparar.</strong> He filtrado los descatalogados a propósito: si no, un producto puede salir del top no por bajar de precio sino por dejar de venderse, y la comparación entre trimestres mezcla dos causas distintas. <strong>Esa decisión hay que contarla, no esconderla en el <code>WHERE</code>.</strong></li>
+</ol></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">freight</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
@@ -319,22 +334,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <ol>
 <li><strong><code>order_date</code> es <code>date</code>, sin hora, y hay varios pedidos por día.</strong> Los últimos 10 "por fecha" están llenos de empates: cuáles entran no está definido. Se arregla con <code>ORDER BY order_date DESC, order_id DESC</code>.</li>
 <li><strong>No hay <code>WHERE</code>, así que incluye pedidos sin enviar y no distingue nada.</strong> Pero sobre todo: la consulta dice <em>"los 10 más recientes"</em> y solo garantiza <em>"10 filas de entre las más recientes"</em>. <strong>En un informe que alguien va a comparar con el del mes pasado, eso es un fallo, no un detalle.</strong></li>
-</ol>
-<p><strong>Pregunta de negocio.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="p">,</span>
-<span class="w">       </span><span class="n">product_name</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span>
-<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-</code></pre></div>
-
-<p>Las tres advertencias, por orden de importancia:</p>
-<ol>
-<li><strong>Los empates.</strong> Aquí el corte cae limpio —el décimo cuesta 40,00 y el undécimo 38,00— pero <strong>dentro del top hay un empate</strong>: <code>Schoggi Schokolade</code> y <code>Vegie-spread</code> cuestan los dos 43,90 y ocupan los puestos 8 y 9 por <code>product_id</code>, no por precio. El día que el corte caiga sobre un empate así, el <code>product_id</code> hará la consulta reproducible — <strong>pero reproducible no es justo</strong>: habrá un producto fuera del top por un criterio que no tiene nada que ver con el precio. La respuesta honesta ese día es enseñar 11 filas y decir que hay empate.</li>
-<li><strong>"Producto más caro" no es "producto que más factura".</strong> <code>unit_price</code> es el precio de catálogo; un producto carísimo que nadie compra encabeza esta lista. Si la pregunta de Dirección es de negocio, la métrica probablemente sea <code>sum(unit_price * quantity)</code> sobre <code>order_details</code>, no <code>unit_price</code> — y eso necesita un JOIN (<span class="xref-pend" title="Aún no publicado">joins-multiples-y-granularidad</span>).</li>
-<li><strong>"Cada trimestre" implica comparar.</strong> He filtrado los descatalogados a propósito: si no, un producto puede salir del top no por bajar de precio sino por dejar de venderse, y la comparación entre trimestres mezcla dos causas distintas. <strong>Esa decisión hay que contarla, no esconderla en el <code>WHERE</code>.</strong></li>
 </ol></div></details>
     <nav class="navpies"><a class="nav-prev" href="../buscar-texto-like-y-regex/"><span>Anterior</span><strong>Buscar texto: LIKE, ILIKE y expresiones regulares</strong></a><a class="nav-next" href="../distinct-y-duplicados/"><span>Siguiente</span><strong>DISTINCT y duplicados</strong></a></nav>
   </main>

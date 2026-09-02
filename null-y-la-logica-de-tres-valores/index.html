@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/null-y-la-logica-de-tres-valores/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -349,6 +349,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><em>Logística quiere el porcentaje de pedidos entregados con retraso. Te dan la definición: "retraso es cuando la fecha de envío es posterior a la fecha requerida".</em></p>
 </blockquote>
 <p>Da el número. Y da <strong>también</strong> la frase que tienes que decir al entregarlo.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">)</span><span class="w">                                  </span><span class="k">AS</span><span class="w"> </span><span class="n">enviados</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                             </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                      </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_sobre_enviados</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> con_retraso | enviados | total | pct_sobre_enviados
+-------------+----------+-------+--------------------
+          37 |      809 |   830 |               4.57
+</code></pre></div>
+
+<p><strong>El número es 4,57%. La frase es esta:</strong></p>
+<blockquote>
+<p><em>"37 pedidos llegaron tarde. Es el 4,57% de los 809 que ya se enviaron, o el 4,46% de los 830 totales. He usado el primero, porque los 21 pedidos que faltan </em><em>no se han enviado todavía</em><em>: no se puede decir si llegaron tarde. Si alguno de esos 21 ya pasó su fecha requerida, el porcentaje real será mayor."</em></p>
+</blockquote>
+<p>Ahí están las tres cosas que hacen buena una respuesta: <strong>el número, el denominador que elegiste, y el <code>NULL</code> que no escondiste.</strong> Dividir entre 830 sin decir nada también da un número — y también es defendible — pero solo si lo dices.</p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_enviar</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 21</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">fax</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">                                 </span><span class="c1">-- 22</span>
@@ -378,26 +396,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>Este patrón es un perfilado de datos en una línea</strong> y es lo primero que se ejecuta contra una tabla que no conoces.</p>
-<p><strong>5.</strong> <strong>830</strong>, todas las filas. <code>IS NULL OR IS NOT NULL</code> cubre los tres estados sin dejar hueco, porque ambos operadores devuelven siempre <code>TRUE</code> o <code>FALSE</code>, nunca <code>UNKNOWN</code>. Con <code>= NULL OR &lt;&gt; NULL</code> habrían salido <strong>0</strong>.</p>
-<p><strong>Pregunta de negocio.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span><span class="p">,</span>
-<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">)</span><span class="w">                                  </span><span class="k">AS</span><span class="w"> </span><span class="n">enviados</span><span class="p">,</span>
-<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                             </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
-<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span>
-<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                      </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_sobre_enviados</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> con_retraso | enviados | total | pct_sobre_enviados
--------------+----------+-------+--------------------
-          37 |      809 |   830 |               4.57
-</code></pre></div>
-
-<p><strong>El número es 4,57%. La frase es esta:</strong></p>
-<blockquote>
-<p><em>"37 pedidos llegaron tarde. Es el 4,57% de los 809 que ya se enviaron, o el 4,46% de los 830 totales. He usado el primero, porque los 21 pedidos que faltan </em><em>no se han enviado todavía</em><em>: no se puede decir si llegaron tarde. Si alguno de esos 21 ya pasó su fecha requerida, el porcentaje real será mayor."</em></p>
-</blockquote>
-<p>Ahí están las tres cosas que hacen buena una respuesta: <strong>el número, el denominador que elegiste, y el <code>NULL</code> que no escondiste.</strong> Dividir entre 830 sin decir nada también da un número — y también es defendible — pero solo si lo dices.</p></div></details>
+<p><strong>5.</strong> <strong>830</strong>, todas las filas. <code>IS NULL OR IS NOT NULL</code> cubre los tres estados sin dejar hueco, porque ambos operadores devuelven siempre <code>TRUE</code> o <code>FALSE</code>, nunca <code>UNKNOWN</code>. Con <code>= NULL OR &lt;&gt; NULL</code> habrían salido <strong>0</strong>.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../where-y-operadores/"><span>Anterior</span><strong>WHERE y los operadores</strong></a><a class="nav-next" href="../buscar-texto-like-y-regex/"><span>Siguiente</span><strong>Buscar texto: LIKE, ILIKE y expresiones regulares</strong></a></nav>
   </main>
 

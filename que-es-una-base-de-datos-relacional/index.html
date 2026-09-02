@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -212,12 +212,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><em>El gerente quiere saber si hay clientes registrados que nunca hayan comprado nada, para llamarlos.</em></p>
 </blockquote>
 <p>No te digo qué columnas ni qué tablas. Piensa primero qué significa "nunca compró" en términos de las dos tablas.</p></div>
-    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Una sola fila, en <code>customers</code>. Los pedidos no guardan el teléfono, solo apuntan al cliente. En la hoja de cálculo habría que cambiar todas las filas de ese cliente — y basta olvidar una para que la hoja quede mintiendo.</p>
-<p><strong>2.</strong> Dos: <code>order_details</code> (<code>order_id</code>, <code>product_id</code>) y <code>employee_territories</code> (<code>employee_id</code>, <code>territory_id</code>). Ambas son tablas del medio de un "muchos a muchos". Lo que identifica una línea de pedido no es el pedido ni el producto por separado, sino <strong>la combinación</strong>: el producto 42 dentro del pedido 10248.</p>
-<p><strong>3.</strong> <code>employee_territories</code>: un empleado cubre varios territorios y un territorio lo atienden varios empleados.</p>
-<p><strong>Pregunta de negocio:</strong> <em>"nunca compró"</em> significa que su <code>customer_id</code> <strong>no aparece ni una sola vez</strong> en <code>orders.customer_id</code>. No hay una columna <code>compro: sí/no</code> en <code>customers</code> — el dato no está guardado, se deduce de una <strong>ausencia</strong> en la otra tabla.</p>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p><em>"nunca compró"</em> significa que su <code>customer_id</code> <strong>no aparece ni una sola vez</strong> en <code>orders.customer_id</code>. No hay una columna <code>compro: sí/no</code> en <code>customers</code> — el dato no está guardado, se deduce de una <strong>ausencia</strong> en la otra tabla.</p>
 <p>Ese es el salto mental del modelo relacional: hay preguntas que no se responden mirando una tabla, sino mirando <strong>qué filas de una no tienen pareja en la otra</strong>. En Northwind son <strong>2 clientes</strong>.</p>
 <p>La sintaxis para escribirlo —conservar las filas sin pareja y filtrarlas— es el <code>LEFT JOIN</code> y el anti-join del bloque 5 (<span class="xref-pend" title="Aún no publicado">left-right-y-full-join</span>, <span class="xref-pend" title="Aún no publicado">anti-join-y-semi-join</span>). Aquí basta con haber formulado la idea correctamente.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Una sola fila, en <code>customers</code>. Los pedidos no guardan el teléfono, solo apuntan al cliente. En la hoja de cálculo habría que cambiar todas las filas de ese cliente — y basta olvidar una para que la hoja quede mintiendo.</p>
+<p><strong>2.</strong> Dos: <code>order_details</code> (<code>order_id</code>, <code>product_id</code>) y <code>employee_territories</code> (<code>employee_id</code>, <code>territory_id</code>). Ambas son tablas del medio de un "muchos a muchos". Lo que identifica una línea de pedido no es el pedido ni el producto por separado, sino <strong>la combinación</strong>: el producto 42 dentro del pedido 10248.</p>
+<p><strong>3.</strong> <code>employee_territories</code>: un empleado cubre varios territorios y un territorio lo atienden varios empleados.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../conectarse-y-explorar/"><span>Anterior</span><strong>Conectarse y explorar</strong></a><a class="nav-next" href="../leer-un-esquema-desconocido/"><span>Siguiente</span><strong>Leer un esquema desconocido</strong></a></nav>
   </main>
 

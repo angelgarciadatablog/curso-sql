@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/buscar-texto-like-y-regex/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=15" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -390,6 +390,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><em>Marketing quiere lanzar una campaña a los clientes "de tipo restaurante o comida": cualquiera cuyo nombre de empresa sugiera que está en hostelería. Te piden la lista.</em></p>
 </blockquote>
 <p>No hay una columna que diga "sector". Hay que fabricarla desde el texto — y decir en qué no te fías.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">country</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'restaurant|taquer|pizz|caf[eé]|delicat|market|grocer|food|comida|bistro'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         company_name         |  country
+------------------------------+-----------
+ Antonio Moreno Taquería      | Mexico
+ Bólido Comidas preparadas    | Spain
+ Bottom-Dollar Markets        | Canada
+ Cactus Comidas para llevar   | Argentina
+ Great Lakes Food Market      | USA
+ GROSELLA-Restaurante         | Venezuela
+ Hungry Owl All-Night Grocers | Ireland
+ LINO-Delicateses             | Venezuela
+ Lonesome Pine Restaurant     | USA
+ Old World Delicatessen       | USA
+ Pericles Comidas clásicas    | Mexico
+ Rattlesnake Canyon Grocery   | USA
+ Save-a-lot Markets           | USA
+ Simons bistro                | Denmark
+ Tortuga Restaurante          | Mexico
+ White Clover Markets         | USA
+</code></pre></div>
+
+<p><strong>16 clientes de 91.</strong></p>
+<p><strong>Y ahora lo que hay que decir al entregarla</strong>, que es el 80% del valor:</p>
+<ol>
+<li><strong>Esto no es el sector, es una corazonada sobre el nombre.</strong> Nombres como <code>Around the Horn</code>, <code>Bon app'</code> o <code>La maison d'Asie</code> no los pilla ningún patrón, y podrían ser perfectamente hostelería. No hay forma de saberlo desde el nombre.</li>
+<li><strong>El idioma rompe cualquier lista de palabras.</strong> Northwind tiene clientes en 21 países. Buscar <code>restaurant</code> no encuentra <code>Taquería</code>, ni <code>Trattoria</code>, ni <code>Comidas</code>. Cada palabra que añades es un idioma que recuerdas y diez que no.</li>
+<li><strong>Falsos positivos garantizados.</strong> <code>Market</code> pilla supermercados, que quizá Marketing no considere hostelería.</li>
+<li><strong>Lo que hay que proponer:</strong> si el sector del cliente importa para el negocio, <strong>es una columna</strong>, no un <code>LIKE</code>. La consulta sirve para hacer un primer barrido y que alguien la revise a mano una vez; no para repetirla cada trimestre.</li>
+</ol>
+<p>Esa última frase —<em>"esto no debería resolverse con una búsqueda de texto"</em>— es la respuesta profesional. La consulta la entregas igual.</p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%s'</span><span class="p">;</span>
 </code></pre></div>
@@ -445,43 +480,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Las dos devuelven <strong>50 clientes</strong>. <strong>La regex es mejor</strong>, y no por potencia: por <strong>legibilidad</strong>. <code>'_____'</code> obliga a contar guiones bajos con el dedo en la pantalla; <code>'^.{5}$'</code> dice cinco. Un patrón que hay que contar es un patrón que alguien va a escribir mal.</p>
-<p>(Un tercer camino, más honesto todavía cuando lo que quieres es la longitud: <code>WHERE length(postal_code) = 5</code>. Si la pregunta es sobre longitud, <strong>usa la función de longitud</strong>, no un patrón — ver <span class="xref-pend" title="Aún no publicado">funciones-dentro-del-select</span>.)</p>
-<p><strong>Pregunta de negocio.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">country</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'restaurant|taquer|pizz|caf[eé]|delicat|market|grocer|food|comida|bistro'</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code>         company_name         |  country
-------------------------------+-----------
- Antonio Moreno Taquería      | Mexico
- Bólido Comidas preparadas    | Spain
- Bottom-Dollar Markets        | Canada
- Cactus Comidas para llevar   | Argentina
- Great Lakes Food Market      | USA
- GROSELLA-Restaurante         | Venezuela
- Hungry Owl All-Night Grocers | Ireland
- LINO-Delicateses             | Venezuela
- Lonesome Pine Restaurant     | USA
- Old World Delicatessen       | USA
- Pericles Comidas clásicas    | Mexico
- Rattlesnake Canyon Grocery   | USA
- Save-a-lot Markets           | USA
- Simons bistro                | Denmark
- Tortuga Restaurante          | Mexico
- White Clover Markets         | USA
-</code></pre></div>
-
-<p><strong>16 clientes de 91.</strong></p>
-<p><strong>Y ahora lo que hay que decir al entregarla</strong>, que es el 80% del valor:</p>
-<ol>
-<li><strong>Esto no es el sector, es una corazonada sobre el nombre.</strong> Nombres como <code>Around the Horn</code>, <code>Bon app'</code> o <code>La maison d'Asie</code> no los pilla ningún patrón, y podrían ser perfectamente hostelería. No hay forma de saberlo desde el nombre.</li>
-<li><strong>El idioma rompe cualquier lista de palabras.</strong> Northwind tiene clientes en 21 países. Buscar <code>restaurant</code> no encuentra <code>Taquería</code>, ni <code>Trattoria</code>, ni <code>Comidas</code>. Cada palabra que añades es un idioma que recuerdas y diez que no.</li>
-<li><strong>Falsos positivos garantizados.</strong> <code>Market</code> pilla supermercados, que quizá Marketing no considere hostelería.</li>
-<li><strong>Lo que hay que proponer:</strong> si el sector del cliente importa para el negocio, <strong>es una columna</strong>, no un <code>LIKE</code>. La consulta sirve para hacer un primer barrido y que alguien la revise a mano una vez; no para repetirla cada trimestre.</li>
-</ol>
-<p>Esa última frase —<em>"esto no debería resolverse con una búsqueda de texto"</em>— es la respuesta profesional. La consulta la entregas igual.</p></div></details>
+<p>(Un tercer camino, más honesto todavía cuando lo que quieres es la longitud: <code>WHERE length(postal_code) = 5</code>. Si la pregunta es sobre longitud, <strong>usa la función de longitud</strong>, no un patrón — ver <span class="xref-pend" title="Aún no publicado">funciones-dentro-del-select</span>.)</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../null-y-la-logica-de-tres-valores/"><span>Anterior</span><strong>NULL y la lógica de tres valores</strong></a><a class="nav-next" href="../ordenar-y-limitar/"><span>Siguiente</span><strong>Ordenar y limitar</strong></a></nav>
   </main>
 
