@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>El muchos a muchos y la tabla del medio · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Muchos a muchos y tabla puente. Cuándo hace falta la tabla del medio y cuándo basta una columna" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/muchos-a-muchos-y-tablas-puente/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="El muchos a muchos y la tabla del medio" />
+  <meta property="og:description" content="Muchos a muchos y tabla puente. Cuándo hace falta la tabla del medio y cuándo basta una columna" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/muchos-a-muchos-y-tablas-puente/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(3 / 62 * 100%)"></i></div>
+    <div class="cuenta">Tema 3 de 62</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><span class="activo">El muchos a muchos y la tabla del medio</span></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 1 · Antes de escribir SQL</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>El muchos a muchos y la tabla del medio</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../que-es-una-base-de-datos-relacional/">que-es-una-base-de-datos-relacional</a></div>
+    
+    <div class="post-body"><h2 id="1-el-problema">1. El problema</h2>
+<p>Tu empresa tiene <strong>9 vendedores</strong> y <strong>53 zonas</strong> de venta.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">     </span><span class="c1">--  9</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 53</span>
+</code></pre></div>
+
+<p>Con 9 personas y 53 zonas, alguien tiene que cubrir varias. Y así es: Nancy Davolio cubre dos —Neward y Wilton—; Andrew Fuller cubre siete.</p>
+<p>Pregunta: <strong>¿dónde apuntas quién cubre qué?</strong></p>
+<p>Parece trivial. No lo es, y el rato que le dediques aquí te ahorra la mitad de los errores del resto del curso.</p>
+<h2 id="2-el-intento-que-no-funciona-nunca">2. El intento que no funciona nunca</h2>
+<p>Le añades a <code>employees</code> una columna <code>zonas</code>:</p>
+<table>
+<thead>
+<tr>
+<th>empleado</th>
+<th>zonas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nancy Davolio</td>
+<td>Neward, Wilton</td>
+</tr>
+<tr>
+<td>Andrew Fuller</td>
+<td>Bedford, Boston, Braintree, Cambridge, Georgetow, Louisville, Westboro</td>
+</tr>
+</tbody>
+</table>
+<p>Se lee bien y no sirve para nada.</p>
+<ul>
+<li><strong>¿Quién cubre Boston?</strong> Tienes que leer las 9 casillas buscando la palabra <em>dentro</em> del texto. No estás consultando datos, estás buscando en un párrafo.</li>
+<li><strong>Andrew deja Boston.</strong> Hay que editar la frase a mano, quitando además la coma correcta.</li>
+<li><strong>¿Cuántas zonas cubre cada uno?</strong> No se pueden contar. Se pueden contar comas, que no es lo mismo.</li>
+</ul>
+<p>Esto está mal siempre, pase lo que pase con las zonas. Es el error que ya viste en <a class="xref" href="../que-es-una-base-de-datos-relacional/">que-es-una-base-de-datos-relacional</a>: varios valores metidos en una celda.</p>
+<h2 id="3-el-intento-que-s-funciona">3. El intento que sí funciona</h2>
+<p>Pruébalo al revés. En vez de guardar las zonas dentro del vendedor, guarda el vendedor dentro de la zona: una columna <code>employee_id</code> en <code>territories</code>.</p>
+<div class="hl"><pre><span></span><code>employees                territories
++----+-----------+       +--------+-----------+-------------+
+| id | apellido  |       | id     | zona      | employee_id |
++----+-----------+       +--------+-----------+-------------+
+|  1 | Davolio   |◄──────| 19713  | Neward    |      1      |
+|  2 | Fuller    |       | 06897  | Wilton    |      1      |
++----+-----------+       | 01730  | Bedford   |      2      |
+                         | 02116  | Boston    |      2      |
+                         | 02184  | Braintree |      2      |
+                         | 75234  | Dallas    |    NULL     |
+                         +--------+-----------+-------------+
+</code></pre></div>
+
+<p><strong>Esto funciona.</strong> No hay ninguna lista dentro de ninguna celda. Nancy Davolio sigue teniendo sus dos zonas y Andrew Andrew sus siete: salen buscando sus filas. El <code>employee_id</code> se repite, y está bien — es el lado "muchos". Y Dallas, que hoy no tiene vendedor, se queda en <code>NULL</code> sin estorbar a nadie.</p>
+<p>Es más: este diseño trae un regalo. Como <code>territory_id</code> es la clave primaria de <code>territories</code>, <strong>cada zona existe una sola vez</strong>, así que la regla <em>"una zona tiene un solo vendedor"</em> queda garantizada sin escribir ninguna restricción extra. Sale gratis.</p>
+<p>Si la relación es de este tipo, el trabajo está hecho. <strong>No hace falta ninguna tabla del medio.</strong></p>
+<blockquote>
+<p>Fíjate en que las dos frases —<em>"un vendedor cubre varias zonas"</em> y <em>"una zona tiene un solo vendedor"</em>— no se contradicen. Miran en direcciones distintas: una de vendedor hacia zonas, la otra de zona hacia vendedor. Son las dos mitades de un <strong>uno a muchos</strong>, como "una madre tiene varios hijos" y "un hijo tiene una sola madre".</p>
+</blockquote>
+<h2 id="4-la-pregunta-que-lo-cambia-todo">4. La pregunta que lo cambia todo</h2>
+<p>Llega el gerente y te dice que Boston es grande, que la van a cubrir dos vendedores.</p>
+<p>Vas a la tabla y no tienes dónde escribirlo:</p>
+<div class="hl"><pre><span></span><code>territories
++--------+-----------+-------------+
+| id     | zona      | employee_id |
++--------+-----------+-------------+
+| 01730  | Bedford   |      2      |
+| 02116  | Boston    |      2      |
+| 02184  | Braintree |      2      |
+| 02116  | Boston    |      5      |  ← RECHAZADO: Boston ya está en la tabla
++--------+-----------+-------------+
+</code></pre></div>
+
+<p><code>territory_id</code> es la clave primaria de <code>territories</code>. <strong>No pueden existir dos filas de Boston.</strong> Y no es que quede feo o incómodo: el motor rechaza la fila.</p>
+<p>Ese regalo de la sección anterior era en realidad una condición. La clave primaria de <code>territories</code> no <em>permitía</em> que cada zona tuviera un solo vendedor: lo <strong>obligaba</strong>. Mientras la regla del negocio dijera lo mismo, iban de la mano. En cuanto la regla cambia, el diseño se cae entero.</p>
+<p>Y la salida no es rehacer la columna. Es que <strong>el dato ya no cabe en ninguna de las dos tablas</strong>, porque ha dejado de pertenecer al vendedor o a la zona: pertenece <strong>a la pareja de los dos</strong>.</p>
+<h2 id="5-el-cuaderno">5. El cuaderno</h2>
+<p>Coges un cuaderno nuevo y escribes <strong>una línea por pareja</strong>:</p>
+<div class="hl"><pre><span></span><code>Nancy  — Neward
+Nancy  — Wilton
+Andrew — Bedford
+Andrew — Boston
+...
+</code></pre></div>
+
+<p>Nancy ocupa 2 líneas. Andrew, 7. En total el cuaderno tiene <strong>49 líneas</strong>. Y si mañana Boston la cubren dos, es una línea más — nada que rehacer.</p>
+<p>Ese cuaderno es una tabla, y en Northwind se llama <code>employee_territories</code>:</p>
+<div class="hl"><pre><span></span><code>employees            employee_territories          territories
+(9 filas)                (49 filas)                 (53 filas)
+    │                  ┌─────────────┐                   │
+    └─────────────────►│ employee_id │                   │
+                       │ territory_id│◄──────────────────┘
+                       └─────────────┘
+</code></pre></div>
+
+<p>Tiene <strong>dos columnas y nada más</strong>, porque no hay nada más que decir sobre la pareja "Nancy — Wilton":</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">territory_id</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employee_territories</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">territory_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | territory_id
+-------------+--------------
+           1 | 06897
+           1 | 19713
+           2 | 01581
+           2 | 01730
+           2 | 01833
+</code></pre></div>
+
+<p>Eso es una <strong>tabla puente</strong>: una tabla cuyo único trabajo es unir otras dos.</p>
+<h2 id="6-las-dos-reglas-del-cuaderno">6. Las dos reglas del cuaderno</h2>
+<p><strong>6.1 No inventar nombres.</strong> En la primera columna solo puedes escribir un empleado que exista en <code>employees</code>. En la segunda, una zona que exista en <code>territories</code>. <strong>Las dos columnas son claves foráneas</strong>, y el motor lo hace cumplir: un empleado que no existe se rechaza al insertar.</p>
+<p><strong>6.2 No repetir líneas.</strong> No puedes escribir "Nancy — Wilton" (employee - territory) dos veces. Ya está dicho.</p>
+<p>Y aquí está la pieza que cuesta: para cumplir esa regla, <strong>¿qué distingue a una línea de otra?</strong> Nada más que la pareja. En el cuaderno no hay ninguna otra cosa escrita, así que no hace falta numerar las líneas: <strong>la pareja es el nombre de la línea</strong>.</p>
+<p>Por eso las dos columnas forman <strong>juntas</strong> la clave primaria. Ninguna sirve sola: <code>employee_id</code> 1 aparece dos veces en las cinco filas de arriba, y <code>territory_id</code> se repetiría en cuanto Boston tuviera sus dos vendedores.</p>
+<p><strong>6.3 Las dos cosas a la vez.</strong> Esto es lo que suele atascar: <strong>clave primaria y clave foránea no son excluyentes.</strong> Son dos papeles distintos y una columna puede tener los dos:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Mira hacia</th>
+<th>Dice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Clave primaria</strong></td>
+<td>adentro</td>
+<td>qué identifica a esta fila</td>
+</tr>
+<tr>
+<td><strong>Clave foránea</strong></td>
+<td>afuera</td>
+<td>este valor tiene que existir allí</td>
+</tr>
+</tbody>
+</table>
+<p>En <code>employee_territories</code> cada columna cumple las dos:</p>
+<table>
+<thead>
+<tr>
+<th>columna</th>
+<th>papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>employee_id</code></td>
+<td>clave foránea → <code>employees</code> <strong>+</strong> parte de la clave primaria</td>
+</tr>
+<tr>
+<td><code>territory_id</code></td>
+<td>clave foránea → <code>territories</code> <strong>+</strong> parte de la clave primaria</td>
+</tr>
+</tbody>
+</table>
+<p>No se estorban. Es la misma casilla cumpliendo dos reglas: <em>"este nombre tiene que existir"</em> y <em>"esta pareja no se puede repetir"</em>.</p>
+<p><strong>Y esa es la firma de una tabla puente: su clave primaria está hecha de sus claves foráneas.</strong> Cuando la veas en un esquema desconocido, ya sabes qué tienes delante sin que nadie te lo explique.</p>
+<h2 id="7-cu-ndo-hace-falta-y-cu-ndo-no">7. Cuándo hace falta y cuándo no</h2>
+<p>Junta lo de las secciones 3 y 4 y te queda una regla de tres casos:</p>
+<table>
+<thead>
+<tr>
+<th>Regla del negocio</th>
+<th>Diseño correcto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Un vendedor, una zona</td>
+<td>Columna en cualquiera de las dos tablas</td>
+</tr>
+<tr>
+<td>Un vendedor cubre varias zonas, pero <strong>cada zona tiene un solo vendedor</strong></td>
+<td>Columna <code>employee_id</code> en <code>territories</code>. Uno a muchos, <strong>sin tabla puente</strong></td>
+</tr>
+<tr>
+<td>Un vendedor cubre varias zonas <strong>y</strong> una zona la cubren varios</td>
+<td><strong>Tabla puente</strong>. No hay otra forma</td>
+</tr>
+</tbody>
+</table>
+<p>Lo que obliga a la tabla del medio no es que un vendedor cubra varias zonas. <strong>Es que además una zona pueda tener varios vendedores.</strong> Hacen falta los dos "varios", y por eso se llama <em>muchos a muchos</em>.</p>
+<p>Ahora el dato incómodo: en Northwind, hoy, <strong>ninguna zona la cubren dos vendedores</strong>. Las 49 asignaciones tienen un solo empleado, y hay 4 zonas sin nadie. Con los datos que hay, la columna en <code>territories</code> bastaría.</p>
+<p>Entonces, ¿por qué Northwind trae la tabla puente? Porque <strong>la estructura la decide la regla del negocio, no los datos que ves</strong>. Que hoy nadie comparta zona puede significar <em>"no está permitido"</em> o puede significar <em>"todavía no ha pasado"</em>, y las dos cosas se ven exactamente igual en los datos. Eso no se deduce: se pregunta.</p>
+<h2 id="8-la-misma-forma-con-datos-encima">8. La misma forma, con datos encima</h2>
+<p><code>employee_territories</code> es el caso limpio. Hay otra tabla puente en Northwind, y es la que vas a usar el resto del curso: <strong><code>order_details</code></strong>.</p>
+<p>Mismo esqueleto —<code>order_id</code> y <code>product_id</code>, las dos claves foráneas y las dos clave primaria juntas— pero <strong>cinco columnas en vez de dos</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>columna</th>
+<th>papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order_id</code></td>
+<td>FK → <code>orders</code> <strong>+</strong> parte de la PK</td>
+</tr>
+<tr>
+<td><code>product_id</code></td>
+<td>FK → <code>products</code> <strong>+</strong> parte de la PK</td>
+</tr>
+<tr>
+<td><code>unit_price</code></td>
+<td>dato propio</td>
+</tr>
+<tr>
+<td><code>quantity</code></td>
+<td>dato propio</td>
+</tr>
+<tr>
+<td><code>discount</code></td>
+<td>dato propio</td>
+</tr>
+</tbody>
+</table>
+<p>Esas tres últimas no son del pedido ni del producto: <strong>son de la pareja.</strong> Cuántas unidades de <em>ese</em> producto en <em>ese</em> pedido, y a qué precio se vendió <em>ahí</em>.</p>
+<p>Que pertenecen a la pareja no es una opinión, se ve en los datos. El producto 42 hoy cuesta 14,00:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">quantity</span><span class="p">,</span><span class="w"> </span><span class="n">discount</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | unit_price | quantity | discount
+----------+------------+----------+----------
+    10248 |       9.80 |       10 |    0.000
+    10309 |      11.20 |        2 |    0.000
+    10311 |      11.20 |        6 |    0.000
+    10332 |      11.20 |       10 |    0.200
+</code></pre></div>
+
+<p><strong>El mismo producto, tres precios distintos.</strong> No es un error: es lo que costaba el día de cada pedido. Si ese precio viviera en <code>products</code>, subir la tarifa reescribiría el pasado y las ventas del año anterior cambiarían solas.</p>
+<p>De aquí sale la consecuencia que más despista al llegar a Northwind: <strong><code>orders</code> no guarda el total del pedido.</strong> No puede — el importe se calcula línea a línea, y las líneas están aquí.</p>
+<p>Y aquí el muchos a muchos sí está en los datos, y lo tienes delante: en esas cuatro filas el producto 42 aparece en cuatro pedidos distintos. Un pedido lleva varios productos y un producto está en varios pedidos — los dos "varios" de la sección 7.</p>
+<h2 id="9-errores-comunes">9. Errores comunes</h2>
+<ol>
+<li><strong>Llegar a la tabla puente sin haberla necesitado.</strong> Si cada zona tuviera un solo vendedor, la columna en <code>territories</code> sería el diseño correcto y la tabla del medio, un rodeo. Antes de crear una, comprueba que los dos lados admiten varios.</li>
+<li><strong>Buscar la relación en la tabla equivocada.</strong> <code>employees</code> no apunta a <code>employee_territories</code>; es el cuaderno el que apunta a las dos listas. Si listas las claves foráneas, la relación aparece bajo <code>employee_territories</code>, no bajo <code>employees</code>.</li>
+<li><strong>Creer que PK y FK son opciones excluyentes.</strong> En una tabla puente, cada columna es las dos cosas.</li>
+<li><strong>Ponerle un <code>id</code> propio a la tabla puente.</strong> Un <code>employee_territory_id</code> autonumérico no identifica mejor: solo permite guardar la misma pareja dos veces, que es justo lo que había que impedir.</li>
+<li><strong>Meter datos de la pareja en las tablas de los lados.</strong> El descuento de una línea no es del producto ni del pedido. Si lo subes a <code>products</code>, deja de ser cierto para los pedidos viejos.</li>
+</ol>
+<h2 id="10-ejercicios">10. Ejercicios</h2>
+<ol>
+<li>Andrew deja de cubrir Boston. ¿Cuántas filas cambian con la tabla puente? ¿Y con la columna en <code>territories</code>? ¿Y con la lista dentro de <code>employees</code>?</li>
+<li>Si los 9 vendedores cubrieran las 53 zonas, ¿cuántas líneas tendría el cuaderno? ¿Cuántas tiene de verdad?</li>
+<li><code>order_details</code> tiene 5 columnas y <code>employee_territories</code> 2. ¿Qué habría que apuntar de la pareja "Nancy — Wilton" para que a esa tabla le hiciera falta una tercera columna?</li>
+</ol>
+<h2 id="11-pregunta-de-negocio">11. Pregunta de negocio</h2>
+<blockquote>
+<p><em>El gerente quiere pagar una comisión por zona cubierta. Te pide "la lista de vendedores con sus zonas" en una sola hoja de Excel, y te insiste en que quiere </em><em>una fila por vendedor</em><em>.</em></p>
+</blockquote>
+<p>No hace falta SQL. Piensa qué le estás entregando exactamente y qué tienes que advertirle.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>Le entregas <strong>49 filas, una por pareja</strong> — y le adviertes que lo que pide, una fila por vendedor, obliga a meter la lista de zonas dentro de una casilla. Serían 9 filas bonitas e inservibles: no se puede filtrar por zona, no se puede sumar por zona, y la comisión —que se paga <em>por zona</em>— habría que contarla a ojo separando comas.</p>
+<p>El punto no es negarse. Es que <strong>"una fila por" es la pregunta que hay que hacer siempre antes de entregar un dato</strong>: cada fila de tu hoja tiene que ser una cosa, y aquí la cosa es la pareja vendedor-zona, no el vendedor. Si aun así quiere las 9 filas para mirarlas, se le dan aparte, dejando claro que ese Excel es para leer y no para calcular encima.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Una fila en los tres, pero no cuesta lo mismo:</p>
+<ul>
+<li><strong>Con la tabla puente — una fila, que se borra.</strong> Desaparece la línea "Andrew — Boston". Nada más se toca: ni Andrew ni Boston se enteran.</li>
+<li><strong>Con la columna en <code>territories</code> — una fila, que se actualiza.</strong> El <code>employee_id</code> de Boston pasa a <code>NULL</code>. La zona sigue existiendo, ahora sin vendedor.</li>
+<li><strong>Con la lista dentro de <code>employees</code> — una fila, editada a mano.</strong> Hay que quitar la palabra "Boston" del texto de la celda, y con ella la coma correcta, sin romper el resto de la lista. Nada impide equivocarse: para la base de datos eso es una frase, no una relación.</li>
+</ul>
+<p>Los dos primeros son operaciones de base de datos. El tercero es corregir un texto y cruzar los dedos — por eso ese diseño no es correcto en ningún caso, ni siquiera cuando "funciona".</p>
+<p><strong>2.</strong> 9 × 53 = <strong>477</strong> líneas como máximo. Tiene <strong>49</strong>. Una tabla puente no guarda todas las combinaciones posibles: guarda las que ocurren. Por eso el muchos a muchos no se resuelve con columnas.</p>
+<p><strong>3.</strong> Cualquier dato que sea de la pareja y no de ninguno de los dos lados: desde cuándo cubre esa zona, qué porcentaje de comisión tiene <em>ahí</em>, si es titular o suplente. En el momento en que exista uno de esos datos, la tabla deja de ser un puente puro y pasa a ser lo que es <code>order_details</code>. La estructura no cambia; solo se le añaden columnas.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../que-es-una-base-de-datos-relacional/"><span>Anterior</span><strong>Qué es una base de datos relacional</strong></a><a class="nav-next" href="../leer-un-esquema-desconocido/"><span>Siguiente</span><strong>Leer un esquema desconocido</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-el-problema">1. El problema</a>
+<a href="#2-el-intento-que-no-funciona-nunca">2. El intento que no funciona nunca</a>
+<a href="#3-el-intento-que-s-funciona">3. El intento que sí funciona</a>
+<a href="#4-la-pregunta-que-lo-cambia-todo">4. La pregunta que lo cambia todo</a>
+<a href="#5-el-cuaderno">5. El cuaderno</a>
+<a href="#6-las-dos-reglas-del-cuaderno">6. Las dos reglas del cuaderno</a>
+<a href="#7-cu-ndo-hace-falta-y-cu-ndo-no">7. Cuándo hace falta y cuándo no</a>
+<a href="#8-la-misma-forma-con-datos-encima">8. La misma forma, con datos encima</a>
+<a href="#9-errores-comunes">9. Errores comunes</a>
+<a href="#10-ejercicios">10. Ejercicios</a>
+<a href="#11-pregunta-de-negocio">11. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>
