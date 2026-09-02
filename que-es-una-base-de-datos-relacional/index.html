@@ -164,7 +164,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p>El "muchos a muchos" <strong>no se puede guardar directo</strong> — hace falta una tabla en medio. En Northwind es <code>order_details</code>, y por eso existe.</p>
 <h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
-<p>Cuántos pedidos tiene cada cliente — un "uno a muchos" en acción:</p>
+<p>Cuántos pedidos tiene cada cliente — un "uno a muchos" en acción. No te detengas en la sintaxis del <code>JOIN</code>; llega completa en el bloque 5. Aquí solo mira el resultado: un cliente, muchos pedidos.</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
 <span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
@@ -204,7 +204,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <h2 id="6-ejercicios">6. Ejercicios</h2>
 <ol>
 <li>Sin ejecutar nada: si un cliente cambia de teléfono, ¿cuántas filas hay que modificar en Northwind? ¿Y en la hoja de cálculo del punto 2?</li>
-<li>Lista las claves primarias de las 12 tablas. Pista: <code>information_schema.table_constraints</code> unida con <code>information_schema.key_column_usage</code>.</li>
 <li>¿Qué tabla tiene una clave primaria formada por <strong>dos</strong> columnas? ¿Por qué tiene sentido que sea así?</li>
 <li>Encuentra en Northwind otra relación "muchos a muchos" distinta de la de pedidos y productos.</li>
 </ol>
@@ -214,44 +213,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </blockquote>
 <p>No te digo qué columnas ni qué tablas. Piensa primero qué significa "nunca compró" en términos de las dos tablas.</p></div>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Una sola fila, en <code>customers</code>. Los pedidos no guardan el teléfono, solo apuntan al cliente. En la hoja de cálculo habría que cambiar todas las filas de ese cliente — y basta olvidar una para que la hoja quede mintiendo.</p>
-<p><strong>2.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="p">,</span>
-<span class="w">       </span><span class="n">string_agg</span><span class="p">(</span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="n">ordinal_position</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clave_primaria</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">table_constraints</span><span class="w"> </span><span class="n">tc</span>
-<span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">key_column_usage</span><span class="w"> </span><span class="n">kcu</span>
-<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">constraint_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'PRIMARY KEY'</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code>      table_name      |      clave_primaria
-----------------------+---------------------------
- categories           | category_id
- customers            | customer_id
- employee_territories | employee_id, territory_id
- employees            | employee_id
- order_details        | order_id, product_id
- orders               | order_id
- products             | product_id
- region               | region_id
- shippers             | shipper_id
- suppliers            | supplier_id
- territories          | territory_id
- us_states            | state_id
-</code></pre></div>
-
-<p><strong>3.</strong> Dos: <code>order_details</code> (<code>order_id</code>, <code>product_id</code>) y <code>employee_territories</code> (<code>employee_id</code>, <code>territory_id</code>). Ambas son tablas del medio de un "muchos a muchos". Lo que identifica una línea de pedido no es el pedido ni el producto por separado, sino <strong>la combinación</strong>: el producto 42 dentro del pedido 10248.</p>
-<p><strong>4.</strong> <code>employee_territories</code>: un empleado cubre varios territorios y un territorio lo atienden varios empleados.</p>
-<p><strong>Pregunta de negocio:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">phone</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
-<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
-</code></pre></div>
-
-<p>Son <strong>2 clientes</strong>. La clave es el <code>LEFT JOIN</code>: conserva todos los clientes, y los que no encontraron pedido quedan con <code>NULL</code> en las columnas de <code>orders</code>. Filtrar por ese <code>NULL</code> es preguntar <em>"¿quiénes no tuvieron pareja?"</em>. Se ve en detalle en el tema <span class="xref-pend" title="Aún no publicado">anti-join-y-semi-join</span>.</p></div></details>
+<p><strong>2.</strong> Dos: <code>order_details</code> (<code>order_id</code>, <code>product_id</code>) y <code>employee_territories</code> (<code>employee_id</code>, <code>territory_id</code>). Ambas son tablas del medio de un "muchos a muchos". Lo que identifica una línea de pedido no es el pedido ni el producto por separado, sino <strong>la combinación</strong>: el producto 42 dentro del pedido 10248.</p>
+<p><strong>3.</strong> <code>employee_territories</code>: un empleado cubre varios territorios y un territorio lo atienden varios empleados.</p>
+<p><strong>Pregunta de negocio:</strong> <em>"nunca compró"</em> significa que su <code>customer_id</code> <strong>no aparece ni una sola vez</strong> en <code>orders.customer_id</code>. No hay una columna <code>compro: sí/no</code> en <code>customers</code> — el dato no está guardado, se deduce de una <strong>ausencia</strong> en la otra tabla.</p>
+<p>Ese es el salto mental del modelo relacional: hay preguntas que no se responden mirando una tabla, sino mirando <strong>qué filas de una no tienen pareja en la otra</strong>. En Northwind son <strong>2 clientes</strong>.</p>
+<p>La sintaxis para escribirlo —conservar las filas sin pareja y filtrarlas— es el <code>LEFT JOIN</code> y el anti-join del bloque 5 (<span class="xref-pend" title="Aún no publicado">left-right-y-full-join</span>, <span class="xref-pend" title="Aún no publicado">anti-join-y-semi-join</span>). Aquí basta con haber formulado la idea correctamente.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../conectarse-y-explorar/"><span>Anterior</span><strong>Conectarse y explorar</strong></a><a class="nav-next" href="../leer-un-esquema-desconocido/"><span>Siguiente</span><strong>Leer un esquema desconocido</strong></a></nav>
   </main>
 
