@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>El negocio de Northwind · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Qué vende Northwind, a quién, desde cuándo y con cuánta gente. El contexto de negocio antes del esquema" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/el-negocio-de-northwind/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="El negocio de Northwind" />
+  <meta property="og:description" content="Qué vende Northwind, a quién, desde cuándo y con cuánta gente. El contexto de negocio antes del esquema" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/el-negocio-de-northwind/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(2 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 2 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details open><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><span class="activo">El negocio de Northwind</span></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="bloqueado">Subconsultas escalares y multivalor</span></li><li><span class="bloqueado">Subconsultas correlacionadas</span></li><li><span class="bloqueado">Tablas derivadas</span></li><li><span class="bloqueado">CTE: la cláusula WITH</span></li><li><span class="bloqueado">CTE recursivas</span></li><li><span class="bloqueado">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><span class="bloqueado">Qué es una función de ventana</span></li><li><span class="bloqueado">PARTITION BY y ORDER BY</span></li><li><span class="bloqueado">El marco: ROWS contra RANGE</span></li><li><span class="bloqueado">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><span class="bloqueado">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><span class="bloqueado">Distribución y percentiles</span></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 1 · Antes de escribir SQL</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>El negocio de Northwind</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../conectarse-y-explorar/">conectarse-y-explorar</a></div>
+    
+    <div class="post-body"><h2 id="1-tu-primer-d-a">1. Tu primer día</h2>
+<p>Ya estás dentro de la base. Ahora imagina que ese acceso es el de tu primer día como analista de datos en <strong>Northwind Traders</strong>.</p>
+<p>Nadie te va a sentar a explicarte la empresa en detalle. Te darán cuatro frases sueltas —<em>"vendemos comida importada, tenemos clientes en varios países"</em>— y poco más. Pero te dan algo que vale muchísimo más que esa charla: <strong>el acceso a la base de datos</strong>.</p>
+<p>Y ahí está todo. Una base de datos de empresa no guarda una muestra ni un resumen: guarda <strong>la historia completa de la operación</strong>. Cada pedido que entró, cada cliente que compró, cada producto que dejó de venderse. Nadie te va a contar ese negocio mejor de lo que te lo pueden contar sus propias tablas.</p>
+<p>Aprender a leerlo es la habilidad. Un analista que solo escribe consultas devuelve números; uno que entiende el negocio detrás devuelve respuestas.</p>
+<p>En este capítulo te damos el contexto ya masticado, y <strong>junto a cada dato, la consulta que lo saca</strong>. Ejecútalas: no se trata de que te creas los números, sino de que veas de dónde salen.</p>
+<h2 id="2-qu-es-northwind">2. Qué es Northwind</h2>
+<p><strong>Northwind Traders importa alimentos de especialidad de todo el mundo y los revende al por mayor.</strong></p>
+<p>Sus clientes no son personas: son tiendas gourmet, delicatessen y restaurantes que le compran para revender. <strong>Nunca vende al público final.</strong></p>
+<p>Es una intermediaria. No fabrica nada. Su negocio son dos cosas —tener el catálogo correcto y hacerlo llegar— y todo lo que encuentres en la base sale de esas dos.</p>
+<p>Es también una <strong>empresa pequeña</strong>: nueve personas. No esperes millones de filas; son los datos de una operación de tamaño humano entre <strong>julio de 1996 y mayo de 1998</strong>.</p>
+<blockquote>
+<p>Los datos son ficticios, pero el negocio que describen no tiene nada de raro: es una distribuidora normal, con sus proveedores, sus comerciales y sus pedidos.</p>
+</blockquote>
+<h2 id="3-el-cat-logo-qu-vende">3. El catálogo — qué vende</h2>
+<p>Northwind vende <strong>77 productos</strong> repartidos en <strong>8 categorías</strong>. De esos 77, <strong>10 están descatalogados</strong>: siguen en el catálogo pero ya no se venden, así que los productos vivos son <strong>67</strong>. Los compra a <strong>29 proveedores</strong> repartidos en <strong>16 países</strong>.</p>
+<p>Las ocho categorías son Beverages, Condiments, Confections, Dairy Products, Grains/Cereals, Meat/Poultry, Produce y Seafood.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuántos productos tiene el catálogo?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+
+<span class="c1">-- ¿Cuántos están descatalogados?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">descatalogados</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+
+<span class="c1">-- ¿En cuántas categorías se agrupan?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">categorias</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="p">;</span>
+
+<span class="c1">-- ¿Y cuáles son?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">category_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">categoria</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_name</span><span class="p">;</span>
+
+<span class="c1">-- ¿A cuántos proveedores les compra?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedores</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+
+<span class="c1">-- ¿De cuántos países distintos?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises_de_proveedores</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="4-los-clientes-a-qui-n-le-vende">4. Los clientes — a quién le vende</h2>
+<p>Tiene <strong>91 clientes</strong> repartidos en <strong>21 países</strong> y <strong>69 ciudades</strong>. Los tres mercados más grandes son Estados Unidos con 13 clientes, y Francia y Alemania empatados con 11 cada uno.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuántos clientes tiene?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+
+<span class="c1">-- ¿En cuántos países hay clientes?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises_de_clientes</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+
+<span class="c1">-- ¿Y en cuántas ciudades?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">city</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ciudades_de_clientes</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+
+<span class="c1">-- ¿Cuántos clientes hay en cada país?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="5-la-operaci-n-cu-nto-ha-vendido">5. La operación — cuánto ha vendido</h2>
+<p>En sus registros hay <strong>830 pedidos</strong>, del <strong>4 de julio de 1996 al 6 de mayo de 1998</strong> — veintidós meses. En total facturó <strong>1.265.793,04</strong>, lo que da un <strong>ticket medio de 1.525,05</strong> por pedido.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuántos pedidos ha procesado?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+
+<span class="c1">-- ¿Entre qué fechas?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primer_pedido</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo_pedido</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+
+<span class="c1">-- ¿Cuánto facturó en total?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<p>El <strong>ticket medio</strong> sale de dividir: 1.265.793,04 ÷ 830 = 1.525,05. La consulta que lo calcula sola necesita una subconsulta, y eso llega más adelante en el curso.</p>
+<p>Fíjate de dónde sale la facturación: <strong>no está guardada en ninguna columna</strong>. Se calcula multiplicando precio por cantidad y restando el descuento, línea a línea. Es la primera señal de algo que verás mucho: en una base de datos de producción <strong>los importes suelen calcularse, no almacenarse</strong>.</p>
+<h2 id="6-la-empresa-qui-nes-la-llevan">6. La empresa — quiénes la llevan</h2>
+<p>Northwind la llevan <strong>9 personas</strong>: un vicepresidente de ventas, un jefe de ventas, <strong>seis comerciales</strong> y una coordinadora interna.</p>
+<p>No tiene camiones propios — subcontrata el transporte a <strong>6 empresas</strong>. Y su fuerza de ventas cubre <strong>53 territorios</strong> agrupados en <strong>4 regiones</strong>: Eastern, Western, Northern y Southern.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuánta gente trabaja aquí?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleados</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span>
+
+<span class="c1">-- ¿En qué puestos?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cargo</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cuantos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">title</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cuantos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+
+<span class="c1">-- ¿Con cuántos transportistas trabaja?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">transportistas</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">shippers</span><span class="p">;</span>
+
+<span class="c1">-- ¿En cuántos territorios vende?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">territorios</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="p">;</span>
+
+<span class="c1">-- ¿Y cómo se agrupan?</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">region_description</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region_id</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
+<p><strong><code>discontinued</code> es booleano, no un 0/1.</strong></p>
+<p>Northwind nació en SQL Server, donde esa columna es un entero. En esta base es <code>boolean</code>, así que la consulta que encontrarás en casi cualquier tutorial de internet <strong>falla aquí</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- ❌ Esto revienta</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR: operator does not exist: boolean = integer
+</code></pre></div>
+
+<p>La forma correcta en PostgreSQL no necesita comparar con nada, porque la columna <strong>ya es</strong> verdadero o falso:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- ✅ Así sí</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+
+<span class="c1">-- ✅ Equivalente, más explícito</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">TRUE</span><span class="p">;</span>
+
+<span class="c1">-- ✅ Los que SÍ se venden</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Es el primer aviso de una regla que te va a acompañar todo el curso: <strong>una consulta copiada de internet puede estar escrita para otro motor.</strong> Cuando algo falle sin motivo aparente, la primera pregunta es <em>¿para qué base de datos se escribió esto?</em></p></div>
+    
+    
+    <nav class="navpies"><a class="nav-prev" href="../conectarse-y-explorar/"><span>Anterior</span><strong>Conectarse y explorar</strong></a><a class="nav-next" href="../que-es-una-base-de-datos-relacional/"><span>Siguiente</span><strong>Qué es una base de datos relacional</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-tu-primer-d-a">1. Tu primer día</a>
+<a href="#2-qu-es-northwind">2. Qué es Northwind</a>
+<a href="#3-el-cat-logo-qu-vende">3. El catálogo — qué vende</a>
+<a href="#4-los-clientes-a-qui-n-le-vende">4. Los clientes — a quién le vende</a>
+<a href="#5-la-operaci-n-cu-nto-ha-vendido">5. La operación — cuánto ha vendido</a>
+<a href="#6-la-empresa-qui-nes-la-llevan">6. La empresa — quiénes la llevan</a>
+<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
+  </aside>
+</div>
+</body>
+</html>
