@@ -104,17 +104,102 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Si no puedes decirlo en una frase, todavía no entendiste la tabla.</p>
 <p><strong>Por qué importa tanto:</strong> el grano determina qué puedes sumar sin equivocarte. <code>orders.freight</code> es el flete <strong>del pedido</strong>. Si unes <code>orders</code> con <code>order_details</code> y sumas <code>freight</code>, lo estás sumando una vez por cada línea del pedido. El pedido 11077 tiene 25 líneas: su flete contaría 25 veces.</p>
 <p>Ese error no da ningún mensaje. Solo da un número más grande.</p>
-<h2 id="3-c-mo-obtener-las-respuestas">3. Cómo obtener las respuestas</h2>
-<h3>3.1 Con DBeaver</h3>
+<h2 id="3-el-nombre-de-la-tabla-no-dice-el-grano">3. El nombre de la tabla no dice el grano</h2>
+<p>Una tabla llamada <code>ventas</code> puede tener una fila por venta, por línea de venta o por venta y día. Se llaman igual, se parecen al abrirlas y ninguna te avisa. Estos son los tres casos, con los mismos datos de fondo: Ana compró café y azúcar el 1 de marzo, Luis compró café el 2.</p>
+<p><strong>3.1 Una fila por venta.</strong></p>
+<div class="hl"><pre><span></span><code>+-------+------------+---------+-------+
+| venta | fecha      | cliente | total |
++-------+------------+---------+-------+
+| V-1   | 2026-03-01 | Ana     |  150  |
+| V-2   | 2026-03-02 | Luis    |   80  |
++-------+------------+---------+-------+
+
+count(*)               = 2
+count(DISTINCT venta)  = 2   ← iguales
+</code></pre></div>
+
+<p>Cuadran: <strong>una fila es una venta</strong>. El nombre no engañaba.</p>
+<p><strong>3.2 Una fila por línea de venta.</strong></p>
+<div class="hl"><pre><span></span><code>+-------+------------+---------+----------+----------+---------+
+| venta | fecha      | cliente | producto | cantidad | importe |
++-------+------------+---------+----------+----------+---------+
+| V-1   | 2026-03-01 | Ana     | Café     |    2     |   100   |
+| V-1   | 2026-03-01 | Ana     | Azúcar   |    1     |    50   |
+| V-2   | 2026-03-02 | Luis    | Café     |    1     |    80   |
++-------+------------+---------+----------+----------+---------+
+
+count(*)                          = 3
+count(DISTINCT venta)             = 2   ← no cuadran
+count(DISTINCT (venta, producto)) = 3   ← ahora sí
+</code></pre></div>
+
+<p><code>venta</code> se repite, así que la fila no es una venta: es <strong>una venta y un producto</strong>. Fíjate en la pista visual — <code>fecha</code> y <code>cliente</code> también se duplican línea a línea. Cuando ves columnas repitiéndose así, el grano es más fino de lo que dice el nombre.</p>
+<p>Es exactamente <code>order_details</code>, con sus 2.155 filas para 830 pedidos.</p>
+<p><strong>3.3 Una fila por venta y día.</strong></p>
+<div class="hl"><pre><span></span><code>+-------+------------+---------+---------+
+| venta | fecha_foto | cliente | estado  |
++-------+------------+---------+---------+
+| V-1   | 2026-03-01 | Ana     | abierta |
+| V-1   | 2026-03-02 | Ana     | pagada  |
+| V-1   | 2026-03-03 | Ana     | enviada |
+| V-2   | 2026-03-02 | Luis    | abierta |
++-------+------------+---------+---------+
+
+count(*)                            = 4
+count(DISTINCT venta)               = 2   ← no cuadran
+count(DISTINCT (venta, fecha_foto)) = 4   ← ahora sí
+</code></pre></div>
+
+<p>Aquí la venta no se parte por producto sino <strong>por día</strong>: cada fila es una foto del estado de esa venta ese día. V-1 aparece tres veces porque se siguió durante tres días. Es la forma típica de un histórico o de una tabla que llena un proceso diario.</p>
+<p><strong>3.4 La misma pregunta, tres respuestas.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>¿Cuántas ventas hay?</th>
+<th>Lo que devuelve <code>count(*)</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>3.1</strong> — por venta</td>
+<td>2</td>
+<td><strong>2</strong> ✓</td>
+</tr>
+<tr>
+<td><strong>3.2</strong> — por línea</td>
+<td>2</td>
+<td><strong>3</strong> ✗</td>
+</tr>
+<tr>
+<td><strong>3.3</strong> — por venta y día</td>
+<td>2</td>
+<td><strong>4</strong> ✗</td>
+</tr>
+</tbody>
+</table>
+<p>La respuesta correcta es 2 en los tres casos. <code>count(*)</code> solo acierta en el primero, y <strong>nada en el nombre de la tabla te dice en cuál estás</strong>.</p>
+<p>Y fíjate en lo peor: 3 y 4 no son cifras absurdas que salten a la vista. Son números creíbles. Un informe con el grano equivocado no da ningún error — da un número más grande, y nadie lo nota.</p>
+<p><strong>3.5 El procedimiento.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="o">&lt;</span><span class="n">columna</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="o">&lt;</span><span class="n">tabla</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Iguales</strong> → esa columna identifica la fila. Ese es el grano.</li>
+<li><strong><code>count(*)</code> mayor</strong> → la columna se repite, así que el grano es más fino. Añade columnas al <code>DISTINCT</code> hasta que cuadren.</li>
+</ul>
+<p>Las columnas que necesitaste para que cuadre <strong>son</strong> el grano. Y no es solo una comprobación: es la forma de <em>encontrarlo</em> cuando nadie te lo ha dicho.</p>
+<h2 id="4-c-mo-obtener-las-respuestas">4. Cómo obtener las respuestas</h2>
+<h3>4.1 Con DBeaver</h3>
 <p>Doble clic en la tabla y ahí están las pestañas: <strong>Columns</strong>, <strong>Constraints</strong>, <strong>Foreign Keys</strong>, <strong>References</strong>. La pestaña <strong>ER Diagram</strong> dibuja el esquema solo.</p>
-<h3>3.2 Con <code>psql</code></h3>
+<h3>4.2 Con <code>psql</code></h3>
 <div class="hl"><pre><span></span><code>\dt              lista las tablas
 \d orders        describe una tabla: columnas, tipos, PK, FK y quién le apunta
 \d+ orders       lo mismo, más tamaño y comentarios
 </code></pre></div>
 
 <p><code>\d orders</code> es el comando que más vas a usar en tu vida con PostgreSQL.</p>
-<h3>3.3 Con SQL puro</h3>
+<h3>4.3 Con SQL puro</h3>
 <p>Cuando el programa (cliente) no ayuda, hay dos catálogos donde mirar. <strong>Las dos consultas de abajo responden exactamente a la misma pregunta y devuelven el mismo resultado</strong> — cambia quién puede ejecutarlas.</p>
 <h4>Opción A — <code>pg_catalog</code> (la que puedes ejecutar)</h4>
 <blockquote>
@@ -135,7 +220,7 @@ A cambio es específica de PostgreSQL — no existe en SQL Server ni en MySQL.</
 <blockquote>
 <p><strong>⚠️ En el curso te devolverá vacío, y no es un error tuyo</strong>: exige permisos de escritura.
 Es SQL estándar y funciona en cualquier motor, por eso hay que conocerla.
-Con un usuario administrador da el mismo resultado que la opción A. Ver § 3.4.</p>
+Con un usuario administrador da el mismo resultado que la opción A. Ver § 4.4.</p>
 </blockquote>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
 <span class="w">       </span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
@@ -168,7 +253,7 @@ Con un usuario administrador da el mismo resultado que la opción A. Ver § 3.4.
 
 <p><strong>Once claves foráneas y ahí está el mapa completo.</strong> En treinta segundos, sin que nadie te explique nada.</p>
 <p>Y mira la tercera fila: <code>employees.reports_to</code> apunta a <code>employees</code>. Una tabla que se apunta a sí misma <strong>es siempre una jerarquía</strong> — aquí, quién le reporta a quién.</p>
-<h3>3.4 Por qué <code>information_schema</code> a veces devuelve vacío</h3>
+<h3>4.4 Por qué <code>information_schema</code> a veces devuelve vacío</h3>
 <p>Las vistas de <code>information_schema</code> no muestran todo el esquema: filtran por los permisos del usuario que consulta. Y el filtro <strong>se decide vista por vista</strong>, no es uniforme.</p>
 <p>Mirando la definición de <code>information_schema.table_constraints</code>, los privilegios que acepta son <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>TRUNCATE</code>, <code>REFERENCES</code> y <code>TRIGGER</code>. <strong><code>SELECT</code> no está en la lista.</strong> Un usuario de solo lectura, como el del curso, obtiene cero filas — <strong>sin ningún mensaje de error</strong>, que es lo que hace perder la tarde: parece que la base no tuviera claves foráneas.</p>
 <p><code>information_schema.columns</code>, en cambio, <strong>sí</strong> acepta <code>SELECT</code>. Por eso las consultas de columnas de este mismo tema funcionan perfectamente con tu usuario.</p>
@@ -204,8 +289,8 @@ Con un usuario administrador da el mismo resultado que la opción A. Ver § 3.4.
 También puede significar que no tienes permiso para verlos.
 Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creerte el resultado.</p>
 </blockquote>
-<h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
-<p><strong>4.1 Comprobar el grano.</strong> Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
+<h2 id="5-ejemplos-sobre-northwind">5. Ejemplos sobre Northwind</h2>
+<p><strong>5.1 Comprobar el grano.</strong> El procedimiento de § 3.5, ahora sobre datos de verdad. Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_distintos</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
 </code></pre></div>
@@ -216,7 +301,7 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 </code></pre></div>
 
 <p>Iguales: el grano es "un pedido". <strong>Si no fueran iguales, tu idea del grano estaría mal</strong> — y toda suma que hagas después, también.</p>
-<p><strong>4.2 Ver qué puede faltar en una tabla.</strong> Las columnas que admiten <code>NULL</code> te dicen dónde el negocio permite ausencias:</p>
+<p><strong>5.2 Ver qué puede faltar en una tabla.</strong> Las columnas que admiten <code>NULL</code> te dicen dónde el negocio permite ausencias:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
 <span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
@@ -238,7 +323,7 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 <p>Una FK promete que todo valor de esa columna existe en la otra tabla. Pero un <code>NULL</code> <strong>no es un valor</strong>: no hay nada que comprobar, así que la FK lo deja pasar. <strong>Una FK que admite nulos no garantiza al 100%</strong> — solo cubre las filas que tienen valor, y las que no lo tienen desaparecen en silencio al cruzar las tablas con un <code>JOIN</code>.</p>
 <p>O sea que <em>"aquí el negocio permite una ausencia"</em> y <em>"esta clave foránea garantiza la integridad"</em> <strong>se contradicen en la misma columna</strong>. Por eso en una FK lo recomendable es <code>NOT NULL</code>, y quitarlo solo cuando puedas decir en voz alta la frase que lo justifica: <em>"aún no se le ha asignado transportista"</em> es una regla de negocio; <em>"pues... podría pasar"</em> es un descuido de diseño.</p>
 <p>Y al leer un esquema conviene saber que <strong><code>NOT NULL</code> es la restricción más fiable de todas</strong>: no se puede añadir a medias. Si el histórico tiene un solo <code>NULL</code>, PostgreSQL rechaza la restricción hasta que lo limpies. Así que una columna <code>NOT NULL</code> te dice algo fuerte —alguien la puso desde el principio, o limpió los datos para poder ponerla—, mientras que ver una clave foránea declarada no garantiza lo mismo sobre el pasado.</p>
-<p><strong>4.3 Ver qué puede faltar en todo el modelo.</strong> La misma pregunta, pero de una vez para las 12 tablas. Primero el resumen, para saber dónde mirar:</p>
+<p><strong>5.3 Ver qué puede faltar en todo el modelo.</strong> La misma pregunta, pero de una vez para las 12 tablas. Primero el resumen, para saber dónde mirar:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
 <span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columnas</span><span class="p">,</span>
 <span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nulables</span>
@@ -275,21 +360,20 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 <p><strong>Cuatro tablas con cero.</strong> <code>order_details</code>, <code>employee_territories</code>, <code>region</code> y <code>territories</code> no admiten un solo hueco. Son las tablas de relación y de catálogo: todo obligatorio. Son las más rígidas del modelo, y por tanto las más fiables.</p>
 <p><strong><code>employees</code> con 13 de 16.</strong> Casi todo opcional —teléfono, dirección, notas, fecha de nacimiento—, que es lo razonable en datos de ficha que se rellenan cuando se tienen.</p>
 <p><strong>Y de las 52, solo dos son claves foráneas:</strong> <code>employees.reports_to</code> y <code>orders.ship_via</code>. Las otras cincuenta son atributos, donde un nulo significa nada más que "este dato falta". Esas dos son las únicas donde el nulo rompe una relación — que es exactamente lo que hay que ir a buscar.</p>
-<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<h2 id="6-errores-comunes">6. Errores comunes</h2>
 <ol>
 <li><strong>Empezar por <code>SELECT *</code> en la tabla más grande.</strong> Ver 2.155 filas no te dice nada del modelo. Empieza por las claves foráneas.</li>
-<li><strong>Asumir el grano por el nombre.</strong> Una tabla llamada <code>ventas</code> puede tener una fila por venta, por línea de venta o por venta y día. Compruébalo con el <code>count(*)</code> contra <code>count(DISTINCT)</code>.</li>
+<li><strong>Asumir el grano por el nombre.</strong> Una tabla llamada <code>ventas</code> puede tener una fila por venta, por línea de venta o por venta y día — los tres casos de § 3. Compruébalo con el <code>count(*)</code> contra <code>count(DISTINCT)</code>.</li>
 <li><strong>Ignorar los <code>NULL</code>.</strong> Cada columna nullable es una regla de negocio escrita en el esquema.</li>
 <li><strong>No mirar si una tabla se apunta a sí misma.</strong> Es la señal de una jerarquía, y cambia por completo cómo se consulta.</li>
 </ol>
-<h2 id="6-ejercicios">6. Ejercicios</h2>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
 <ol>
 <li>Describe el grano de las 12 tablas de Northwind, en una frase cada una.</li>
 <li>Comprueba con SQL que el grano de <code>order_details</code> es <em>"un producto dentro de un pedido"</em>.</li>
 <li>¿Cuántas tablas apuntan a <code>employees</code>? ¿Qué significa cada una?</li>
-<li><code>us_states</code> no tiene ninguna clave foránea. ¿Se puede unir de todas formas con alguna tabla? ¿Con cuál y por qué columna?</li>
 </ol>
-<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
 <blockquote>
 <p><em>Te acaban de dar acceso a Northwind y tu jefe pregunta: "¿por qué canal llegan los pedidos más caros?". Antes de escribir una sola consulta, ¿qué tablas necesitas y cómo se conectan?</em></p>
 </blockquote>
@@ -366,13 +450,7 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 </code></pre></div>
 
 <p>Ambos dan <strong>2.155</strong>. Si en cambio cuentas <code>DISTINCT order_id</code> salen 830: eso confirma que el pedido <strong>no</strong> identifica la fila por sí solo. Hacen falta las dos columnas.</p>
-<p><strong>3.</strong> Dos: <code>orders.employee_id</code> (qué empleado tomó el pedido) y <code>employee_territories.employee_id</code> (qué territorios cubre). Más una tercera especial: <strong><code>employees.reports_to</code>, que apunta a la propia tabla</strong> — la jerarquía de jefes.</p>
-<p><strong>4.</strong> Sí. <code>customers.region</code> guarda abreviaturas de estado para los clientes de EE.UU., así que se puede unir con <code>us_states.state_abbr</code>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
-<span class="k">JOIN</span><span class="w"> </span><span class="n">us_states</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">state_abbr</span><span class="p">;</span>
-</code></pre></div>
-
-<p>Devuelve <strong>13</strong>. Es una unión <strong>sin clave foránea declarada</strong>: funciona porque los valores coinciden, pero nada garantiza que sigan coincidiendo. El motor no la protege.</p></div></details>
+<p><strong>3.</strong> Dos: <code>orders.employee_id</code> (qué empleado tomó el pedido) y <code>employee_territories.employee_id</code> (qué territorios cubre). Más una tercera especial: <strong><code>employees.reports_to</code>, que apunta a la propia tabla</strong> — la jerarquía de jefes.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../muchos-a-muchos-y-tablas-puente/"><span>Anterior</span><strong>El muchos a muchos y la tabla del medio</strong></a><a class="nav-next" href="../select-y-from/"><span>Siguiente</span><strong>SELECT y FROM</strong></a></nav>
   </main>
 
@@ -380,11 +458,12 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
     <p class="toc-tit">En este tema</p>
     <a href="#1-qu-es">1. Qué es</a>
 <a href="#2-las-cuatro-preguntas">2. Las cuatro preguntas</a>
-<a href="#3-c-mo-obtener-las-respuestas">3. Cómo obtener las respuestas</a>
-<a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
-<a href="#5-errores-comunes">5. Errores comunes</a>
-<a href="#6-ejercicios">6. Ejercicios</a>
-<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+<a href="#3-el-nombre-de-la-tabla-no-dice-el-grano">3. El nombre de la tabla no dice el grano</a>
+<a href="#4-c-mo-obtener-las-respuestas">4. Cómo obtener las respuestas</a>
+<a href="#5-ejemplos-sobre-northwind">5. Ejemplos sobre Northwind</a>
+<a href="#6-errores-comunes">6. Errores comunes</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
   </aside>
 </div>
 </body>
