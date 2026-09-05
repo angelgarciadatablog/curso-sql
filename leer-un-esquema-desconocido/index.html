@@ -189,7 +189,7 @@ count(DISTINCT (venta, fecha_foto)) = 4   ← ahora sí
 <li><strong><code>count(*)</code> mayor</strong> → la columna se repite, así que el grano es más fino. Añade columnas al <code>DISTINCT</code> hasta que cuadren.</li>
 </ul>
 <p>Las columnas que necesitaste para que cuadre <strong>son</strong> el grano. Y no es solo una comprobación: es la forma de <em>encontrarlo</em> cuando nadie te lo ha dicho.</p>
-<h2 id="4-c-mo-obtener-las-respuestas">4. Cómo obtener las respuestas</h2>
+<h2 id="4-revisar-tablas">4. Revisar tablas</h2>
 <h3>4.1 Con DBeaver</h3>
 <p>Doble clic en la tabla y ahí están las pestañas: <strong>Columns</strong>, <strong>Constraints</strong>, <strong>Foreign Keys</strong>, <strong>References</strong>. La pestaña <strong>ER Diagram</strong> dibuja el esquema solo.</p>
 <h3>4.2 Con <code>psql</code></h3>
@@ -459,7 +459,7 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
     <a href="#1-qu-es">1. Qué es</a>
 <a href="#2-las-cuatro-preguntas">2. Las cuatro preguntas</a>
 <a href="#3-el-nombre-de-la-tabla-no-dice-el-grano">3. El nombre de la tabla no dice el grano</a>
-<a href="#4-c-mo-obtener-las-respuestas">4. Cómo obtener las respuestas</a>
+<a href="#4-revisar-tablas">4. Revisar tablas</a>
 <a href="#5-ejemplos-sobre-northwind">5. Ejemplos sobre Northwind</a>
 <a href="#6-errores-comunes">6. Errores comunes</a>
 <a href="#7-ejercicios">7. Ejercicios</a>

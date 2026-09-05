@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/el-negocio-de-northwind/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/muchos-a-muchos-y-tablas-puente/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/leer-un-esquema-desconocido/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/select-y-from/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/where-y-operadores/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/null-y-la-logica-de-tres-valores/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/buscar-texto-like-y-regex/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/ordenar-y-limitar/</loc><lastmod>2026-09-02</lastmod></url>
-  <url><loc>https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/conectarse-y-explorar/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/el-negocio-de-northwind/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/que-es-una-base-de-datos-relacional/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/muchos-a-muchos-y-tablas-puente/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/leer-un-esquema-desconocido/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/select-y-from/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/where-y-operadores/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/null-y-la-logica-de-tres-valores/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/buscar-texto-like-y-regex/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/ordenar-y-limitar/</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/</loc><lastmod>2026-09-05</lastmod></url>
 </urlset>
