@@ -4,11 +4,11 @@
   <title>Las cláusulas básicas y su orden de ejecución · Curso SQL · Angel García</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Las seis cláusulas básicas y el orden en que se ejecutan: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. El mapa del bloque, sin una sola consulta" />
+  <meta name="description" content="Las seis cláusulas básicas y el orden en que se ejecutan: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. El mapa del bloque, con una sola consulta recorrida paso a paso" />
   <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="Las cláusulas básicas y su orden de ejecución" />
-  <meta property="og:description" content="Las seis cláusulas básicas y el orden en que se ejecutan: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. El mapa del bloque, sin una sola consulta" />
+  <meta property="og:description" content="Las seis cláusulas básicas y el orden en que se ejecutan: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. El mapa del bloque, con una sola consulta recorrida paso a paso" />
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/orden-logico-de-ejecucion/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
@@ -61,7 +61,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
 <p>Una consulta de SQL se arma con un puñado de cláusulas. Son pocas, siempre las mismas, y van en un orden fijo: no puedes poner el <code>WHERE</code> antes del <code>FROM</code> aunque quieras.</p>
 <p>Este tema hace dos cosas y ninguna más: <strong>presentarte las cláusulas básicas</strong> y decirte <strong>en qué orden las ejecuta el motor</strong> — que no es el orden en que las escribes.</p>
-<p>Es el único tema del curso sin una sola consulta. Aquí no se escribe SQL: se mira el mapa antes de caminar. Cada cláusula de esta lista tiene después su propio tema, con sus ejemplos y sus errores.</p>
+<p>Es un tema de mapa, no de manos. Lleva <strong>una sola consulta</strong>, y está para recorrer el orden, no para aprender a escribirla: cada cláusula de la lista tiene después su propio tema, con sus ejemplos y sus errores.</p>
 <h2 id="2-las-cl-usulas-b-sicas">2. Las cláusulas básicas</h2>
 <table>
 <thead>
@@ -166,41 +166,78 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p><strong><code>SELECT</code> es lo primero que escribes y lo penúltimo que ocurre.</strong> Ese desajuste es todo el tema. De él salen unas cuantas reglas que, si no conoces el orden, parecen caprichos del motor — y las irás encontrando cada una en su sitio.</p>
 <p>Este orden es <strong>lógico, no físico</strong>: es el orden en que el motor está obligado a <em>comportarse como si</em> hiciera las cosas. Por dentro puede reorganizarlas mientras el resultado no cambie. Eso se ve al final del curso, en <span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>.</p>
-<h2 id="5-lo-que-s-puedes-usar-ya-primero-la-tabla-despu-s-el-filtro">5. Lo que sí puedes usar ya: primero la tabla, después el filtro</h2>
+<h2 id="5-una-consulta-paso-a-paso">5. Una consulta, paso a paso</h2>
+<p>La consulta más corta que usa las seis. Sobre <code>orders</code>, la tabla de pedidos de Northwind:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>En una línea: <em>países a los que se les mandó más de 10 pedidos caros, del que más al que menos.</em></p>
+<p>No hace falta que entiendas <code>GROUP BY</code> ni <code>HAVING</code> todavía. Lee solo el recorrido:</p>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Qué hace el motor aquí</th>
+<th>Con qué se queda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. <code>FROM orders</code></td>
+<td>Abre la tabla de pedidos y trae <strong>todas</strong> las filas</td>
+<td>Pedidos</td>
+</tr>
+<tr>
+<td>2. <code>WHERE freight &gt; 50</code></td>
+<td>Va pedido por pedido y descarta los que costaron poco de enviar</td>
+<td>Pedidos caros</td>
+</tr>
+<tr>
+<td>3. <code>GROUP BY ship_country</code></td>
+<td>Junta los que quedan por país. <strong>A partir de aquí ya no hay pedidos sueltos: hay países</strong></td>
+<td>Países</td>
+</tr>
+<tr>
+<td>4. <code>HAVING count(*) &gt; 10</code></td>
+<td>Mira cada país y descarta los que tienen 10 pedidos o menos</td>
+<td>Países con muchos pedidos</td>
+</tr>
+<tr>
+<td>5. <code>SELECT ship_country, count(*)</code></td>
+<td><strong>Recién ahora</strong> se decide qué se muestra: el país y su total</td>
+<td>Dos columnas</td>
+</tr>
+<tr>
+<td>6. <code>ORDER BY count(*) DESC</code></td>
+<td>Ordena el resultado de mayor a menor</td>
+<td>El resultado final</td>
+</tr>
+</tbody>
+</table>
+<p>Y ahí está lo que hay que llevarse:</p>
+<blockquote>
+<p><strong>La primera línea que escribiste —el <code>SELECT</code>— fue la penúltima en ejecutarse.</strong> El motor no leyó tu consulta de arriba abajo. Empezó por el <code>FROM</code>, que está en la segunda línea.</p>
+</blockquote>
+<p>Fíjate también en el paso 2 comparado con el 4: los dos descartan cosas, pero el <code>WHERE</code> tira <strong>pedidos</strong> y el <code>HAVING</code> tira <strong>países</strong>. Filtran cosas distintas porque ocurren en momentos distintos, antes y después de agrupar. Esa es toda la diferencia entre los dos, y tiene su propio tema (<span class="xref-pend" title="Aún no publicado">having-vs-where</span>).</p>
+<h2 id="6-lo-que-s-puedes-usar-ya-primero-la-tabla-despu-s-el-filtro">6. Lo que sí puedes usar ya: primero la tabla, después el filtro</h2>
 <p>De las seis, ahora mismo conoces dos: <code>SELECT</code> y <code>FROM</code>. La siguiente es <code>WHERE</code>, y es el tema que viene justo detrás.</p>
-<p>Quédate con esta secuencia, porque es la mitad del curso en una línea:</p>
+<p>Quédate con los tres primeros pasos del recorrido de arriba, porque son la mitad del curso en una línea:</p>
 <blockquote>
 <p><strong>Primero traes la tabla entera (<code>FROM</code>), después descartas las filas que no quieres (<code>WHERE</code>), y solo al final se decide qué columnas se muestran (<code>SELECT</code>).</strong></p>
 </blockquote>
 <p>Por eso el <code>WHERE</code> es la cláusula que más pesa en el rendimiento: <strong>todo lo que descartes en el paso 2 es trabajo que los pasos 3, 4, 5 y 6 ya no tienen que hacer.</strong></p>
-<h2 id="6-c-mo-vuelve-este-tema-a-aparecer">6. Cómo vuelve este tema a aparecer</h2>
+<h2 id="7-c-mo-vuelve-este-tema-a-aparecer">7. Cómo vuelve este tema a aparecer</h2>
 <p>No hace falta que memorices la tabla del § 4 hoy. Cada tema de una cláusula nueva trae una sección llamada <strong>«Dónde encaja en el orden de ejecución»</strong> que dice tres cosas: en qué paso entra esa cláusula, qué existe cuando le toca, y qué falla si se ignora.</p>
-<p>Cuando hayas hecho ese recorrido, la tabla te la sabrás sin haberla estudiado.</p>
-<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
-<p><strong>Ninguna.</strong> El orden lógico es del estándar SQL, no del motor: es idéntico en PostgreSQL, SQL Server, MySQL, Oracle y BigQuery. Lo que cambia entre motores son cláusulas concretas —cómo se limita el número de filas, por ejemplo—, y eso se ve en el tema de cada una.</p>
-<h2 id="8-ejercicios">8. Ejercicios</h2>
-<p>Ninguno necesita ejecutar nada. Son de leer y responder.</p>
-<ol>
-<li>Escribe de memoria las dos secuencias —la de escritura y la de ejecución— y señala <strong>la única cláusula que cambia de posición</strong> entre las dos.</li>
-<li>¿En qué paso nacen los nombres nuevos que pones con <code>AS</code>?</li>
-<li>Si <code>WHERE</code> es el paso 2 y <code>SELECT</code> el 5, ¿puede el <code>WHERE</code> usar un nombre inventado en el <code>SELECT</code>? Responde sí o no, y por qué.</li>
-<li>¿Qué existe cuando se ejecuta <code>HAVING</code> que no existía cuando se ejecutó <code>WHERE</code>?</li>
-<li>Una consulta devuelve 500 filas. Le añades un <code>ORDER BY</code>: ¿cuántas filas devuelve ahora? Le añades un <code>WHERE</code>: ¿y ahora? Explica la diferencia usando el número de paso de cada una.</li>
-</ol>
-<h2 id="9-pregunta-de-negocio">9. Pregunta de negocio</h2>
-<blockquote>
-<p><em>Un compañero te enseña una consulta que le da error: dice que la columna <code>margen</code> no existe, y te señala con el dedo que <code>margen</code> está ahí, escrita en el <code>SELECT</code>, a la vista. Está convencido de que la base de datos está mal. Explícaselo sin jerga, en dos frases.</em></p>
-</blockquote></div>
-    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>Dos frases, sin jerga:</p>
-<blockquote>
-<p><em>La base de datos lee la consulta en un orden distinto al que la escribimos: primero busca las filas y las filtra, y el nombre <code>margen</code> no se inventa hasta más adelante. Cuando llega al filtro, ese nombre todavía no existe — así que hay que repetir ahí el cálculo entero.</em></p>
-</blockquote>
-<p>Lo que <strong>no</strong> hay que decir: que es un fallo del motor, o que "PostgreSQL es así". Es el estándar, y funciona igual en SQL Server.</p></div></details>
-    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> Se escribe <code>SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY</code> y se ejecuta <code>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY</code>. La que se mueve es <strong><code>SELECT</code></strong>: se escribe la primera y se ejecuta la quinta. Las otras cinco mantienen su posición relativa.</p>
-<p><strong>2.</strong> En el paso <strong>5</strong>, el del <code>SELECT</code>. Antes de ese paso, un nombre puesto con <code>AS</code> <strong>no existe todavía</strong> en ningún sitio.</p>
-<p><strong>3.</strong> <strong>No.</strong> Cuando el motor evalúa el <code>WHERE</code> (paso 2), el <code>SELECT</code> (paso 5) aún no ha ocurrido, así que ese nombre no se ha inventado. La solución es repetir la expresión completa en el <code>WHERE</code>, y se ve en <a class="xref" href="../where-y-operadores/">where-y-operadores</a>.</p>
-<p><strong>4.</strong> <strong>Los grupos.</strong> En el paso 2 cada fila está sola y no pertenece a ningún grupo; los grupos nacen en el paso 3, con el <code>GROUP BY</code>. Por eso hay dos cláusulas para filtrar y no una: <code>WHERE</code> filtra filas antes de agrupar, <code>HAVING</code> filtra grupos después. El tema es <span class="xref-pend" title="Aún no publicado">having-vs-where</span>.</p>
-<p><strong>5.</strong> Con el <code>ORDER BY</code>, <strong>500</strong>: es el paso 6 y solo reordena, no descarta nada. Con el <code>WHERE</code>, <strong>500 o menos</strong>: es el paso 2 y su único trabajo es descartar filas. Ordenar no cambia cuántas filas hay; filtrar sí.</p></div></details>
+<p>La consulta del § 5 te la vas a volver a encontrar en <span class="xref-pend" title="Aún no publicado">having-vs-where</span>, esa vez con los números de cada paso medidos contra la base. Cuando hayas hecho ese recorrido, la tabla te la sabrás sin haberla estudiado.</p>
+<h2 id="8-diferencias-con-sql-server">8. Diferencias con SQL Server</h2>
+<p><strong>Ninguna.</strong> El orden lógico es del estándar SQL, no del motor: es idéntico en PostgreSQL, SQL Server, MySQL, Oracle y BigQuery. Lo que cambia entre motores son cláusulas concretas —cómo se limita el número de filas, por ejemplo—, y eso se ve en el tema de cada una.</p></div>
+    
+    
     <nav class="navpies"><a class="nav-prev" href="../select-y-from/"><span>Anterior</span><strong>SELECT y FROM</strong></a><a class="nav-next" href="../where-y-operadores/"><span>Siguiente</span><strong>WHERE y los operadores</strong></a></nav>
   </main>
 
@@ -210,11 +247,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <a href="#2-las-cl-usulas-b-sicas">2. Las cláusulas básicas</a>
 <a href="#3-el-orden-en-que-se-escribe">3. El orden en que se escribe</a>
 <a href="#4-el-orden-en-que-se-ejecuta">4. El orden en que se ejecuta</a>
-<a href="#5-lo-que-s-puedes-usar-ya-primero-la-tabla-despu-s-el-filtro">5. Lo que sí puedes usar ya: primero la tabla, después el filtro</a>
-<a href="#6-c-mo-vuelve-este-tema-a-aparecer">6. Cómo vuelve este tema a aparecer</a>
-<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
-<a href="#8-ejercicios">8. Ejercicios</a>
-<a href="#9-pregunta-de-negocio">9. Pregunta de negocio</a>
+<a href="#5-una-consulta-paso-a-paso">5. Una consulta, paso a paso</a>
+<a href="#6-lo-que-s-puedes-usar-ya-primero-la-tabla-despu-s-el-filtro">6. Lo que sí puedes usar ya: primero la tabla, después el filtro</a>
+<a href="#7-c-mo-vuelve-este-tema-a-aparecer">7. Cómo vuelve este tema a aparecer</a>
+<a href="#8-diferencias-con-sql-server">8. Diferencias con SQL Server</a>
   </aside>
 </div>
 </body>
