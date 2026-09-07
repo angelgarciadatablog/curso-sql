@@ -168,15 +168,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Este orden es <strong>lógico, no físico</strong>: es el orden en que el motor está obligado a <em>comportarse como si</em> hiciera las cosas. Por dentro puede reorganizarlas mientras el resultado no cambie. Eso se ve al final del curso, en <span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>.</p>
 <h2 id="5-una-consulta-paso-a-paso">5. Una consulta, paso a paso</h2>
 <p>La consulta más corta que usa las seis. Sobre <code>orders</code>, la tabla de pedidos de Northwind:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
 <span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
 <span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span>
-<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">flete</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
-<p>En una línea: <em>países a los que se les mandó más de 10 pedidos caros, del que más al que menos.</em></p>
+<p>En una línea: <em>de los pedidos caros de enviar, en qué países se gastó más de 1000 en total de flete, del que más gastó al que menos.</em></p>
 <p>No hace falta que entiendas <code>GROUP BY</code> ni <code>HAVING</code> todavía. Lee solo el recorrido:</p>
 <table>
 <thead>
@@ -203,17 +204,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <td>Países</td>
 </tr>
 <tr>
-<td>4. <code>HAVING count(*) &gt; 10</code></td>
-<td>Mira cada país y descarta los que tienen 10 pedidos o menos</td>
-<td>Países con muchos pedidos</td>
+<td>4. <code>HAVING sum(freight) &gt; 1000</code></td>
+<td>Suma el flete de cada país y descarta los que no llegan a 1000</td>
+<td>Países con mucho gasto de envío</td>
 </tr>
 <tr>
-<td>5. <code>SELECT ship_country, count(*)</code></td>
-<td><strong>Recién ahora</strong> se decide qué se muestra: el país y su total</td>
+<td>5. <code>SELECT ship_country, sum(freight) AS flete</code></td>
+<td><strong>Recién ahora</strong> se decide qué se muestra, y aquí nace el nombre <code>flete</code></td>
 <td>Dos columnas</td>
 </tr>
 <tr>
-<td>6. <code>ORDER BY count(*) DESC</code></td>
+<td>6. <code>ORDER BY flete DESC</code></td>
 <td>Ordena el resultado de mayor a menor</td>
 <td>El resultado final</td>
 </tr>
@@ -223,6 +224,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <blockquote>
 <p><strong>La primera línea que escribiste —el <code>SELECT</code>— fue la penúltima en ejecutarse.</strong> El motor no leyó tu consulta de arriba abajo. Empezó por el <code>FROM</code>, que está en la segunda línea.</p>
 </blockquote>
+<p>Un detalle que confirma el orden: la última línea ordena por <code>flete</code>, que <strong>no es una columna de la tabla</strong> — es el nombre que se inventó en el paso 5. El <code>ORDER BY</code> puede usarlo porque va después. Si intentaras poner ese mismo <code>flete</code> en el <code>WHERE</code>, que es el paso 2, la consulta daría error: allí todavía no existe.</p>
 <p>Fíjate también en el paso 2 comparado con el 4: los dos descartan cosas, pero el <code>WHERE</code> tira <strong>pedidos</strong> y el <code>HAVING</code> tira <strong>países</strong>. Filtran cosas distintas porque ocurren en momentos distintos, antes y después de agrupar. Esa es toda la diferencia entre los dos, y tiene su propio tema (<span class="xref-pend" title="Aún no publicado">having-vs-where</span>).</p>
 <h2 id="6-lo-que-s-puedes-usar-ya-primero-la-tabla-despu-s-el-filtro">6. Lo que sí puedes usar ya: primero la tabla, después el filtro</h2>
 <p>De las seis, ahora mismo conoces dos: <code>SELECT</code> y <code>FROM</code>. La siguiente es <code>WHERE</code>, y es el tema que viene justo detrás.</p>
@@ -233,7 +235,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Por eso el <code>WHERE</code> es la cláusula que más pesa en el rendimiento: <strong>todo lo que descartes en el paso 2 es trabajo que los pasos 3, 4, 5 y 6 ya no tienen que hacer.</strong></p>
 <h2 id="7-c-mo-vuelve-este-tema-a-aparecer">7. Cómo vuelve este tema a aparecer</h2>
 <p>No hace falta que memorices la tabla del § 4 hoy. Cada tema de una cláusula nueva trae una sección llamada <strong>«Dónde encaja en el orden de ejecución»</strong> que dice tres cosas: en qué paso entra esa cláusula, qué existe cuando le toca, y qué falla si se ignora.</p>
-<p>La consulta del § 5 te la vas a volver a encontrar en <span class="xref-pend" title="Aún no publicado">having-vs-where</span>, esa vez con los números de cada paso medidos contra la base. Cuando hayas hecho ese recorrido, la tabla te la sabrás sin haberla estudiado.</p>
+<p>El recorrido del § 5 lo vas a volver a hacer en <span class="xref-pend" title="Aún no publicado">having-vs-where</span>, esa vez con los números de cada paso medidos contra la base. Cuando hayas terminado, la tabla te la sabrás sin haberla estudiado.</p>
 <h2 id="8-diferencias-con-sql-server">8. Diferencias con SQL Server</h2>
 <p><strong>Ninguna.</strong> El orden lógico es del estándar SQL, no del motor: es idéntico en PostgreSQL, SQL Server, MySQL, Oracle y BigQuery. Lo que cambia entre motores son cláusulas concretas —cómo se limita el número de filas, por ejemplo—, y eso se ve en el tema de cada una.</p></div>
     
