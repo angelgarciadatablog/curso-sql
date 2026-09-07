@@ -221,7 +221,7 @@ A cambio es específica de PostgreSQL — no existe en SQL Server ni en MySQL.</
 <blockquote>
 <p><strong>⚠️ En el curso te devolverá vacío, y no es un error tuyo</strong>: exige permisos de escritura.
 Es SQL estándar y funciona en cualquier motor, por eso hay que conocerla.
-Con un usuario administrador da el mismo resultado que la opción A. Ver § 4.4.</p>
+Con un usuario administrador da el mismo resultado que la opción A. Ver la sección 4.4.</p>
 </blockquote>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
 <span class="w">       </span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
@@ -291,7 +291,7 @@ También puede significar que no tienes permiso para verlos.
 Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creerte el resultado.</p>
 </blockquote>
 <h2 id="5-ejemplos-sobre-northwind">5. Ejemplos sobre Northwind</h2>
-<p><strong>5.1 Comprobar el grano.</strong> El procedimiento de § 3.5, ahora sobre datos de verdad. Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
+<p><strong>5.1 Comprobar el grano.</strong> El procedimiento de la sección 3.5, ahora sobre datos de verdad. Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_distintos</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
 </code></pre></div>
@@ -364,7 +364,7 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 <h2 id="6-errores-comunes">6. Errores comunes</h2>
 <ol>
 <li><strong>Empezar por <code>SELECT *</code> en la tabla más grande.</strong> Ver 2.155 filas no te dice nada del modelo. Empieza por las claves foráneas.</li>
-<li><strong>Asumir el grano por el nombre.</strong> Una tabla llamada <code>ventas</code> puede tener una fila por venta, por línea de venta o por venta y día — los tres casos de § 3. Compruébalo con el <code>count(*)</code> contra <code>count(DISTINCT)</code>.</li>
+<li><strong>Asumir el grano por el nombre.</strong> Una tabla llamada <code>ventas</code> puede tener una fila por venta, por línea de venta o por venta y día — los tres casos de la sección 3. Compruébalo con el <code>count(*)</code> contra <code>count(DISTINCT)</code>.</li>
 <li><strong>Ignorar los <code>NULL</code>.</strong> Cada columna nullable es una regla de negocio escrita en el esquema.</li>
 <li><strong>No mirar si una tabla se apunta a sí misma.</strong> Es la señal de una jerarquía, y cambia por completo cómo se consulta.</li>
 </ol>

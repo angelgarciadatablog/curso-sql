@@ -270,7 +270,7 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 <h2 id="5-errores-comunes">5. Errores comunes</h2>
 <ol>
 <li><strong>No activar 'required' en la opción de SSL contra una base en la nube.</strong> El error no menciona SSL: habla de que el servidor cerró la conexión de forma inesperada. Si te conectas a un servidor remoto y falla a la primera, empieza por ahí.</li>
-<li><strong>Pegar comandos <code>\</code> en DBeaver.</strong> No son SQL. DBeaver dirá que hay un error de sintaxis y tendrá razón. Usa la columna de la derecha de la tabla del § 3.</li>
+<li><strong>Pegar comandos <code>\</code> en DBeaver.</strong> No son SQL. DBeaver dirá que hay un error de sintaxis y tendrá razón. Usa la columna de la derecha de la tabla de la sección 3.</li>
 <li><strong><code>SASL authentication failed</code>.</strong> Usuario o contraseña incorrectos — <strong>o una credencial que ya caducó</strong>. Si antes funcionaba y de pronto no, es lo segundo: no has hecho nada mal, se te venció el acceso.</li>
 <li><strong>Confundir <code>\l</code> con <code>-l</code>.</strong> Dentro de <code>psql</code> es <code>\l</code>; desde la terminal es <code>psql -l</code>, con <strong>ele minúscula</strong>. Escribir <code>psql -1</code> (un uno) da el error <em>"-1 sólo puede ser usado en modo no interactivo"</em>, que no ayuda nada.</li>
 <li><strong>Olvidar el punto y coma.</strong> En <code>psql</code>, una sentencia no se ejecuta hasta el <code>;</code>. Si el prompt cambia de <code>=#</code> a <code>-#</code>, es que sigue esperando.</li>

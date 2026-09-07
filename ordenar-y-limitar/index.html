@@ -172,7 +172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span>
 </code></pre></div>
 
-<p><strong>Escríbelo siempre que haya nulos y el orden importe.</strong> Es el punto donde PostgreSQL y SQL Server dan resultados distintos con la misma consulta (§ 5).</p>
+<p><strong>Escríbelo siempre que haya nulos y el orden importe.</strong> Es el punto donde PostgreSQL y SQL Server dan resultados distintos con la misma consulta (sección 5).</p>
 <h3>Ordenar texto: el <em>collation</em></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
 </code></pre></div>
@@ -244,7 +244,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>ORDER BY</code> con empates y sin desempate.</strong> El caso de los cuatro productos a 18.00.</li>
 <li><strong>Creer que <code>DESC</code> afecta a todas las columnas.</strong> Afecta solo a la suya.</li>
 <li><strong>Ordenar por número de posición en código que se guarda.</strong> <code>ORDER BY 2</code> es cómodo para probar; el día que alguien añade una columna al <code>SELECT</code>, el orden cambia solo y en silencio.</li>
-<li><strong>Esperar que <code>LIMIT 10</code> haga rápida una consulta lenta.</strong> Es el último paso: antes ya se ordenó todo. Ver el § 4 de este mismo tema.</li>
+<li><strong>Esperar que <code>LIMIT 10</code> haga rápida una consulta lenta.</strong> Es el último paso: antes ya se ordenó todo. Ver la sección 4 de este mismo tema.</li>
 <li><strong>Paginar con <code>OFFSET</code> sobre un orden no determinista.</strong> La fila 10 de la página 1 puede repetirse como fila 1 de la página 2.</li>
 <li><strong>Ordenar un número guardado como texto.</strong> <code>'10' &lt; '9'</code> es cierto en texto. Si una columna de importes está en <code>varchar</code>, el orden será alfabético y parecerá aleatorio.</li>
 </ol>
