@@ -36,7 +36,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <aside class="side">
     <p class="side-tit">Ruta del curso</p>
     <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
-<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">El orden lógico de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><span class="activo">Ordenar y limitar</span></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details open><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><span class="activo">Ordenar y limitar</span></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
 <details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="bloqueado">Tipos de datos en PostgreSQL</span></li><li><span class="bloqueado">Funciones dentro del SELECT</span></li><li><span class="bloqueado">CASE: condicionales en SQL</span></li></ul></details>
 <details><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="bloqueado">Funciones de agregación</span></li><li><span class="bloqueado">GROUP BY</span></li><li><span class="bloqueado">HAVING vs WHERE</span></li><li><span class="bloqueado">Agregación avanzada</span></li></ul></details>
 <details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="bloqueado">INNER JOIN</span></li><li><span class="bloqueado">LEFT, RIGHT y FULL JOIN</span></li><li><span class="bloqueado">CROSS JOIN y self-join</span></li><li><span class="bloqueado">Anti-join y semi-join</span></li><li><span class="bloqueado">UNION, INTERSECT y EXCEPT</span></li><li><span class="bloqueado">Joins múltiples y granularidad</span></li></ul></details>
@@ -60,7 +60,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     
     <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
 <p>Una tabla <strong>no tiene orden</strong>. Es un conjunto de filas, y el motor las devuelve como le conviene. Si quieres un orden, tienes que pedirlo.</p>
-<p><code>ORDER BY</code> es el paso 7 del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a> y <code>LIMIT</code> el 8. De ahí salen las dos ideas del tema:</p>
+<p><code>ORDER BY</code> es el <strong>último paso</strong> del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a> — el 6 — y <code>LIMIT</code> se aplica todavía después, sobre el resultado ya ordenado. De ahí salen las dos ideas del tema:</p>
 <ul>
 <li><strong><code>ORDER BY</code> ve el resultado terminado</strong>, así que acepta alias y expresiones.</li>
 <li><strong><code>LIMIT</code> sin <code>ORDER BY</code> es una pregunta mal hecha</strong>, porque no hay nada que garantice qué filas te toca.</li>
@@ -208,17 +208,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Devuelve solo los nombres, ordenados por un precio que no se ve. <strong>Cómodo, y peligroso en un informe</strong>: quien lo lea no puede verificar el orden. Si el criterio importa, enséñalo.</p>
-<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<h2 id="4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</h2>
+<p><code>ORDER BY</code> es el <strong>paso 6</strong>, el último de las cláusulas básicas, y <code>LIMIT</code> se aplica después de él. Es decir: cuando le llega el turno a <code>ORDER BY</code>, <strong>el resultado ya está construido</strong> — el <code>SELECT</code> ocurrió en el paso 5. Eso lo cambia todo.</p>
+<p><strong>1. <code>ORDER BY</code> sí acepta un nombre puesto con <code>AS</code></strong> — al revés que el <code>WHERE</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">18</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_final</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">precio_final</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>No da error, y no es una incoherencia del motor: cuando se ordena, <code>precio_final</code> ya existe, porque se creó en el paso anterior. En el <code>WHERE</code> (paso 2) todavía no existía. <strong>Misma regla, distinto momento.</strong></p>
+<p><strong>2. Y acepta el número de posición</strong>, por lo mismo — ve las columnas de salida ya numeradas:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price
+-------------------------+------------
+ Côte de Blaye           |     263.50
+ Thüringer Rostbratwurst |     123.79
+ Mishi Kobe Niku         |      97.00
+</code></pre></div>
+
+<p><code>2</code> es la segunda columna del <code>SELECT</code>. <strong>Cómodo para probar, frágil para guardar</strong>: el día que alguien añade una columna al <code>SELECT</code>, el orden cambia solo.</p>
+<p><strong>3. <code>LIMIT</code> es lo último de lo último, y por eso no acelera nada.</strong></p>
+<p>Es la confusión más cara del tema. <code>LIMIT 10</code> no le dice al motor <em>"trae solo 10 filas"</em>: le dice <em>"haz todo el trabajo y luego dame 10"</em>. Antes de cortar, el motor ya escaneó, filtró, agrupó y —sobre todo— <strong>ordenó el conjunto entero</strong>.</p>
+<blockquote>
+<p><code>LIMIT 10</code> sobre un <code>ORDER BY</code> de un millón de filas <strong>no evita ordenar el millón</strong>. Reduce lo que se te <em>envía</em>, no lo que se <em>trabaja</em>.</p>
+</blockquote>
+<p>Para que una consulta sea rápida hay que atacar el principio del embudo (el <code>WHERE</code>, paso 2), no el final. Con un índice sobre la columna de orden el motor a veces <strong>sí</strong> puede saltarse la ordenación completa, y eso se ve en <span class="xref-pend" title="Aún no publicado">indices</span> y en <span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
 <ol>
 <li><strong><code>LIMIT</code> sin <code>ORDER BY</code>.</strong> No es "las primeras filas": es "unas filas cualesquiera". Puede cambiar entre ejecuciones.</li>
 <li><strong><code>ORDER BY</code> con empates y sin desempate.</strong> El caso de los cuatro productos a 18.00.</li>
 <li><strong>Creer que <code>DESC</code> afecta a todas las columnas.</strong> Afecta solo a la suya.</li>
 <li><strong>Ordenar por número de posición en código que se guarda.</strong> <code>ORDER BY 2</code> es cómodo para probar; el día que alguien añade una columna al <code>SELECT</code>, el orden cambia solo y en silencio.</li>
-<li><strong>Esperar que <code>LIMIT 10</code> haga rápida una consulta lenta.</strong> Es el último paso: antes ya se ordenó todo. Ver <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a> § 5.</li>
+<li><strong>Esperar que <code>LIMIT 10</code> haga rápida una consulta lenta.</strong> Es el último paso: antes ya se ordenó todo. Ver el § 4 de este mismo tema.</li>
 <li><strong>Paginar con <code>OFFSET</code> sobre un orden no determinista.</strong> La fila 10 de la página 1 puede repetirse como fila 1 de la página 2.</li>
 <li><strong>Ordenar un número guardado como texto.</strong> <code>'10' &lt; '9'</code> es cierto en texto. Si una columna de importes está en <code>varchar</code>, el orden será alfabético y parecerá aleatorio.</li>
 </ol>
-<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
 <table>
 <thead>
 <tr>
@@ -257,7 +287,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p><strong>La fila de los nulos es la que rompe migraciones.</strong> La misma consulta, los mismos datos, y las filas sin región salen arriba en un motor y abajo en el otro. Si alguien compara los dos informes fila a fila, no cuadran — y la causa no está a la vista en la consulta.</p>
 <p>Detalle de entrevista: en SQL Server, <code>TOP</code> <strong>sin</strong> <code>ORDER BY</code> no garantiza nada, exactamente igual que <code>LIMIT</code>. Es la misma trampa con otro nombre.</p>
-<h2 id="6-ejercicios">6. Ejercicios</h2>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
 <ol>
 <li>Los 10 pedidos con mayor flete, del más caro al más barato, mostrando id, cliente y flete.</li>
 <li>Clientes ordenados por país y, dentro de cada país, por ciudad — ambos ascendentes — y con los que no tienen región <strong>primero</strong>.</li>
@@ -266,8 +296,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li>Sin ejecutarla, di qué problema tiene:
    <code>sql
    SELECT customer_id, order_date FROM orders ORDER BY order_date DESC LIMIT 10;</code></li>
+<li>Sin ejecutarla, di cuántas filas devuelve, <strong>cuáles</strong> y por qué:
+   <code>sql
+   SELECT ship_city FROM orders WHERE ship_country = 'Brazil' GROUP BY ship_city LIMIT 3;</code></li>
+<li>Explica en una línea por qué esto <strong>no</strong> da error, aunque <code>precio_final</code> no sea una columna de la tabla:
+   <code>sql
+   SELECT product_name, unit_price * 1.18 AS precio_final FROM products ORDER BY precio_final DESC;</code></li>
 </ol>
-<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
 <blockquote>
 <p><em>Dirección quiere "el top 10 de productos más caros" para una presentación, y lo va a repetir cada trimestre para comparar. ¿Qué consulta entregas y qué le adviertes?</em></p>
 </blockquote></div>
@@ -334,7 +370,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <ol>
 <li><strong><code>order_date</code> es <code>date</code>, sin hora, y hay varios pedidos por día.</strong> Los últimos 10 "por fecha" están llenos de empates: cuáles entran no está definido. Se arregla con <code>ORDER BY order_date DESC, order_id DESC</code>.</li>
 <li><strong>No hay <code>WHERE</code>, así que incluye pedidos sin enviar y no distingue nada.</strong> Pero sobre todo: la consulta dice <em>"los 10 más recientes"</em> y solo garantiza <em>"10 filas de entre las más recientes"</em>. <strong>En un informe que alguien va a comparar con el del mes pasado, eso es un fallo, no un detalle.</strong></li>
-</ol></div></details>
+</ol>
+<p><strong>6.</strong> <strong>3 filas</strong>, pero la pregunta real es <em>cuáles</em>. El embudo: el <code>WHERE</code> deja los 83 pedidos de Brasil, el <code>GROUP BY ship_city</code> los colapsa en <strong>4 ciudades</strong> —Brasil entero se surte de cuatro— y el <code>LIMIT 3</code> corta tres. <strong>Sin <code>ORDER BY</code>, cuáles tres no está definido</strong>: el motor devuelve las que le resulten cómodas, y puede cambiar de opinión mañana. <code>LIMIT</code> sin <code>ORDER BY</code> es una pregunta mal hecha.</p>
+<p><strong>7.</strong> Porque <code>ORDER BY</code> es el paso 6 y <code>SELECT</code> el 5: <strong>cuando se ordena, <code>precio_final</code> ya existe.</strong> En el <code>WHERE</code>, que es el paso 2, la misma línea daría error.</p></div></details>
     <nav class="navpies"><a class="nav-prev" href="../buscar-texto-like-y-regex/"><span>Anterior</span><strong>Buscar texto: LIKE, ILIKE y expresiones regulares</strong></a><a class="nav-next" href="../distinct-y-duplicados/"><span>Siguiente</span><strong>DISTINCT y duplicados</strong></a></nav>
   </main>
 
@@ -343,10 +381,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#1-qu-es">1. Qué es</a>
 <a href="#2-sintaxis">2. Sintaxis</a>
 <a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
-<a href="#4-errores-comunes">4. Errores comunes</a>
-<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
-<a href="#6-ejercicios">6. Ejercicios</a>
-<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+<a href="#4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
   </aside>
 </div>
 </body>
