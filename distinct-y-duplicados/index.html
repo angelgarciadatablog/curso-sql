@@ -101,7 +101,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Esas tres cifras juntas son un <strong>perfilado</strong>: 91 clientes repartidos en 69 ciudades y 21 países. Con eso ya sabes que la ciudad casi identifica al cliente y el país no.</p>
-<h3><code>DISTINCT</code> mira la fila entera</h3>
+<h3>3.1 <code>DISTINCT</code> mira la fila entera</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">;</span>
 </code></pre></div>
 
@@ -115,7 +115,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>69 filas</strong>, no 21. <code>Austria</code> sale dos veces porque las <strong>parejas</strong> son distintas. Si esperabas 21, estabas pensando en <code>DISTINCT country</code> y escribiste otra cosa.</p>
-<h3><code>DISTINCT</code> sí junta los <code>NULL</code></h3>
+<h3>3.2 <code>DISTINCT</code> sí junta los <code>NULL</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">;</span>
 </code></pre></div>
 
@@ -124,7 +124,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong><code>DISTINCT</code> trata todos los <code>NULL</code> como uno solo y los devuelve; <code>count(DISTINCT ...)</code> los ignora.</strong> No es contradictorio —<code>count</code> ignora nulos siempre, <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>— pero explica por qué la lista tiene una fila más que el conteo. Si comparas las dos cifras sin saberlo, parecen un error.</p>
-<h3><code>DISTINCT</code> vs <code>GROUP BY</code></h3>
+<h3>3.3 <code>DISTINCT</code> vs <code>GROUP BY</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">;</span>
 </code></pre></div>
@@ -135,7 +135,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><code>GROUP BY</code> dice <em>"agrupa"</em>, y deja la puerta abierta a añadir un <code>count(*)</code> o un <code>sum()</code>.</li>
 </ul>
 <p>Usa <code>DISTINCT</code> cuando solo quieras la lista, y <code>GROUP BY</code> en cuanto vayas a agregar algo. Casi siempre acabas queriendo agregar algo.</p>
-<h3>La parte importante: <code>DISTINCT</code> como tirita</h3>
+<h3>3.4 La parte importante: <code>DISTINCT</code> como tirita</h3>
 <p>Este es el ejemplo que hay que entender. Un <code>JOIN</code> entre pedidos y sus líneas:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">                                    </span><span class="c1">--  830</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
@@ -159,7 +159,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><strong>Regla: si <code>DISTINCT</code> aparece para arreglar filas de más, el problema está en el <code>FROM</code>, no en el <code>SELECT</code>.</strong> La solución correcta es agregar al nivel adecuado, no deduplicar al final. Es el tema <span class="xref-pend" title="Aún no publicado">joins-multiples-y-granularidad</span>, y por eso este ejemplo se planta aquí: para que cuando llegues allí ya te suene el peligro.</p>
 </blockquote>
 <p>Nota complementaria: <code>count(DISTINCT o.order_id)</code> sobre ese mismo join <strong>sí</strong> devuelve 830 correctamente. Contar distintos suele ser legítimo; <strong>sumar distintos casi nunca lo es.</strong></p>
-<h3><code>DISTINCT ON</code> — el atajo de PostgreSQL</h3>
+<h3>3.5 <code>DISTINCT ON</code> — el atajo de PostgreSQL</h3>
 <p><em>El último pedido de cada cliente:</em></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
 <span class="w">       </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span>
@@ -182,7 +182,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong>Lo que venga después decide cuál se queda.</strong> Sin <code>order_date DESC</code> te quedas con un pedido cualquiera del cliente, no con el último.</li>
 </ol>
 <p><code>DISTINCT ON</code> <strong>no existe en el estándar SQL ni en SQL Server</strong>. Es de las cosas más cómodas de PostgreSQL y de las menos portables. El equivalente universal es <code>ROW_NUMBER()</code> (<span class="xref-pend" title="Aún no publicado">ranking-row-number-rank-ntile</span>).</p>
-<h3>Encontrar duplicados, que no es lo mismo que quitarlos</h3>
+<h3>3.6 Encontrar duplicados, que no es lo mismo que quitarlos</h3>
 <p><code>DISTINCT</code> los <strong>esconde</strong>. Para <strong>verlos</strong> se usa <code>GROUP BY</code> + <code>HAVING</code>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>

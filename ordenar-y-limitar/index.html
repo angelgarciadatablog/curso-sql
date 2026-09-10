@@ -116,7 +116,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>País ascendente (Argentina antes que Austria), ciudad <strong>descendente</strong> dentro de cada país (Salzburg antes que Graz). Para que las dos fueran descendentes habría que escribir <code>ORDER BY country DESC, city DESC</code>.</p>
 <p>Y fíjate en las tres empresas de Buenos Aires: <strong>su orden entre sí no está definido.</strong> Empatan en las dos columnas del <code>ORDER BY</code>, así que el motor las coloca como quiere.</p>
-<h3>Paginación con <code>OFFSET</code></h3>
+<h3>3.1 Paginación con <code>OFFSET</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">            </span><span class="c1">-- página 1</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">OFFSET</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">   </span><span class="c1">-- página 2</span>
 </code></pre></div>
@@ -135,7 +135,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>OFFSET</code> no salta gratis.</strong> Para darte las filas 100.001 a 100.010, el motor produce y descarta las 100.000 anteriores. En tablas grandes la paginación se vuelve más lenta cuanto más avanzas.</li>
 <li><strong>Si el orden no es determinista, las páginas se solapan o pierden filas.</strong> Ver abajo.</li>
 </ol>
-<h3>El empate: por qué <code>LIMIT</code> necesita desempate</h3>
+<h3>3.2 El empate: por qué <code>LIMIT</code> necesita desempate</h3>
 <p>Cuatro productos cuestan exactamente 18.00:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="p">.</span><span class="mi">00</span><span class="p">;</span>
 </code></pre></div>
@@ -156,7 +156,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>product_id</code> es la clave primaria, así que <strong>el orden pasa a ser único y reproducible</strong>. Regla práctica: si un <code>ORDER BY</code> va a alimentar una paginación, un informe que se compara entre semanas, o un <code>LIMIT</code>, <strong>termínalo con la clave primaria</strong>.</p>
-<h3>Los <code>NULL</code> al ordenar</h3>
+<h3>3.3 Los <code>NULL</code> al ordenar</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
 </code></pre></div>
 
@@ -173,7 +173,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>Escríbelo siempre que haya nulos y el orden importe.</strong> Es el punto donde PostgreSQL y SQL Server dan resultados distintos con la misma consulta (sección 5).</p>
-<h3>Ordenar texto: el <em>collation</em></h3>
+<h3>3.4 Ordenar texto: el <em>collation</em></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
 </code></pre></div>
 
@@ -202,7 +202,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>Si un informe ordenado alfabéticamente sale distinto en dos servidores, el collation es el primer sospechoso.</strong> Es un tema con suficiente enjundia como para tener el suyo propio, desarrollado en el vault: <code>temas/sql/collation-y-orden-del-texto</code>.</p>
-<h3>Ordenar por algo que no está en el <code>SELECT</code></h3>
+<h3>3.5 Ordenar por algo que no está en el <code>SELECT</code></h3>
 <p>Es legal y a veces útil:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
 </code></pre></div>
@@ -210,14 +210,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Devuelve solo los nombres, ordenados por un precio que no se ve. <strong>Cómodo, y peligroso en un informe</strong>: quien lo lea no puede verificar el orden. Si el criterio importa, enséñalo.</p>
 <h2 id="4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</h2>
 <p><code>ORDER BY</code> es el <strong>paso 6</strong>, el último de las cláusulas básicas, y <code>LIMIT</code> se aplica después de él. Es decir: cuando le llega el turno a <code>ORDER BY</code>, <strong>el resultado ya está construido</strong> — el <code>SELECT</code> ocurrió en el paso 5. Eso lo cambia todo.</p>
-<p><strong>1. <code>ORDER BY</code> sí acepta un nombre puesto con <code>AS</code></strong> — al revés que el <code>WHERE</code>:</p>
+<h3>4.1 <code>ORDER BY</code> sí acepta un nombre puesto con <code>AS</code></h3>
+<p>Al revés que el <code>WHERE</code>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">18</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_final</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">precio_final</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
 <p>No da error, y no es una incoherencia del motor: cuando se ordena, <code>precio_final</code> ya existe, porque se creó en el paso anterior. En el <code>WHERE</code> (paso 2) todavía no existía. <strong>Misma regla, distinto momento.</strong></p>
-<p><strong>2. Y acepta el número de posición</strong>, por lo mismo — ve las columnas de salida ya numeradas:</p>
+<h3>4.2 Y acepta el número de posición</h3>
+<p>Por lo mismo — ve las columnas de salida ya numeradas:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span>
@@ -232,7 +234,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>2</code> es la segunda columna del <code>SELECT</code>. <strong>Cómodo para probar, frágil para guardar</strong>: el día que alguien añade una columna al <code>SELECT</code>, el orden cambia solo.</p>
-<p><strong>3. <code>LIMIT</code> es lo último de lo último, y por eso no acelera nada.</strong></p>
+<h3>4.3 <code>LIMIT</code> es lo último de lo último, y por eso no acelera nada</h3>
 <p>Es la confusión más cara del tema. <code>LIMIT 10</code> no le dice al motor <em>"trae solo 10 filas"</em>: le dice <em>"haz todo el trabajo y luego dame 10"</em>. Antes de cortar, el motor ya escaneó, filtró, agrupó y —sobre todo— <strong>ordenó el conjunto entero</strong>.</p>
 <blockquote>
 <p><code>LIMIT 10</code> sobre un <code>ORDER BY</code> de un millón de filas <strong>no evita ordenar el millón</strong>. Reduce lo que se te <em>envía</em>, no lo que se <em>trabaja</em>.</p>

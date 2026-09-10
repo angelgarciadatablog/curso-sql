@@ -89,7 +89,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p><strong>Empieza siempre por <code>LIKE</code>.</strong> Solo cuando se quede corto, sube.</p>
 <h2 id="2-sintaxis">2. Sintaxis</h2>
-<h3><code>LIKE</code> — dos comodines y ya</h3>
+<h3>2.1 <code>LIKE</code> — dos comodines y ya</h3>
 <table>
 <thead>
 <tr>
@@ -139,7 +139,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </tbody>
 </table>
 <p><code>NOT LIKE</code> niega. <code>ILIKE</code> es igual que <code>LIKE</code> pero <strong>ignora mayúsculas</strong> (la <code>I</code> es de <em>insensitive</em>) — y es <strong>exclusivo de PostgreSQL</strong>.</p>
-<h3>Regex — lo mínimo que hace falta</h3>
+<h3>2.2 Regex — lo mínimo que hace falta</h3>
 <table>
 <thead>
 <tr>
@@ -246,7 +246,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>8 productos. <code>_</code> ocupa exactamente un hueco: ni cero, ni dos.</p>
-<h3>Mayúsculas: <code>LIKE</code> vs <code>ILIKE</code></h3>
+<h3>3.1 Mayúsculas: <code>LIKE</code> vs <code>ILIKE</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w">  </span><span class="s1">'a%'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 0</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'a%'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 4</span>
 </code></pre></div>
@@ -265,7 +265,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong><code>Alfreds Futterkiste</code> aparece en la lista de "no contiene la letra a".</strong> Y es correcto: contiene <code>A</code>, no <code>a</code>. Si lo que querías era "sin la letra a", el patrón correcto era <code>NOT ILIKE '%a%'</code>.</p>
-<h3>Los acentos son otro carácter</h3>
+<h3>3.2 Los acentos son otro carácter</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'Antonio Moreno Taquería'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Taqueria%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_tilde</span><span class="p">,</span>
 <span class="w">       </span><span class="s1">'Antonio Moreno Taquería'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Taquería%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_tilde</span><span class="p">;</span>
 </code></pre></div>
@@ -285,7 +285,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <blockquote>
 <p><strong>No la instales todavía en <code>northwind</code>.</strong> Cambiar la base fuera de <code>seed.sql</code> rompe la promesa de que se puede resetear. Cuando toque, va al <code>seed.sql</code> del repo (<code>postgresql-northwind</code>).</p>
 </blockquote>
-<h3>Buscar un comodín literal</h3>
+<h3>3.3 Buscar un comodín literal</h3>
 <p>Si el texto contiene <code>_</code> o <code>%</code> de verdad, hay que escaparlo con <code>\</code>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'lote_2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%\_%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">busca_guion_bajo</span><span class="p">,</span>
 <span class="w">       </span><span class="s1">'lote 2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%\_%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_espacio</span><span class="p">,</span>
@@ -298,7 +298,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>La tercera columna es la trampa: <code>'%_%'</code> <strong>no busca un guion bajo</strong>, busca "cualquier texto de al menos un carácter", así que es cierto para casi todo.</p>
-<h3>Cuando <code>LIKE</code> se queda corto: regex</h3>
+<h3>3.4 Cuando <code>LIKE</code> se queda corto: regex</h3>
 <p><em>Productos que empiezan por C o por B.</em> Con <code>LIKE</code> harían falta dos condiciones. Con regex, una:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^[CB]'</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
 </code></pre></div>

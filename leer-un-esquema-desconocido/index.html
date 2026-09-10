@@ -182,7 +182,11 @@ count(DISTINCT (venta, fecha_foto)) = 4   ← ahora sí
 <p>La respuesta correcta es 2 en los tres casos. <code>count(*)</code> solo acierta en el primero, y <strong>nada en el nombre de la tabla te dice en cuál estás</strong>.</p>
 <p>Y fíjate en lo peor: 3 y 4 no son cifras absurdas que salten a la vista. Son números creíbles. Un informe con el grano equivocado no da ningún error — da un número más grande, y nadie lo nota.</p>
 <p><strong>3.5 El procedimiento.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="o">&lt;</span><span class="n">columna</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="o">&lt;</span><span class="n">tabla</span><span class="o">&gt;</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="o">&lt;</span><span class="n">columna</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="n">tabla</span><span class="o">&gt;</span><span class="p">;</span>
 </code></pre></div>
 
 <ul>
@@ -202,38 +206,48 @@ count(DISTINCT (venta, fecha_foto)) = 4   ← ahora sí
 <p><code>\d orders</code> es el comando que más vas a usar en tu vida con PostgreSQL.</p>
 <h3>4.3 Con SQL puro</h3>
 <p>Cuando el programa (cliente) no ayuda, hay dos catálogos donde mirar. <strong>Las dos consultas de abajo responden exactamente a la misma pregunta y devuelven el mismo resultado</strong> — cambia quién puede ejecutarlas.</p>
-<h4>Opción A — <code>pg_catalog</code> (la que puedes ejecutar)</h4>
+<p><strong>1. Opción A — <code>pg_catalog</code> (la que puedes ejecutar)</strong></p>
 <blockquote>
 <p><strong>✅ Funciona con tu usuario del curso</strong>: <code>pg_catalog</code> no filtra por permisos.
 A cambio es específica de PostgreSQL — no existe en SQL Server ni en MySQL.</p>
 </blockquote>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">conrelid</span><span class="p">::</span><span class="n">regclass</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
-<span class="w">       </span><span class="n">a</span><span class="p">.</span><span class="n">attname</span><span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
-<span class="w">       </span><span class="n">confrelid</span><span class="p">::</span><span class="n">regclass</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">pg_constraint</span><span class="w"> </span><span class="k">c</span>
-<span class="k">JOIN</span><span class="w"> </span><span class="n">pg_attribute</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attrelid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">conrelid</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attnum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">ANY</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">conkey</span><span class="p">)</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">contype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">connamespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">::</span><span class="n">regnamespace</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">conrelid</span><span class="p">::</span><span class="n">regclass</span><span class="p">::</span><span class="nb">text</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attname</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">conrelid</span><span class="p">::</span><span class="n">regclass</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">    </span><span class="n">a</span><span class="p">.</span><span class="n">attname</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
+<span class="w">    </span><span class="n">confrelid</span><span class="p">::</span><span class="n">regclass</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">pg_constraint</span><span class="w"> </span><span class="k">c</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">pg_attribute</span><span class="w"> </span><span class="n">a</span>
+<span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attrelid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">conrelid</span>
+<span class="w">        </span><span class="k">AND</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attnum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">ANY</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">conkey</span><span class="p">)</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">c</span><span class="p">.</span><span class="n">contype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">connamespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">::</span><span class="n">regnamespace</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">conrelid</span><span class="p">::</span><span class="n">regclass</span><span class="p">::</span><span class="nb">text</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">attname</span><span class="p">;</span>
 </code></pre></div>
 
-<h4>Opción B — <code>information_schema</code> (la portable)</h4>
+<p><strong>2. Opción B — <code>information_schema</code> (la portable)</strong></p>
 <blockquote>
 <p><strong>⚠️ En el curso te devolverá vacío, y no es un error tuyo</strong>: exige permisos de escritura.
 Es SQL estándar y funciona en cualquier motor, por eso hay que conocerla.
 Con un usuario administrador da el mismo resultado que la opción A. Ver la sección 4.4.</p>
 </blockquote>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
-<span class="w">       </span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
-<span class="w">       </span><span class="n">ccu</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">table_constraints</span><span class="w"> </span><span class="n">tc</span>
-<span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">key_column_usage</span><span class="w"> </span><span class="n">kcu</span>
-<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
-<span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">constraint_column_usage</span><span class="w"> </span><span class="n">ccu</span>
-<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">ccu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">constraint_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'FOREIGN KEY'</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">tc</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">    </span><span class="n">kcu</span><span class="p">.</span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ccu</span><span class="p">.</span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">apunta_a</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">table_constraints</span><span class="w"> </span><span class="n">tc</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">key_column_usage</span><span class="w"> </span><span class="n">kcu</span>
+<span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">kcu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">constraint_column_usage</span><span class="w"> </span><span class="n">ccu</span>
+<span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">ccu</span><span class="p">.</span><span class="k">constraint_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="k">constraint_name</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">tc</span><span class="p">.</span><span class="n">constraint_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'FOREIGN KEY'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">tc</span><span class="p">.</span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>El resultado, con cualquiera de las dos:</strong></p>
@@ -292,8 +306,11 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 </blockquote>
 <h2 id="5-ejemplos-sobre-northwind">5. Ejemplos sobre Northwind</h2>
 <p><strong>5.1 Comprobar el grano.</strong> El procedimiento de la sección 3.5, ahora sobre datos de verdad. Si la clave primaria es <code>order_id</code>, cada pedido debe aparecer una sola vez:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_distintos</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_distintos</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> filas | pedidos_distintos
@@ -303,10 +320,16 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 
 <p>Iguales: el grano es "un pedido". <strong>Si no fueran iguales, tu idea del grano estaría mal</strong> — y toda suma que hagas después, también.</p>
 <p><strong>5.2 Ver qué puede faltar en una tabla.</strong> Las columnas que admiten <code>NULL</code> te dicen dónde el negocio permite ausencias:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">column_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">is_nullable</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">ordinal_position</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>   column_name    | is_nullable
@@ -325,13 +348,18 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 <p>O sea que <em>"aquí el negocio permite una ausencia"</em> y <em>"esta clave foránea garantiza la integridad"</em> <strong>se contradicen en la misma columna</strong>. Por eso en una FK lo recomendable es <code>NOT NULL</code>, y quitarlo solo cuando puedas decir en voz alta la frase que lo justifica: <em>"aún no se le ha asignado transportista"</em> es una regla de negocio; <em>"pues... podría pasar"</em> es un descuido de diseño.</p>
 <p>Y al leer un esquema conviene saber que <strong><code>NOT NULL</code> es la restricción más fiable de todas</strong>: no se puede añadir a medias. Si el histórico tiene un solo <code>NULL</code>, PostgreSQL rechaza la restricción hasta que lo limpies. Así que una columna <code>NOT NULL</code> te dice algo fuerte —alguien la puso desde el principio, o limpió los datos para poder ponerla—, mientras que ver una clave foránea declarada no garantiza lo mismo sobre el pasado.</p>
 <p><strong>5.3 Ver qué puede faltar en todo el modelo.</strong> La misma pregunta, pero de una vez para las 12 tablas. Primero el resumen, para saber dónde mirar:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
-<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columnas</span><span class="p">,</span>
-<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nulables</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">table_name</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">nulables</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="k">table_name</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columnas</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nulables</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="k">table_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">nulables</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="k">table_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>        tabla         | columnas | nulables
@@ -351,10 +379,17 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 </code></pre></div>
 
 <p>Y el detalle, cuando quieras la lista completa:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span><span class="w"> </span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">table_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">    </span><span class="k">column_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">columna</span><span class="p">,</span>
+<span class="w">    </span><span class="n">data_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">is_nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'YES'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>52 columnas nulables</strong> en todo el esquema. Tres lecturas:</p>
@@ -445,9 +480,11 @@ Ante un vacío sospechoso, comprueba la consulta con otro usuario antes de creer
 </tbody>
 </table>
 <p><strong>2.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
-<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="p">(</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">combinaciones</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="p">(</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">combinaciones</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">order_details</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Ambos dan <strong>2.155</strong>. Si en cambio cuentas <code>DISTINCT order_id</code> salen 830: eso confirma que el pedido <strong>no</strong> identifica la fila por sí solo. Hacen falta las dos columnas.</p>

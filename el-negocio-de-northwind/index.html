@@ -76,55 +76,98 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Northwind vende <strong>77 productos</strong> repartidos en <strong>8 categorías</strong>. De esos 77, <strong>10 están descatalogados</strong>: siguen en el catálogo pero ya no se venden, así que los productos vivos son <strong>67</strong>. Los compra a <strong>29 proveedores</strong> repartidos en <strong>16 países</strong>.</p>
 <p>Las ocho categorías son Beverages, Condiments, Confections, Dairy Products, Grains/Cereals, Meat/Poultry, Produce y Seafood.</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuántos productos tiene el catálogo?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span><span class="p">;</span>
 
 <span class="c1">-- ¿Cuántos están descatalogados?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">descatalogados</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">descatalogados</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">discontinued</span><span class="p">;</span>
 
 <span class="c1">-- ¿En cuántas categorías se agrupan?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">categorias</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">categorias</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">categories</span><span class="p">;</span>
 
 <span class="c1">-- ¿Y cuáles son?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">category_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">categoria</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_name</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">category_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">categoria</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">categories</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">category_name</span><span class="p">;</span>
 
 <span class="c1">-- ¿A cuántos proveedores les compra?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedores</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedores</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">suppliers</span><span class="p">;</span>
 
 <span class="c1">-- ¿De cuántos países distintos?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises_de_proveedores</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises_de_proveedores</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">suppliers</span><span class="p">;</span>
 </code></pre></div>
 
 <h2 id="4-los-clientes-a-qui-n-le-vende">4. Los clientes — a quién le vende</h2>
 <p>Tiene <strong>91 clientes</strong> repartidos en <strong>21 países</strong> y <strong>69 ciudades</strong>. Los tres mercados más grandes son Estados Unidos con 13 clientes, y Francia y Alemania empatados con 11 cada uno.</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuántos clientes tiene?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span><span class="p">;</span>
 
 <span class="c1">-- ¿En cuántos países hay clientes?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises_de_clientes</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises_de_clientes</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span><span class="p">;</span>
 
 <span class="c1">-- ¿Y en cuántas ciudades?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">city</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ciudades_de_clientes</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">city</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ciudades_de_clientes</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span><span class="p">;</span>
 
 <span class="c1">-- ¿Cuántos clientes hay en cada país?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">clientes</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">country</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">clientes</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
 <h2 id="5-la-operaci-n-cu-nto-ha-vendido">5. La operación — cuánto ha vendido</h2>
 <p>En sus registros hay <strong>830 pedidos</strong>, del <strong>4 de julio de 1996 al 6 de mayo de 1998</strong> — veintidós meses. En total facturó <strong>1.265.793,04</strong>, lo que da un <strong>ticket medio de 1.525,05</strong> por pedido.</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuántos pedidos ha procesado?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span><span class="p">;</span>
 
 <span class="c1">-- ¿Entre qué fechas?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primer_pedido</span><span class="p">,</span>
-<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo_pedido</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primer_pedido</span><span class="p">,</span>
+<span class="w">    </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo_pedido</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span><span class="p">;</span>
 
 <span class="c1">-- ¿Cuánto facturó en total?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">order_details</span><span class="p">;</span>
 </code></pre></div>
 
 <p>El <strong>ticket medio</strong> sale de dividir: 1.265.793,04 ÷ 830 = 1.525,05. La consulta que lo calcula sola necesita una subconsulta, y eso llega más adelante en el curso.</p>
@@ -133,29 +176,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Northwind la llevan <strong>9 personas</strong>: un vicepresidente de ventas, un jefe de ventas, <strong>seis comerciales</strong> y una coordinadora interna.</p>
 <p>No tiene camiones propios — subcontrata el transporte a <strong>6 empresas</strong>. Y su fuerza de ventas cubre <strong>53 territorios</strong> agrupados en <strong>4 regiones</strong>: Eastern, Western, Northern y Southern.</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- ¿Cuánta gente trabaja aquí?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleados</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleados</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employees</span><span class="p">;</span>
 
 <span class="c1">-- ¿En qué puestos?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cargo</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cuantos</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">title</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cuantos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">title</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cargo</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cuantos</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employees</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">title</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">cuantos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 
 <span class="c1">-- ¿Con cuántos transportistas trabaja?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">transportistas</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">shippers</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">transportistas</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">shippers</span><span class="p">;</span>
 
 <span class="c1">-- ¿En cuántos territorios vende?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">territorios</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">territorios</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">territories</span><span class="p">;</span>
 
 <span class="c1">-- ¿Y cómo se agrupan?</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">region_description</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region_id</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">region_description</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">region</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">region</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">region_id</span><span class="p">;</span>
 </code></pre></div>
 
 <h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
 <p><strong><code>discontinued</code> es booleano, no un 0/1.</strong></p>
 <p>Northwind nació en SQL Server, donde esa columna es un entero. En esta base es <code>boolean</code>, así que la consulta que encontrarás en casi cualquier tutorial de internet <strong>falla aquí</strong>:</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- ❌ Esto revienta</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">discontinued</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>ERROR: operator does not exist: boolean = integer
@@ -163,13 +230,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>La forma correcta en PostgreSQL no necesita comparar con nada, porque la columna <strong>ya es</strong> verdadero o falso:</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- ✅ Así sí</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">discontinued</span><span class="p">;</span>
 
 <span class="c1">-- ✅ Equivalente, más explícito</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">TRUE</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">discontinued</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">TRUE</span><span class="p">;</span>
 
 <span class="c1">-- ✅ Los que SÍ se venden</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Es el primer aviso de una regla que te va a acompañar todo el curso: <strong>una consulta copiada de internet puede estar escrita para otro motor.</strong> Cuando algo falle sin motivo aparente, la primera pregunta es <em>¿para qué base de datos se escribió esto?</em></p>

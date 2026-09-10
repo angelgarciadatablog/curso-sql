@@ -169,13 +169,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Este orden es <strong>lógico, no físico</strong>: es el orden en que el motor está obligado a <em>comportarse como si</em> hiciera las cosas. Por dentro puede reorganizarlas mientras el resultado no cambie. Eso se ve al final del curso, en <span class="xref-pend" title="Aún no publicado">explain-y-explain-analyze</span>.</p>
 <h2 id="5-una-consulta-paso-a-paso">5. Una consulta, paso a paso</h2>
 <p>La consulta más corta que usa las seis. Sobre <code>orders</code>, la tabla de pedidos de Northwind:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span>
-<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span>
-<span class="k">HAVING</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">flete</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">ship_country</span>
+<span class="k">HAVING</span>
+<span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">flete</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
 <p>En una línea: <em>de los pedidos caros de enviar, en qué países se gastó más de 1000 en total de flete, del que más gastó al que menos.</em></p>

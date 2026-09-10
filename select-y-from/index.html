@@ -69,8 +69,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </ul>
 <p>Todo lo demás (filtrar, agrupar, ordenar) se le añade encima.</p>
 <h2 id="2-sintaxis">2. Sintaxis</h2>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">columna1</span><span class="p">,</span><span class="w"> </span><span class="n">columna2</span><span class="p">,</span><span class="w"> </span><span class="n">expresión</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">alias</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">columna1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">columna2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">expresión</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">alias</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">tabla</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Reglas que valen desde ya:</p>
@@ -81,8 +85,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </ul>
 <h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
 <p><strong>La consulta mínima.</strong> Dos columnas de una tabla:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
@@ -99,9 +106,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><code>LIMIT 5</code> corta la salida a 5 filas. Se ve en detalle en <a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>; aquí lo uso solo para que los ejemplos quepan en pantalla.</p>
 </blockquote>
 <p><strong>Renombrar con <code>AS</code>.</strong> El alias cambia el título de la columna en el resultado, no en la tabla:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">producto</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_unitario</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">producto</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_unitario</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
@@ -113,11 +122,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><code>AS</code> es opcional (<code>unit_price precio_unitario</code> funciona), pero <strong>escríbelo siempre</strong>. Sin él, una coma olvidada convierte dos columnas en una sola con alias, en silencio y sin error.</p>
 <p><strong>El <code>SELECT</code> calcula.</strong> No estás limitado a las columnas que existen — puedes crear columnas nuevas:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="p">,</span>
-<span class="w">       </span><span class="n">units_in_stock</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_en_stock</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_en_stock</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
@@ -132,9 +143,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><code>valor_en_stock</code> no existe en ninguna parte de la base. Se calcula al vuelo, fila por fila. <strong>Eso es el 80% del trabajo analítico: columnas que no estaban.</strong></p>
 <p><strong>Concatenar texto con <code>||</code>:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
-<span class="w">       </span><span class="n">title</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">    </span><span class="n">title</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employees</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
@@ -146,7 +159,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong><code>FROM</code> es opcional.</strong> Si no lees ninguna tabla, no hace falta:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">resultado</span><span class="p">,</span><span class="w"> </span><span class="k">current_date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">resultado</span><span class="p">,</span>
+<span class="w">    </span><span class="k">current_date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> resultado |    hoy
@@ -156,13 +171,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Esto es más útil de lo que parece: es la forma de <strong>probar una función</strong> sin arrastrar una tabla detrás.</p>
 <p><strong>Alias de tabla.</strong> Se le pone un nombre corto a la tabla y se prefijan las columnas:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">p</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Con una sola tabla es innecesario. <strong>En cuanto haya dos, deja de serlo</strong> — ver <span class="xref-pend" title="Aún no publicado">inner-join</span>.</p>
-<h3>Sobre <code>SELECT *</code></h3>
+<h3>3.1 Sobre <code>SELECT *</code></h3>
 <p><code>SELECT * FROM products</code> devuelve todas las columnas. Es cómodo para asomarse una vez, y <strong>mala costumbre en todo lo demás</strong>:</p>
 <ol>
 <li>Traes datos que no necesitas — más red, más memoria, más lento.</li>
@@ -180,16 +198,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li>
 <p><strong>Usar el alias en el <code>WHERE</code>.</strong> Esto falla:
    <code>sql
-   SELECT product_name, unit_price * 1.18 AS con_igv
-   FROM products
-   WHERE con_igv &gt; 20;</code>
+   SELECT
+       product_name,
+       unit_price * 1.18 AS con_igv
+   FROM
+       products
+   WHERE
+       con_igv &gt; 20;</code>
    <code>ERROR:  column "con_igv" does not exist</code>
    No es un capricho: cuando se evalúa el <code>WHERE</code>, el <code>SELECT</code> <strong>todavía no ha ocurrido</strong>. El porqué completo está en <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>, el tema siguiente.</p>
 </li>
 <li>
 <p><strong>Comillas dobles donde no van.</strong> En PostgreSQL, <code>"algo"</code> significa <em>identificador exacto, respeta mayúsculas</em>:
    <code>sql
-   SELECT "Product_Name" FROM products;</code>
+   SELECT
+       "Product_Name"
+   FROM
+       products;</code>
    <code>ERROR:  column "Product_Name" does not exist</code>
    Sin comillas, PostgreSQL pasa todo a minúsculas y encuentra la columna. Con comillas, busca literalmente <code>Product_Name</code>, que no existe.</p>
 </li>
@@ -246,12 +271,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><em>Finanzas quiere saber cuánto dinero hay parado en el almacén: el valor total del inventario producto por producto, del más caro al más barato.</em></p>
 </blockquote>
 <p>No hace falta ninguna función que no hayas visto. Sí hace falta decidir <strong>qué es "valor"</strong>.</p></div>
-    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="p">,</span>
-<span class="w">       </span><span class="n">units_in_stock</span><span class="p">,</span>
-<span class="w">       </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_inventario</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">valor_inventario</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor_inventario</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">valor_inventario</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>       product_name        | unit_price | units_in_stock | valor_inventario
@@ -269,8 +297,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong>"Valor" es ambiguo y hay que preguntarlo.</strong> <code>unit_price</code> es el precio de <strong>venta</strong>. El valor contable de un inventario normalmente es el de <strong>coste</strong>, que Northwind no guarda. Lo que has calculado es <em>cuánto facturarías si lo vendieras todo</em>, que no es lo mismo. Decirlo al entregar el dato es lo que separa a alguien que ejecuta SQL de alguien que analiza.</li>
 </ul></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedor</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedor</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">suppliers</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>             proveedor              | pais
@@ -284,8 +315,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>29 filas en total.</p>
 <p><strong>2.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">18</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_con_igv</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="p">.</span><span class="mi">18</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_con_igv</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>         product_name         | unit_price | precio_con_igv
@@ -296,8 +331,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Fíjate en los <strong>4 decimales</strong>: <code>numeric(10,2) * 1.18</code> no devuelve <code>numeric(10,2)</code>, devuelve la precisión que hace falta para no perder nada. Redondear es una decisión tuya, no del motor — ver <span class="xref-pend" title="Aún no publicado">funciones-dentro-del-select</span>.</p>
 <p><strong>3.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">last_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employees</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>     empleado
@@ -308,14 +345,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>4.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Devuelve <strong>14</strong>. La respuesta a ojo con <code>\d orders</code> vale igual; la consulta vale cuando la tabla tiene 200 columnas.</p>
 <p><strong>5.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="ss">"Nombre de la empresa"</span><span class="p">,</span>
-<span class="w">       </span><span class="n">city</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="ss">"Ciudad"</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="ss">"Nombre de la empresa"</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="ss">"Ciudad"</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>        Nombre de la empresa        |   Ciudad

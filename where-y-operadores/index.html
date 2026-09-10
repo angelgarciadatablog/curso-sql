@@ -62,12 +62,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><code>WHERE</code> <strong>descarta filas</strong>. Se ejecuta fila por fila, una a una, y hace una sola pregunta: <em>¿esta condición es verdadera para esta fila?</em> Si la respuesta es sí, la fila sigue. Si es no —<strong>o si es desconocida</strong>, que es un caso aparte y tiene su propio tema— la fila desaparece.</p>
 <p>Es el paso 2 del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a> y de lejos el más importante para el rendimiento: <strong>todo lo que descartes aquí es trabajo que no se hace después.</strong></p>
 <h2 id="2-sintaxis">2. Sintaxis</h2>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">columnas</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">condición</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">columnas</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">tabla</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">condición</span><span class="p">;</span>
 </code></pre></div>
 
-<h3>Operadores de comparación</h3>
+<h3>2.1 Operadores de comparación</h3>
 <table>
 <thead>
 <tr>
@@ -91,7 +94,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </tbody>
 </table>
 <p><code>&lt;&gt;</code> es el del estándar SQL; <code>!=</code> es un sinónimo que PostgreSQL acepta. <strong>Usa <code>&lt;&gt;</code></strong>: funciona en todos los motores.</p>
-<h3>Operadores lógicos</h3>
+<h3>2.2 Operadores lógicos</h3>
 <table>
 <thead>
 <tr>
@@ -118,8 +121,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </tr>
 </tbody>
 </table>
-<p><strong><code>AND</code> se evalúa antes que <code>OR</code>.</strong> Esa línea es la causa de más informes silenciosamente equivocados que ninguna otra en SQL. Se ve en la sección 3.</p>
-<h3>Atajos</h3>
+<p><strong><code>AND</code> agrupa antes que <code>OR</code>.</strong> Esa línea es la causa de más informes silenciosamente equivocados que ninguna otra en SQL. Se ve en 3.2.</p>
+<h3>2.3 Atajos</h3>
 <table>
 <thead>
 <tr>
@@ -144,11 +147,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p><code>BETWEEN</code> es <strong>inclusivo por los dos extremos</strong>. No es opinable, es la definición.</p>
 <h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
-<p><strong>Comparación simple:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<h3>3.1 Comparación simple</h3>
+<p><strong>Pregunta:</strong> ¿qué productos del catálogo cuestan más de 50, y cuánto cuestan?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>      product_name       | unit_price
@@ -163,64 +172,177 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>7 productos de 77. <strong>El <code>WHERE</code> acaba de ahorrar el 91% del trabajo.</strong></p>
-<h3>La trampa de la precedencia</h3>
-<p>Esta consulta parece decir <em>"clientes de Alemania o de Francia, que estén en París"</em>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Paris'</span><span class="p">;</span>
+<h3>3.2 La trampa de la precedencia</h3>
+<p><strong>Pregunta:</strong> ¿qué clientes de Alemania o Francia tienen como contacto al dueño del negocio?</p>
+<p>En Northwind eso es <code>country</code> y <code>contact_title = 'Owner'</code>. La consulta parece salir sola:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span>
+<span class="w">    </span><span class="n">contact_title</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span>
+<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">contact_title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Owner'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> count
--------
-    13
+<div class="hl"><pre><span></span><code>       company_name       |      city      | country |    contact_title
+--------------------------+----------------+---------+----------------------
+ Bon app'                 | Marseille      | France  | Owner
+ Du monde entier          | Nantes         | France  | Owner
+ Paris spécialités        | Paris          | France  | Owner
+ Alfreds Futterkiste      | Berlin         | Germany | Sales Representative
+ Blauer See Delikatessen  | Mannheim       | Germany | Sales Representative
+ Die Wandernde Kuh        | Stuttgart      | Germany | Sales Representative
+ Drachenblut Delikatessen | Aachen         | Germany | Order Administrator
+ Frankenversand           | München        | Germany | Marketing Manager
+ Königlich Essen          | Brandenburg    | Germany | Sales Associate
+ Lehmanns Marktstand      | Frankfurt a.M. | Germany | Sales Representative
+ Morgenstern Gesundkost   | Leipzig        | Germany | Marketing Assistant
+ Ottilies Käseladen       | Köln           | Germany | Owner
+ QUICK-Stop               | Cunewalde      | Germany | Accounting Manager
+ Toms Spezialitäten       | Münster        | Germany | Marketing Manager
+(14 filas)
 </code></pre></div>
 
+<p><strong>Mira la columna <code>contact_title</code>.</strong> Pediste dueños y ahí abajo hay <code>Sales Representative</code>, <code>Marketing Manager</code>, <code>Accounting Manager</code>… Diez de esas catorce filas no son dueños de nada: entraron solo por ser alemanas.</p>
 <p>Y esta, con paréntesis, dice lo mismo en español:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span><span class="p">)</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Paris'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span>
+<span class="w">    </span><span class="n">contact_title</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="p">(</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span><span class="p">)</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">contact_title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Owner'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> count
--------
-     2
+<div class="hl"><pre><span></span><code>    company_name    |   city    | country | contact_title
+--------------------+-----------+---------+---------------
+ Bon app'           | Marseille | France  | Owner
+ Du monde entier    | Nantes    | France  | Owner
+ Paris spécialités  | Paris     | France  | Owner
+ Ottilies Käseladen | Köln      | Germany | Owner
+(4 filas)
 </code></pre></div>
 
-<p><strong>13 contra 2.</strong> ¿Qué pasó? Como <code>AND</code> va primero, la primera consulta se lee en realidad:</p>
-<div class="hl"><pre><span></span><code><span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="p">(</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Paris'</span><span class="p">)</span>
+<p><strong>14 contra 4.</strong> ¿Qué pasó? <code>AND</code> tiene más precedencia que <code>OR</code>, y eso significa que <strong>se lleva sus dos condiciones a un grupo aparte</strong>. La primera consulta se lee en realidad así:</p>
+<div class="hl"><pre><span></span><code><span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span>
+<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="p">(</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">contact_title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Owner'</span><span class="p">)</span>
 </code></pre></div>
 
-<p>Es decir: <em>todos los alemanes</em> (11) <strong>más</strong> los franceses de París (2) = 13. Ninguna de las dos consultas da error. Las dos devuelven un número creíble. <strong>Solo una responde la pregunta.</strong></p>
+<p>Ese paréntesis no lo escribiste tú: lo pone el motor. Y con él, el <code>WHERE</code> se queda con <strong>dos partes unidas por un <code>OR</code></strong>:</p>
+<ol>
+<li>El grupo del <code>AND</code> — los franceses <strong>que además son dueños</strong>: <strong>3</strong>.</li>
+<li>Y suelta, por su cuenta, la condición del país — <strong>todos</strong> los alemanes, dueños o no: <strong>11</strong>.</li>
+</ol>
+<p>3 + 11 = <strong>14</strong>. El <code>contact_title = 'Owner'</code> quedó encerrado en el grupo de Francia y <strong>nunca llegó a aplicarse a Alemania</strong>: para una fila alemana, <code>country = 'Germany'</code> ya es cierto, y a un <code>OR</code> le basta con que un lado lo sea. El cargo del contacto ni se mira.</p>
+<blockquote>
+<p><strong>Precedencia no es orden de ejecución.</strong> Que <code>AND</code> "vaya primero" quiere decir que <strong>agrupa</strong> primero, no que se calcule primero. En qué orden evalúa el motor las condiciones no está garantizado — eso se ve en la sección 4.</p>
+</blockquote>
+<p>Ninguna de las dos consultas da error. Las dos devuelven filas creíbles. <strong>Solo una responde la pregunta</strong> — y si en vez de las filas hubieras pedido un <code>count(*)</code>, no habrías tenido forma de notarlo.</p>
 <blockquote>
 <p><strong>Regla sin excepción: si en un <code>WHERE</code> conviven <code>AND</code> y <code>OR</code>, pon paréntesis.</strong> Aunque sepas la precedencia. Los paréntesis no cuestan nada y quitan la duda al que lo lea, que puede ser tú dentro de un mes.</p>
 </blockquote>
-<h3><code>IN</code> — la forma legible del <code>OR</code></h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Germany'</span><span class="p">,</span><span class="w"> </span><span class="s1">'France'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Spain'</span><span class="p">);</span>
+<h3>3.3 <code>IN</code> — la forma legible del <code>OR</code></h3>
+<p><strong>Pregunta:</strong> ¿qué clientes tenemos en Austria, Irlanda y Noruega, y en qué ciudad está cada uno?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Austria'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Ireland'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Norway'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> count
--------
-    27
+<div class="hl"><pre><span></span><code>         company_name         |   city   | country
+------------------------------+----------+---------
+ Ernst Handel                 | Graz     | Austria
+ Piccolo und mehr             | Salzburg | Austria
+ Hungry Owl All-Night Grocers | Cork     | Ireland
+ Santé Gourmet                | Stavern  | Norway
+(4 filas)
 </code></pre></div>
 
-<p>Equivale a tres <code>OR</code> encadenados, pero <strong>no puede sufrir el problema de precedencia</strong>: <code>IN</code> es un solo operador, así que no hay nada que agrupar mal.</p>
-<h3><code>BETWEEN</code> — y su orden obligatorio</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 31</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 31</span>
+<p><strong>Mira la columna <code>country</code>:</strong> están los tres valores de la lista y nada más. Esto equivale a <code>country = 'Austria' OR country = 'Ireland' OR country = 'Norway'</code>, pero <strong>no puede sufrir el problema de precedencia</strong>: <code>IN</code> es un solo operador, así que no hay nada que agrupar mal.</p>
+<h3>3.4 <code>BETWEEN</code> — y su orden obligatorio</h3>
+<p><strong>Pregunta:</strong> ¿qué productos cuestan entre 21 y 22, y a qué precio exacto?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">21</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">22</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
-<p>Idénticas. Pero:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code>           product_name           | unit_price
+----------------------------------+------------
+ Gustaf's Knäckebröd              |      21.00
+ Queso Cabrales                   |      21.00
+ Louisiana Fiery Hot Pepper Sauce |      21.05
+ Chef Anton's Gumbo Mix           |      21.35
+ Flotemysost                      |      21.50
+ Chef Anton's Cajun Seasoning     |      22.00
+(6 filas)
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> count
--------
-     0
+<p><strong>Mira la primera fila y la última:</strong> entran los dos productos de <code>21.00</code> y entra el de <code>22.00</code>. Los dos extremos del rango cuentan — <strong><code>BETWEEN</code> es inclusivo por los dos lados</strong>, y esa es la respuesta a una duda que casi todo el mundo tiene la primera vez.</p>
+<p>Esta otra consulta devuelve exactamente las mismas 6 filas. Es lo que <code>BETWEEN</code> significa por dentro:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">21</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">22</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
-<p><strong>Cero, y sin ningún aviso.</strong> <code>BETWEEN 50 AND 20</code> se traduce a <code>&gt;= 50 AND &lt;= 20</code>, que no puede ser cierto nunca. <strong>El menor va primero, siempre.</strong></p>
-<h3>Booleanos: sin <code>= true</code></h3>
-<p><code>discontinued</code> es de tipo <code>boolean</code>, así que <strong>ya es una condición</strong>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span>
+<p><strong>Misma pregunta, un dedo mal puesto:</strong> el rango escrito al revés.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">22</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">21</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> product_name | unit_price
+--------------+------------
+(0 filas)
+</code></pre></div>
+
+<p><strong>Ni una fila, y sin ningún aviso.</strong> <code>BETWEEN 22 AND 21</code> se traduce a <code>&gt;= 22 AND &lt;= 21</code>, que no puede ser cierto nunca. <strong>El menor va primero, siempre.</strong></p>
+<h3>3.5 Booleanos: sin <code>= true</code></h3>
+<p><code>discontinued</code> es de tipo <code>boolean</code>, así que <strong>ya es una condición</strong>.</p>
+<p><strong>Pregunta:</strong> ¿qué productos están descatalogados? Sacamos también la columna <code>discontinued</code> para ver qué valor traen.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">discontinued</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">discontinued</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>      product_name      | discontinued
@@ -231,12 +353,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>10 productos descatalogados. Y el contrario:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 67</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 67</span>
 </code></pre></div>
 
 <p><code>WHERE discontinued = true</code> funciona, pero es como decir <em>"¿es verdad que es verdad?"</em>. <strong><code>WHERE discontinued</code> y <code>WHERE NOT discontinued</code></strong> es como se escribe.</p>
-<h3>El texto distingue mayúsculas</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'germany'</span><span class="p">;</span>
+<h3>3.6 El texto distingue mayúsculas</h3>
+<p><strong>Pregunta:</strong> ¿cuántos clientes tenemos en Alemania? La escribimos en minúscula, como saldría de un formulario.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'germany'</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> count
@@ -244,42 +377,87 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      0
 </code></pre></div>
 
-<p>Once clientes alemanes, y la consulta devuelve cero. <strong>En PostgreSQL la comparación de texto es sensible a mayúsculas y a acentos.</strong> Las formas de no depender de eso están en <a class="xref" href="../buscar-texto-like-y-regex/">buscar-texto-like-y-regex</a>.</p>
-<h3>El aviso que hay que dar ya</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'SP'</span><span class="p">;</span><span class="w">    </span><span class="c1">--  6</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="s1">'SP'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 25</span>
+<p>Once clientes alemanes, y la consulta devuelve cero. <strong>En PostgreSQL la comparación de texto es sensible a mayúsculas y a acentos.</strong></p>
+<p><strong>Cuando no sabes cómo está escrito el dato</strong></p>
+<p>Es la situación normal en cuanto el valor viene de un formulario: puede llegar <code>Germany</code>, <code>GERMANY</code> o <code>germany</code>. <code>lower()</code> baja los dos lados a minúscula <strong>antes</strong> de compararlos, así que la escritura deja de importar.</p>
+<p><strong>Pregunta:</strong> la misma de antes —¿cuántos clientes hay en Alemania?— pero sin dar por hecho cómo está guardado el país.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">lower</span><span class="p">(</span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'germany'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+    11
+</code></pre></div>
+
+<p>Ahora sí salen los once. Pero <code>lower()</code> resuelve <strong>la mitad</strong> del problema:</p>
+<blockquote>
+<p><strong><code>lower()</code> arregla las mayúsculas, no los acentos.</strong> <code>lower('MÉXICO')</code> es <code>'méxico'</code>, que sigue sin ser igual a <code>'mexico'</code>. Northwind tiene <code>México D.F.</code>, <code>München</code> y <code>Montréal</code>.</p>
+</blockquote>
+<p>Y tiene un precio que conviene saber desde ya: al envolver la columna en una función, <strong>un índice normal sobre <code>country</code> deja de servir</strong> y el motor recorre la tabla entera. Con 91 clientes no se nota; con dos millones, sí. Tiene arreglo —un índice sobre <code>lower(country)</code>—, y eso es de <span class="xref-pend" title="Aún no publicado">indices</span>.</p>
+<p>Las otras dos formas de no depender de esto, <code>ILIKE</code> y la extensión <code>unaccent</code>, están en <a class="xref" href="../buscar-texto-like-y-regex/">buscar-texto-like-y-regex</a>.</p>
+<h3>3.7 El aviso que hay que dar ya</h3>
+<p><strong>Pregunta:</strong> ¿cuántos clientes son de la región <code>SP</code> y cuántos no? Entre las dos cuentas deberían salir los 91 de la tabla.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'SP'</span><span class="p">;</span><span class="w">   </span><span class="c1">--  6</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="s1">'SP'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 25</span>
 </code></pre></div>
 
 <p>6 + 25 = <strong>31</strong>, y la tabla tiene <strong>91 clientes</strong>. Faltan 60.</p>
-<p>No es un error del motor: 60 clientes tienen <code>region</code> en <code>NULL</code>, y <strong><code>NULL</code> no es igual ni distinto a nada</strong>. Ni entra en el <code>=</code>, ni entra en el <code>&lt;&gt;</code>. Es el tema siguiente y hay que leerlo entero: <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>.</p>
+<p>No es un error del motor: 60 clientes tienen <code>region</code> en <code>NULL</code>, y <strong><code>NULL</code> no es igual ni distinto a nada</strong>. Ni entra en el <code>=</code>, ni entra en el <code>&lt;&gt;</code>.</p>
 <h2 id="4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</h2>
 <p><code>WHERE</code> es el <strong>paso 2</strong> del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>: ocurre justo después de traer la tabla (<code>FROM</code>) y mucho antes de que el <code>SELECT</code> se ejecute. De ahí salen dos consecuencias que se encuentran a golpes.</p>
-<p><strong>1. El <code>WHERE</code> no puede usar un nombre inventado en el <code>SELECT</code>.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">pais</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Peru'</span><span class="p">;</span>
+<h3>4.1 El <code>WHERE</code> no puede usar un nombre inventado en el <code>SELECT</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">pais</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Peru'</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>ERROR:  column "pais" does not exist
 </code></pre></div>
 
 <p><code>pais</code> nace en el paso 5. Cuando se evalúa el <code>WHERE</code>, en el paso 2, todavía no existe. La solución es repetir la expresión entera:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Peru'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Peru'</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Con una expresión larga esto molesta, y hay una forma de calcularla una sola vez — una tabla derivada o un CTE (<span class="xref-pend" title="Aún no publicado">cte-with</span>). Pero eso es más adelante.</p>
-<p><strong>2. Dentro del propio <code>WHERE</code> no hay orden garantizado.</strong></p>
+<h3>4.2 Dentro del propio <code>WHERE</code> no hay orden garantizado</h3>
 <p>El orden lógico dice cuándo se ejecuta el <code>WHERE</code> respecto a las demás cláusulas, pero <strong>no</strong> en qué orden evalúa las condiciones que tiene dentro. Escribir la protección primero no protege:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="o">*</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
 <p>No hay ninguna garantía de que el <code>&lt;&gt; 0</code> se evalúe antes que la división. El motor puede reordenar, y esa consulta puede reventar por división entre cero. Para forzar el orden de evaluación existe <code>CASE</code> (<span class="xref-pend" title="Aún no publicado">case-condicionales-en-sql</span>).</p>
 <p><strong>Y lo que más rinde de saber que es el paso 2:</strong> todo lo que descartes aquí es trabajo que los pasos 3 a 6 ya no hacen. Filtrar pronto es la optimización más barata que existe.</p>
 <h2 id="5-errores-comunes">5. Errores comunes</h2>
 <ol>
-<li><strong>Mezclar <code>AND</code> y <code>OR</code> sin paréntesis.</strong> Ver arriba. No da error; da un número equivocado.</li>
+<li><strong>Mezclar <code>AND</code> y <code>OR</code> sin paréntesis.</strong> Ver 3.2 (el <code>OR</code> de los países se agrupó con el <code>AND</code> del cargo, y entró Alemania entera). No da error; da un número equivocado.</li>
 <li><strong><code>BETWEEN</code> con los extremos al revés.</strong> Devuelve 0 filas sin avisar.</li>
 <li><strong><code>BETWEEN</code> con fechas que llevan hora.</strong> <code>order_date</code> en Northwind es <code>date</code>, así que <code>BETWEEN '1997-01-01' AND '1997-12-31'</code> está bien (<strong>408 pedidos</strong>). Si la columna fuera <code>timestamp</code>, ese mismo <code>BETWEEN</code> <strong>perdería todo el 31 de diciembre a partir de las 00:00:01</strong>, porque <code>'1997-12-31'</code> significa <code>1997-12-31 00:00:00</code>. La forma a prueba de balas es <code>&gt;= '1997-01-01' AND &lt; '1998-01-01'</code>.</li>
 <li><strong>Comillas dobles en un valor de texto.</strong> <code>WHERE country = "Germany"</code> busca una <em>columna</em> llamada <code>Germany</code> y da <code>column "Germany" does not exist</code>. <strong>Simples para texto, dobles para identificadores.</strong></li>
@@ -322,29 +500,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li>Productos <strong>no</strong> descatalogados con menos de 10 unidades en stock. Son los que hay que reponer.</li>
 <li>Sin ejecutarla, di qué devuelve y por qué:
    <code>sql
-   SELECT count(*) FROM products WHERE units_in_stock BETWEEN 100 AND 10;</code></li>
+   SELECT
+       count(*)
+   FROM
+       products
+   WHERE
+       units_in_stock BETWEEN 100 AND 10;</code></li>
 <li>Arregla esta consulta sin cambiar lo que devuelve:
    <code>sql
-   SELECT unit_price * units_in_stock AS valor FROM products WHERE valor &gt; 1000;</code></li>
+   SELECT
+       unit_price * units_in_stock AS valor
+   FROM
+       products
+   WHERE
+       valor &gt; 1000;</code></li>
 </ol>
 <h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
 <blockquote>
 <p><em>Compras pide "el listado de productos en riesgo": los que se están quedando sin stock y todavía se venden. Ellos consideran riesgo si quedan menos unidades de las que marca el punto de reposición, o si hay pedidos pendientes de recibir.</em></p>
 </blockquote>
 <p>La trampa está en el "o". Léela dos veces antes de escribir.</p></div>
-    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>La lectura literal es <em>"en riesgo = por debajo del punto de reposición </em><em>o</em><em> con pedidos en camino"</em>, y esa es una condición con <code>AND</code> y <code>OR</code> conviviendo. Sin paréntesis:</p>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>La lectura literal es <em>"en riesgo = por debajo del punto de reposición </em><em>o</em><em> con pedidos en camino"</em>, y esa es una condición con <code>AND</code> y <code>OR</code> conviviendo. </p>
+<p>Sin paréntesis:</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- MAL</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reorder_level</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reorder_level</span>
+<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Devuelve <strong>18</strong> productos, e incluye descatalogados — porque <code>AND</code> se agrupó primero y el <code>OR units_on_order &gt; 0</code> se aplicó por su cuenta, saltándose el <code>NOT discontinued</code>.</p>
 <p>Con paréntesis:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">units_in_stock</span><span class="p">,</span><span class="w"> </span><span class="n">reorder_level</span><span class="p">,</span><span class="w"> </span><span class="n">units_on_order</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reorder_level</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">units_in_stock</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">    </span><span class="n">reorder_level</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_on_order</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reorder_level</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>       product_name        | units_in_stock | reorder_level | units_on_order
@@ -360,26 +562,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><strong>Un solo producto de diferencia es justo lo que hace peligroso este error.</strong> Si fueran 200 filas de más, alguien lo notaría. Una sola pasa desapercibida hasta que Compras hace un pedido de algo que no se vende.</p>
 <p><strong>Y la parte que no es SQL:</strong> el "o" del enunciado probablemente no es lo que Compras quiere. <em>Tener pedidos en camino</em> no es riesgo — es lo contrario, es que alguien ya reaccionó. Lo más útil que puedes hacer con esta petición es devolver las 21 filas <strong>y preguntar</strong> si <code>units_on_order &gt; 0</code> no debería ser al revés. Esa pregunta vale más que la consulta.</p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">20</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">20</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>29 productos.</strong> El más caro es <code>Maxilaku</code>, justo en el límite de 20.00 — y ahí se ve que <code>BETWEEN</code> incluye el extremo. Abajo empatan tres a 10.00: <code>Longlife Tofu</code>, <code>Sir Rodney's Scones</code> y <code>Aniseed Syrup</code>.</p>
 <p><strong>2.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">country</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Germany'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Austria'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Switzerland'</span><span class="p">);</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Germany'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Austria'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Switzerland'</span><span class="p">);</span>
 </code></pre></div>
 
 <p><strong>15 clientes</strong> — 11 alemanes, 2 austriacos, 2 suizos. Con <code>OR</code> daría lo mismo, pero <code>IN</code> es la respuesta que pedía el enunciado <em>y</em> la que no se puede romper por precedencia.</p>
 <p><strong>3.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w">  </span><span class="s1">'1998-01-01'</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> count
@@ -389,11 +603,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Escrito con <code>&gt;=</code> y <code>&lt;</code> a propósito: es la forma que <strong>seguiría siendo correcta</strong> si mañana <code>order_date</code> pasara a guardar la hora.</p>
 <p><strong>4.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">units_in_stock</span><span class="p">,</span><span class="w"> </span><span class="n">units_on_order</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">units_in_stock</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_on_order</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>        product_name        | units_in_stock | units_on_order
@@ -411,9 +631,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><strong>8 productos.</strong> Fíjate en que el <code>NOT discontinued</code> importa: sin él entrarían descatalogados sin stock, que <strong>no hay que reponer</strong>. Y fíjate también en <code>units_on_order</code>: casi todos ya tienen reposición en camino. El único que no la tiene —<code>Northwoods Cranberry Sauce</code>— es el que hay que mirar hoy.</p>
 <p><strong>5.</strong> Devuelve <strong>0</strong>. Los extremos están al revés: <code>&gt;= 100 AND &lt;= 10</code> es imposible. Lo peligroso no es el cero, es que <strong>no hay error</strong>: un informe con este <code>BETWEEN</code> sale en blanco y parece que no hay datos.</p>
 <p><strong>6.</strong> Repetir la expresión en el <code>WHERE</code>, porque el nombre <code>valor</code> no existe en el paso 2:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valor</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Devuelve <strong>25 productos</strong>.</p></div></details>

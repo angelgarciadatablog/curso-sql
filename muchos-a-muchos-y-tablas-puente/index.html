@@ -61,8 +61,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="post-body"><div class="tema-video"><div class="tema-video-tit">relacion muchos a muchos</div><iframe src="https://www.youtube.com/embed/2hDoXOr1RHY" title="relacion muchos a muchos" loading="lazy" allowfullscreen></iframe></div>
 <h2 id="1-el-problema">1. El problema</h2>
 <p>Tu empresa tiene <strong>9 vendedores</strong> y <strong>53 zonas</strong> de venta.</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">     </span><span class="c1">--  9</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 53</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employees</span><span class="p">;</span><span class="w">   </span><span class="c1">--  9</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">territories</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 53</span>
 </code></pre></div>
 
 <p>Con 9 personas y 53 zonas, alguien tiene que cubrir varias. Y así es: Nancy Davolio cubre dos —Neward y Wilton—; Andrew Fuller cubre siete.</p>
@@ -153,9 +159,13 @@ Andrew — Boston
 </code></pre></div>
 
 <p>Tiene <strong>dos columnas y nada más</strong>, porque no hay nada más que decir sobre la pareja "Nancy — Wilton":</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">territory_id</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">employee_territories</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">territory_id</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">territory_id</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employee_territories</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">territory_id</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
@@ -279,10 +289,17 @@ Andrew — Boston
 </table>
 <p>Esas tres últimas no son del pedido ni del producto: <strong>son de la pareja.</strong> Cuántas unidades de <em>ese</em> producto en <em>ese</em> pedido, y a qué precio se vendió <em>ahí</em>.</p>
 <p>Que pertenecen a la pareja no es una opinión, se ve en los datos. El producto 42 hoy cuesta 14,00:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">quantity</span><span class="p">,</span><span class="w"> </span><span class="n">discount</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_id</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">order_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">    </span><span class="n">quantity</span><span class="p">,</span>
+<span class="w">    </span><span class="n">discount</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">order_details</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">order_id</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
 </code></pre></div>
 

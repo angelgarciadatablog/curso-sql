@@ -224,7 +224,9 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 <h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
 <div class="tema-video"><div class="tema-video-tit">Primera vez usando DBeaver - Curso SQL</div><iframe src="https://www.youtube.com/embed/PJf8-GeF9tc" title="Primera vez usando DBeaver - Curso SQL" loading="lazy" allowfullscreen></iframe></div>
 <p><strong>Dónde estoy parado.</strong> Útil cuando tienes varias conexiones abiertas y no sabes cuál es cuál:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">current_database</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="k">current_user</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">usuario</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">current_database</span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">base</span><span class="p">,</span>
+<span class="w">    </span><span class="k">current_user</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">usuario</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>   base    |      usuario
@@ -233,9 +235,13 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 </code></pre></div>
 
 <p><strong>Qué tablas hay</strong>: Es la primera consulta que conviene lanzar en una base desconocida — te dice de un vistazo dónde están los datos de verdad:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">relname</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span><span class="w"> </span><span class="n">n_live_tup</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_user_tables</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">relname</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tabla</span><span class="p">,</span>
+<span class="w">    </span><span class="n">n_live_tup</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">pg_stat_user_tables</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">schemaname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>     tabla     | filas
@@ -250,11 +256,17 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 <p><strong>pg_stat_user_tables</strong>: PostgreSQL guarda información sobre sí mismo en tablas. Esta es una de ellas: <strong>una fila = una tabla de tu base</strong>. en MySQL o SQL Server no existe. </p>
 </blockquote>
 <p><strong>Las columnas de una tabla, sin <code>\d</code>:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'shippers'</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">column_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">data_type</span><span class="p">,</span>
+<span class="w">    </span><span class="n">is_nullable</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'shippers'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">ordinal_position</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> column_name  |     data_type     | is_nullable
@@ -297,8 +309,13 @@ psql<span class="w"> </span><span class="s2">"postgresql://usuario:clave@host/no
 </ol>
 <p>En cinco minutos puedes decir: <em>"son ventas, con tantos clientes y tantos pedidos, entre tal y tal fecha, y esto se conecta así"</em>. <strong>Nada de eso requiere que alguien te explique la base.</strong></p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Devuelve <strong>14</strong>. O con <code>\d orders</code>, contando.</p>
