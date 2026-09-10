@@ -173,7 +173,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>7 productos de 77. <strong>El <code>WHERE</code> acaba de ahorrar el 91% del trabajo.</strong></p>
 <h3>3.2 La trampa de la precedencia</h3>
-<p><strong>Pregunta:</strong> ¿qué clientes de Alemania o Francia tienen como contacto al dueño del negocio?</p>
+<p><strong>Pregunta:</strong> ¿en qué clientes de Alemania o Francia la persona de contacto es el dueño del negocio?</p>
 <p>En Northwind eso es <code>country</code> y <code>contact_title = 'Owner'</code>. La consulta parece salir sola:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
@@ -209,7 +209,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 (14 filas)
 </code></pre></div>
 
-<p><strong>Mira la columna <code>contact_title</code>.</strong> Pediste dueños y ahí abajo hay <code>Sales Representative</code>, <code>Marketing Manager</code>, <code>Accounting Manager</code>… Diez de esas catorce filas no son dueños de nada: entraron solo por ser alemanas.</p>
+<p><strong>Mira la columna <code>contact_title</code>.</strong> Pediste dueños y ahí abajo hay <code>Sales Representative</code>, <code>Marketing Manager</code>, <code>Accounting Manager</code>… En diez de esas catorce el contacto no es el dueño: entraron solo por ser alemanas.</p>
 <p>Y esta, con paréntesis, dice lo mismo en español:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
@@ -242,8 +242,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Ese paréntesis no lo escribiste tú: lo pone el motor. Y con él, el <code>WHERE</code> se queda con <strong>dos partes unidas por un <code>OR</code></strong>:</p>
 <ol>
-<li>El grupo del <code>AND</code> — los franceses <strong>que además son dueños</strong>: <strong>3</strong>.</li>
-<li>Y suelta, por su cuenta, la condición del país — <strong>todos</strong> los alemanes, dueños o no: <strong>11</strong>.</li>
+<li>El grupo del <code>AND</code> — los clientes franceses <strong>cuyo contacto es el dueño</strong>: <strong>3</strong>.</li>
+<li>Y suelta, por su cuenta, la condición del país — <strong>todos</strong> los alemanes, sea quien sea su contacto: <strong>11</strong>.</li>
 </ol>
 <p>3 + 11 = <strong>14</strong>. El <code>contact_title = 'Owner'</code> quedó encerrado en el grupo de Francia y <strong>nunca llegó a aplicarse a Alemania</strong>: para una fila alemana, <code>country = 'Germany'</code> ya es cierto, y a un <code>OR</code> le basta con que un lado lo sea. El cargo del contacto ni se mira.</p>
 <blockquote>
@@ -251,6 +251,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </blockquote>
 <p>Ninguna de las dos consultas da error. Las dos devuelven filas creíbles. <strong>Solo una responde la pregunta</strong> — y si en vez de las filas hubieras pedido un <code>count(*)</code>, no habrías tenido forma de notarlo.</p>
 <blockquote>
+<p><strong>Por qué este ejemplo:</strong> país y cargo son <strong>independientes</strong> — el contacto de un cliente alemán puede ser el dueño o no. Con <code>city = 'Paris'</code> no habría trampa: París solo está en Francia, así que <code>Germany</code> no aportaría nada.</p>
 <p><strong>Regla sin excepción: si en un <code>WHERE</code> conviven <code>AND</code> y <code>OR</code>, pon paréntesis.</strong> Aunque sepas la precedencia. Los paréntesis no cuestan nada y quitan la duda al que lo lea, que puede ser tú dentro de un mes.</p>
 </blockquote>
 <h3>3.3 <code>IN</code> — la forma legible del <code>OR</code></h3>
@@ -398,7 +399,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <blockquote>
 <p><strong><code>lower()</code> arregla las mayúsculas, no los acentos.</strong> <code>lower('MÉXICO')</code> es <code>'méxico'</code>, que sigue sin ser igual a <code>'mexico'</code>. Northwind tiene <code>México D.F.</code>, <code>München</code> y <code>Montréal</code>.</p>
 </blockquote>
-<p>Y tiene un precio que conviene saber desde ya: al envolver la columna en una función, <strong>un índice normal sobre <code>country</code> deja de servir</strong> y el motor recorre la tabla entera. Con 91 clientes no se nota; con dos millones, sí. Tiene arreglo —un índice sobre <code>lower(country)</code>—, y eso es de <span class="xref-pend" title="Aún no publicado">indices</span>.</p>
+<p>Y tiene un precio que conviene saber desde ya: al envolver la columna en una función, <strong>un índice normal sobre <code>country</code> deja de servir</strong> y el motor recorre la tabla entera. Y no es hipotético: <code>customers</code> tiene uno, <code>idx_customers_country</code>. Con 91 clientes no se nota; con dos millones, sí. Tiene arreglo —un índice sobre <code>lower(country)</code>—, y eso es de <span class="xref-pend" title="Aún no publicado">indices</span>.</p>
 <p>Las otras dos formas de no depender de esto, <code>ILIKE</code> y la extensión <code>unaccent</code>, están en <a class="xref" href="../buscar-texto-like-y-regex/">buscar-texto-like-y-regex</a>.</p>
 <h3>3.7 El aviso que hay que dar ya</h3>
 <p><strong>Pregunta:</strong> ¿cuántos clientes son de la región <code>SP</code> y cuántos no? Entre las dos cuentas deberían salir los 91 de la tabla.</p>
@@ -417,7 +418,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>6 + 25 = <strong>31</strong>, y la tabla tiene <strong>91 clientes</strong>. Faltan 60.</p>
-<p>No es un error del motor: 60 clientes tienen <code>region</code> en <code>NULL</code>, y <strong><code>NULL</code> no es igual ni distinto a nada</strong>. Ni entra en el <code>=</code>, ni entra en el <code>&lt;&gt;</code>.</p>
+<p>No es un error del motor: 60 clientes tienen <code>region</code> en <code>NULL</code>, y <strong><code>NULL</code> no es igual ni distinto a nada</strong>. Ni entra en el <code>=</code>, ni entra en el <code>&lt;&gt;</code>. Es el tema siguiente y hay que leerlo entero: <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>.</p>
 <h2 id="4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</h2>
 <p><code>WHERE</code> es el <strong>paso 2</strong> del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>: ocurre justo después de traer la tabla (<code>FROM</code>) y mucho antes de que el <code>SELECT</code> se ejecute. De ahí salen dos consecuencias que se encuentran a golpes.</p>
 <h3>4.1 El <code>WHERE</code> no puede usar un nombre inventado en el <code>SELECT</code></h3>
