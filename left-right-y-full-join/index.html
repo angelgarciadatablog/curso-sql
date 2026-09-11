@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>LEFT, RIGHT y FULL JOIN · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Conservar filas sin pareja. Cuándo cada uno" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/left-right-y-full-join/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="LEFT, RIGHT y FULL JOIN" />
+  <meta property="og:description" content="Conservar filas sin pareja. Cuándo cada uno" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/left-right-y-full-join/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(21 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 21 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details open><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><span class="activo">LEFT, RIGHT y FULL JOIN</span></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 5 · Combinar tablas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>LEFT, RIGHT y FULL JOIN</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../inner-join/">inner-join</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>El <code>INNER JOIN</code> <strong>descarta lo que no encuentra pareja</strong>. Los <code>OUTER JOIN</code> conservan esas filas y rellenan con <code>NULL</code> el lado que falta.</p>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Conserva</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>INNER JOIN</code></td>
+<td>Solo lo que empareja</td>
+</tr>
+<tr>
+<td><code>LEFT JOIN</code></td>
+<td><strong>Todo lo de la izquierda</strong> + lo que empareja de la derecha</td>
+</tr>
+<tr>
+<td><code>RIGHT JOIN</code></td>
+<td>Todo lo de la derecha + lo que empareja de la izquierda</td>
+</tr>
+<tr>
+<td><code>FULL JOIN</code></td>
+<td><strong>Todo de las dos</strong>, empareje o no</td>
+</tr>
+</tbody>
+</table>
+<p>La palabra <code>OUTER</code> es opcional: <code>LEFT JOIN</code> y <code>LEFT OUTER JOIN</code> son lo mismo.</p>
+<p><strong>La pregunta que decide cuál usar no es técnica:</strong> <em>¿quiero saber también de los que no tienen nada?</em> Los clientes que no compraron, los productos que no se vendieron, los meses sin ventas. <strong>Casi siempre son las filas más interesantes del informe</strong>, y el <code>INNER JOIN</code> las borra.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="n">izquierda</span><span class="w"> </span><span class="n">l</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">derecha</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">clave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">clave</span>
+</code></pre></div>
+
+<p>Y la regla que hay que interiorizar antes que ninguna otra:</p>
+<blockquote>
+<p><strong>Una condición sobre la tabla derecha en el <code>WHERE</code> convierte tu <code>LEFT JOIN</code> en un <code>INNER JOIN</code>.</strong>
+Si la condición debe formar parte del emparejamiento, va en el <code>ON</code>. Si debe filtrar el resultado, va en el <code>WHERE</code>. <strong>No son intercambiables.</strong></p>
+</blockquote>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>El caso base — todos los clientes, compren o no:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">JOIN</span><span class="w">      </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 830</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 832</span>
+</code></pre></div>
+
+<p><strong>832 = 830 pedidos + 2 clientes sin ningún pedido.</strong> Esos dos clientes aparecen como una fila con todas las columnas de <code>orders</code> en <code>NULL</code>.</p>
+<h3>3.1 <code>count(*)</code> contra <code>count(columna)</code> — aquí es donde importa de verdad</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id |             company_name             | pedidos | filas
+-------------+--------------------------------------+---------+-------
+ PARIS       | Paris spécialités                    |       0 |     1
+ FISSA       | FISSA Fabrica Inter. Salchichas S.A. |       0 |     1
+ CENTC       | Centro comercial Moctezuma           |       1 |     1
+ LAZYK       | Lazy K Kountry Store                 |       2 |     2
+ GROSR       | GROSELLA-Restaurante                 |       2 |     2
+</code></pre></div>
+
+<p><strong>Mira las dos primeras filas: <code>pedidos = 0</code> pero <code>filas = 1</code>.</strong></p>
+<p><code>count(*)</code> cuenta filas, y el <code>LEFT JOIN</code> produjo <strong>una</strong> fila para cada cliente sin pedidos — con todo en <code>NULL</code>, pero una fila. <code>count(o.order_id)</code> cuenta valores no nulos, y ahí no hay ninguno.</p>
+<blockquote>
+<p><strong>Regla sin excepción: en un <code>LEFT JOIN</code>, cuenta una columna de la tabla derecha, nunca <code>count(*)</code>.</strong>
+Con <code>count(*)</code>, los clientes que no han comprado nada aparecen con <strong>1 pedido</strong>. Es un error que no da ningún aviso y que sale en producción.</p>
+</blockquote>
+<h3>3.2 Encontrar los huérfanos</h3>
+<p>El patrón <code>LEFT JOIN ... WHERE derecha IS NULL</code> es la forma clásica de responder <em>"¿quiénes no tienen?"</em>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id |             company_name             | country
+-------------+--------------------------------------+---------
+ PARIS       | Paris spécialités                    | France
+ FISSA       | FISSA Fabrica Inter. Salchichas S.A. | Spain
+</code></pre></div>
+
+<p><strong>Ahí están los dos clientes que el <code>INNER JOIN</code> del tema anterior se comía.</strong> Y ahora tienen nombre: dos empresas dadas de alta que nunca han comprado. Para Ventas, esa lista de dos filas puede valer más que el ranking de los 89 que sí compran.</p>
+<p><strong>Un detalle importante del <code>WHERE</code>:</strong> hay que comprobar <code>IS NULL</code> sobre una columna que <strong>nunca sea nula en la tabla derecha</strong> — la clave primaria (<code>o.order_id</code>) es la elección segura. Si comprobaras <code>o.shipped_date IS NULL</code>, saldrían también los 21 pedidos sin enviar, que sí existen. <strong>El <code>NULL</code> de "no hay pareja" y el <code>NULL</code> de "el dato falta" se escriben igual</strong> (<a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>).</p>
+<p>Esta forma tiene un nombre y una alternativa más clara — es un <strong>anti-join</strong>, y <code>NOT EXISTS</code> lo dice mejor: <a class="xref" href="../anti-join-y-semi-join/">anti-join-y-semi-join</a>.</p>
+<h3>3.3 El error que anula el LEFT JOIN</h3>
+<p>Estas dos consultas se parecen mucho y no tienen nada que ver:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- A: la condición en el WHERE</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">;</span><span class="w">                      </span><span class="c1">-- 122</span>
+
+<span class="c1">-- B: la condición en el ON</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">                  </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">;</span><span class="w">      </span><span class="c1">-- 202</span>
+</code></pre></div>
+
+<p><strong>122 contra 202.</strong></p>
+<ul>
+<li>En <strong>A</strong>, el <code>LEFT JOIN</code> genera las 832 filas, y <strong>después</strong> el <code>WHERE</code> exige <code>ship_country = 'Germany'</code>. Las filas rellenas de <code>NULL</code> no cumplen esa condición y se van. <strong>El <code>LEFT JOIN</code> se ha convertido en un <code>INNER JOIN</code></strong> y la palabra <code>LEFT</code> no pinta nada.</li>
+<li>En <strong>B</strong>, la condición forma parte del emparejamiento: <em>"emparéjame solo con los pedidos alemanes"</em>. Los 91 clientes siguen ahí; los que no tienen pedidos alemanes salen con <code>NULL</code>. <strong>202 = 122 pedidos alemanes + 80 clientes sin ninguno.</strong></li>
+</ul>
+<p>Las dos son SQL correcto. <strong>Responden a preguntas distintas:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Consulta</th>
+<th>Pregunta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A (<code>WHERE</code>)</td>
+<td><em>"Los pedidos enviados a Alemania"</em></td>
+</tr>
+<tr>
+<td>B (<code>ON</code>)</td>
+<td><em>"Todos los clientes, con sus pedidos alemanes si los tienen"</em></td>
+</tr>
+</tbody>
+</table>
+<p>Si el informe es <em>"clientes y cuántos pedidos alemanes hizo cada uno, incluidos los que no hicieron ninguno"</em>, <strong>solo B sirve</strong>. Y es la que casi nadie escribe la primera vez.</p>
+<blockquote>
+<p><strong>Diagnóstico rápido:</strong> si tu <code>LEFT JOIN</code> devuelve el mismo número de filas que el <code>INNER JOIN</code>, es que hay una condición sobre la tabla derecha en el <code>WHERE</code>.</p>
+</blockquote>
+<h3>3.4 <code>RIGHT JOIN</code></h3>
+<p>Es un <code>LEFT JOIN</code> con las tablas al revés:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">RIGHT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 832</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 832</span>
+</code></pre></div>
+
+<p><strong>Idénticos.</strong> Y por eso <code>RIGHT JOIN</code> casi no se usa: <strong>se lee peor</strong>. Un <code>FROM</code> se lee de arriba abajo, y <code>RIGHT</code> obliga a saltar mentalmente a la última línea para saber cuál es la tabla que manda.</p>
+<p><strong>Convención práctica: escribe siempre <code>LEFT</code> y pon primero la tabla que quieres conservar entera.</strong> El único caso donde <code>RIGHT</code> es cómodo es cuando ya tienes tres <code>LEFT JOIN</code> encadenados y necesitas conservar la cuarta tabla — y ahí suele ser mejor reordenar el <code>FROM</code>.</p>
+<h3>3.5 <code>FULL JOIN</code></h3>
+<p>Conserva las dos partes. Sobre <code>customers</code> y <code>orders</code> <strong>no aporta nada</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">FULL</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 832</span>
+</code></pre></div>
+
+<p>Los mismos 832 que el <code>LEFT JOIN</code>: <strong>no hay ningún pedido huérfano</strong>, porque una clave foránea lo impide (<span class="xref-pend" title="Aún no publicado">restricciones</span>). En una base bien diseñada, el <code>FULL JOIN</code> sobre una relación con FK nunca añade nada.</p>
+<p><strong>Donde sí sirve es comparando dos conjuntos independientes.</strong> ¿En qué países tenemos clientes, en cuáles proveedores, y en cuáles las dos cosas?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">country</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">tiene_clientes</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">tiene_proveedores</span>
+<span class="k">FROM</span><span class="w">      </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">)</span><span class="w"> </span><span class="k">c</span>
+<span class="k">FULL</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">)</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    pais     | tiene_clientes | tiene_proveedores
+-------------+----------------+-------------------
+ Argentina   | t              | f
+ Australia   | f              | t
+ Austria     | t              | f
+ Ireland     | t              | f
+ Japan       | f              | t
+ Netherlands | f              | t
+ Singapore   | f              | t
+ ...
+</code></pre></div>
+
+<p><strong>25 países en total: 12 con las dos cosas, 9 solo con clientes y 4 solo con proveedores.</strong> Ese <code>WHERE ... IS NULL OR ... IS NULL</code> deja justo los 13 desajustes.</p>
+<p>Fíjate en el <code>coalesce</code> de la primera columna: <strong>en un <code>FULL JOIN</code> ninguna de las dos columnas de la clave está siempre rellena</strong>, así que hay que combinarlas para tener el valor. Es el detalle que se olvida siempre.</p>
+<p><strong>Los tres usos reales del <code>FULL JOIN</code>:</strong> conciliar dos sistemas (lo que hay en A y no en B, y viceversa), auditar una migración, y comparar dos periodos donde alguna categoría puede faltar en uno de los dos.</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong><code>count(*)</code> en un <code>LEFT JOIN</code>.</strong> Los que no tienen nada salen con 1. <strong>El error número uno del tema.</strong></li>
+<li><strong>Condición sobre la tabla derecha en el <code>WHERE</code>.</strong> Anula el <code>LEFT JOIN</code> sin decir nada.</li>
+<li><strong>Comprobar <code>IS NULL</code> sobre una columna que puede ser nula de verdad.</strong> Usa la clave primaria.</li>
+<li><strong><code>sum()</code> sobre un <code>LEFT JOIN</code> sin <code>coalesce</code>.</strong> Los que no emparejan dan <code>NULL</code>, no <code>0</code>. Un ranking ordenado por esa suma pone los <code>NULL</code> donde no toca.</li>
+<li><strong>Encadenar <code>LEFT JOIN</code> y luego un <code>INNER JOIN</code> detrás.</strong> El <code>INNER</code> posterior descarta las filas rellenas de <code>NULL</code> y deshace todo el trabajo del <code>LEFT</code>.</li>
+<li><strong>Usar <code>RIGHT JOIN</code> por costumbre.</strong> Legal, ilegible.</li>
+<li><strong>Olvidar el <code>coalesce</code> en la clave de un <code>FULL JOIN</code>.</strong></li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<p>Los <code>OUTER JOIN</code> son <strong>idénticos</strong> en ambos motores: <code>LEFT</code>, <code>RIGHT</code>, <code>FULL</code>, con <code>OUTER</code> opcional. Se copian y pegan sin tocar nada.</p>
+<p>Lo único que cambia es la sintaxis <strong>antigua</strong>, que conviene reconocer porque aparece en código viejo:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LEFT JOIN ... ON</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Sintaxis antigua</td>
+<td>❌ Nunca existió</td>
+<td><code>WHERE a.id *= b.id</code> — <strong>eliminada</strong> desde SQL Server 2012</td>
+</tr>
+<tr>
+<td>Nulos en el resultado</td>
+<td>Iguales</td>
+<td>Iguales</td>
+</tr>
+</tbody>
+</table>
+<p>Si te encuentras un <code>*=</code> o un <code>=*</code>, es un <code>LEFT</code>/<code>RIGHT JOIN</code> de los años noventa. <strong>Ya no se ejecuta en ningún SQL Server moderno</strong>, así que hay que reescribirlo.</p>
+<p>Y una diferencia práctica que sí importa: <strong><code>ISNULL()</code> de SQL Server acepta dos argumentos y <code>coalesce()</code> acepta los que quieras.</strong> Al portar un <code>LEFT JOIN</code> con relleno de nulos, <code>coalesce</code> es la forma que funciona en los dos.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Todos los productos con las unidades vendidas, incluidos los que no se han vendido nunca. ¿Hay alguno?</li>
+<li>Todos los empleados con su número de pedidos, incluidos los que no gestionaron ninguno.</li>
+<li>Las categorías con su facturación total, poniendo <code>0</code> donde no haya ventas.</li>
+<li>Los proveedores que no tienen ningún producto en catálogo.</li>
+<li>Explica por qué estas dos dan resultados distintos y cuál responde a <em>"clientes con sus pedidos de 1998, incluidos los que no compraron ese año"</em>:
+   ```sql
+   SELECT c.company_name, count(o.order_id) FROM customers c
+   LEFT JOIN orders o ON o.customer_id = c.customer_id
+   WHERE extract(year FROM o.order_date) = 1998 GROUP BY 1;</li>
+</ol>
+<p>SELECT c.company_name, count(o.order_id) FROM customers c
+   LEFT JOIN orders o ON o.customer_id = c.customer_id
+                     AND extract(year FROM o.order_date) = 1998 GROUP BY 1;
+   ```</p>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Ventas quiere la lista completa de clientes con su facturación de 1998, ordenada de mayor a menor, "para ver quién nos está fallando este año". Insisten en que tienen que salir los 91.</em></p>
+</blockquote>
+<p>Hay tres trampas y ya has visto las tres por separado.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">       </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_1998</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">coalesce</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion_1998</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w">        </span><span class="k">ON</span><span class="w">  </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">                         </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w">  </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="w">                         </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w">  </span><span class="o">&lt;</span><span class="w">  </span><span class="s1">'1999-01-01'</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion_1998</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    company_name    | pedidos | facturacion_1998
+--------------------+---------+------------------
+ Ernst Handel       |       9 |         41210.65
+ QUICK-Stop         |       8 |         37217.32
+ Save-a-lot Markets |      11 |         36310.11
+ ...
+ Paris spécialités  |       0 |             0.00
+</code></pre></div>
+
+<p>Devuelve <strong>91 filas</strong>, que era el requisito. Las tres trampas, todas vistas antes en este tema:</p>
+<ol>
+<li><strong>El filtro de año va en el <code>ON</code>, no en el <code>WHERE</code>.</strong> En el <code>WHERE</code> habría convertido el <code>LEFT JOIN</code> en <code>INNER</code> y habría devuelto solo los clientes que compraron en 1998 — justo los que <em>no</em> les fallan. <strong>El informe se llama "quién nos está fallando" y el error habría borrado exactamente a esos.</strong></li>
+<li><strong>El segundo <code>JOIN</code> también tiene que ser <code>LEFT</code>.</strong> Un <code>INNER JOIN</code> con <code>order_details</code> descartaría las filas de los clientes sin pedidos y deshría el trabajo del primero.</li>
+<li><strong><code>coalesce(sum(...), 0)</code> y <code>count(DISTINCT o.order_id)</code>.</strong> Sin el <code>coalesce</code>, los clientes sin ventas salen con <code>NULL</code> y el <code>ORDER BY ... DESC</code> los coloca <strong>arriba del todo</strong> (<a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>): el informe empezaría con los peores clientes fingiendo ser los mejores. Y sin el <code>DISTINCT</code>, la columna de pedidos contaría líneas.</li>
+</ol>
+<p><strong>Y lo que hay que decir al entregar:</strong> un cliente con <code>0</code> en 1998 puede ser de tres cosas muy distintas — uno que compraba y dejó de hacerlo (el que le interesa a Ventas), uno de alta reciente que aún no ha comprado, y uno que no ha comprado nunca. <strong>Son tres acciones comerciales opuestas y en esta tabla salen idénticos.</strong> Para separarlos hace falta una columna más: la fecha de su último pedido, sea del año que sea.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">unidades</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unidades</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> product_id |      product_name       | unidades
+------------+-------------------------+----------
+          9 | Mishi Kobe Niku         |       95
+         15 | Genen Shouyu            |      122
+         37 | Gravad lax              |      125
+</code></pre></div>
+
+<p><strong>No hay ninguno a cero: los 77 productos se han vendido alguna vez.</strong> El <code>LEFT JOIN</code> no cambia el resultado aquí, y comprobarlo es la respuesta. El <code>coalesce</code> está igualmente: es lo que garantiza que si mañana entra un producto nuevo, salga con <code>0</code> y no con una celda vacía.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Los 9 empleados tienen pedidos</strong>, así que el <code>LEFT</code> tampoco cambia nada. Otra vez: <strong>el valor está en haberlo comprobado</strong>, no en el resultado.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">cat</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">coalesce</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="n">cat</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w">      </span><span class="n">p</span><span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cat</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cat</span><span class="p">.</span><span class="n">category_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Los dos <code>JOIN</code> tienen que ser <code>LEFT</code>.</strong> Si el segundo fuera <code>INNER</code>, una categoría cuyos productos no se hubieran vendido nunca desaparecería — el <code>INNER</code> de detrás deshace el trabajo del <code>LEFT</code> de delante (error 5 de la sección 4).</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">supplier_id</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">company_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="n">s</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">supplier_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">supplier_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>0 filas: los 29 proveedores tienen al menos un producto.</strong> Es el mismo patrón huérfano del ejemplo de clientes, mirando hacia el otro lado.</p>
+<p><strong>5.</strong> La primera tiene la condición en el <code>WHERE</code> sobre una columna de <code>orders</code>, así que <strong>descarta las filas rellenas de <code>NULL</code> y se comporta como un <code>INNER JOIN</code></strong>: devuelve solo los clientes que compraron en 1998.</p>
+<p>La segunda la tiene en el <code>ON</code>, así que conserva los 91 clientes y pone <code>0</code> a los que no compraron ese año.</p>
+<p><strong>La que responde a la pregunta es la segunda.</strong> Y la primera ni siquiera devuelve el número de clientes que dice: al filtrar por año dentro del <code>WHERE</code>, además pierde a los dos que no han comprado nunca.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../inner-join/"><span>Anterior</span><strong>INNER JOIN</strong></a><a class="nav-next" href="../cross-join-y-self-join/"><span>Siguiente</span><strong>CROSS JOIN y self-join</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

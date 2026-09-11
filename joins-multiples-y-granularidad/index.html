@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Joins múltiples y granularidad · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Unir 4 tablas sin duplicar filas. Por qué las sumas se inflan" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/joins-multiples-y-granularidad/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Joins múltiples y granularidad" />
+  <meta property="og:description" content="Unir 4 tablas sin duplicar filas. Por qué las sumas se inflan" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/joins-multiples-y-granularidad/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(25 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 25 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details open><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><span class="activo">Joins múltiples y granularidad</span></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 5 · Combinar tablas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Joins múltiples y granularidad</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../union-intersect-except/">union-intersect-except</a></div>
+    
+    <div class="post-body"><blockquote>
+<p><strong>Este tema no está en las guías al uso.</strong> Y es, con diferencia, <strong>el error más caro que se puede cometer con SQL</strong>: no da error, no da aviso, y produce números que parecen correctos. Todo lo que se ha ido dejando pendiente en los temas anteriores —el <code>sum(DISTINCT)</code> del tema 12, el <code>count(DISTINCT o.order_id)</code> que he repetido cinco veces— aterriza aquí.</p>
+</blockquote>
+<h2 id="1-qu-es">1. Qué es</h2>
+<p><strong>Granularidad = qué representa una fila.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tabla</th>
+<th>Una fila es…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customers</code></td>
+<td>Un cliente</td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td>Un pedido</td>
+</tr>
+<tr>
+<td><code>order_details</code></td>
+<td><strong>Una línea de un pedido</strong></td>
+</tr>
+<tr>
+<td><code>employee_territories</code></td>
+<td><strong>Un territorio de un empleado</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Un <code>JOIN</code> puede <strong>cambiar la granularidad del resultado</strong>. Y cuando lo hace, cualquier <code>sum()</code> o <code>count()</code> sobre columnas de la tabla original queda multiplicado.</p>
+<div class="hl"><pre><span></span><code>830 pedidos  ──JOIN order_details──▶  2.155 filas
+</code></pre></div>
+
+<p>Después de ese <code>JOIN</code>, <strong>una fila ya no es un pedido: es una línea.</strong> El <code>freight</code> del pedido 10248 aparece 3 veces, una por cada línea. Sumarlo cuenta ese flete tres veces.</p>
+<p>Eso se llama <strong>fan-out</strong>, y es un multiplicador silencioso.</p>
+<h2 id="2-la-regla">2. La regla</h2>
+<blockquote>
+<p><strong>Un <code>JOIN</code> multiplica filas cuando el lado al que unes puede tener más de una fila por pareja.</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Relación</th>
+<th>Fan-out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>orders</code> → <code>customers</code> (muchos a uno)</td>
+<td>❌ No. Un pedido, un cliente</td>
+</tr>
+<tr>
+<td><code>orders</code> → <code>order_details</code> (uno a muchos)</td>
+<td>✅ <strong>Sí</strong>. Un pedido, N líneas</td>
+</tr>
+<tr>
+<td><code>products</code> → <code>categories</code> (muchos a uno)</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td><code>employees</code> → <code>employee_territories</code> (uno a muchos)</td>
+<td>✅ <strong>Sí</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Unir "hacia arriba" (hacia la tabla del uno) es seguro. Unir "hacia abajo" (hacia la tabla del muchos) multiplica.</strong></p>
+<p>Y de ahí sale el hábito que hay que coger:</p>
+<blockquote>
+<p><strong>Cuenta las filas antes y después de cada <code>JOIN</code>.</strong> Si el número cambia y no esperabas que cambiara, para.</p>
+</blockquote>
+<h2 id="3-el-fan-out-medido">3. El fan-out, medido</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">                                              </span><span class="c1">--   830</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 2155</span>
+</code></pre></div>
+
+<p>Y qué le pasa a una suma:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="p">;</span><span class="w">                            </span><span class="c1">--  64942.69   ✅ real</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span><span class="w">                        </span><span class="c1">-- 207306.10   ❌ ×3,2</span>
+</code></pre></div>
+
+<p>Visto pedido a pedido, no hay misterio:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete_sumado</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">10248</span><span class="p">,</span><span class="w"> </span><span class="mi">10250</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | lineas | freight | flete_sumado
+----------+--------+---------+--------------
+    10248 |      3 |   32.38 |        97.14
+    10250 |      3 |   65.83 |       197.49
+</code></pre></div>
+
+<p><strong>32,38 × 3 = 97,14.</strong> El motor hace exactamente lo que le pediste. El problema es que le pediste otra cosa.</p>
+<h3>3.1 Doble fan-out: el efecto multiplicativo</h3>
+<p>Ahora dos <code>JOIN</code> que multiplican, encadenados:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w">       </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employee_territories</span><span class="w"> </span><span class="n">et</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">et</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+ 10129
+</code></pre></div>
+
+<p><strong>830 → 10.129 filas.</strong> Cada pedido se multiplica por sus líneas <strong>y</strong> por los territorios de su empleado (entre 2 y 10 según el empleado). Los fan-outs no se suman: <strong>se multiplican entre sí.</strong></p>
+<p>Y el flete:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w">       </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employee_territories</span><span class="w"> </span><span class="n">et</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">et</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> 1026997.96
+</code></pre></div>
+
+<p><strong>Un millón contra los 64.942 reales: ×15,8.</strong> Y sigue siendo un número con dos decimales que cabe en una celda.</p>
+<blockquote>
+<p><strong>Ese es el peligro completo del tema en una frase: el resultado equivocado tiene exactamente el mismo aspecto que el correcto.</strong></p>
+</blockquote>
+<h2 id="4-las-tres-formas-de-arreglarlo">4. Las tres formas de arreglarlo</h2>
+<h3>4.1 ❌ La que no funciona: <code>DISTINCT</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> 64526.94
+</code></pre></div>
+
+<p><strong>64.526,94 contra 64.942,69 reales.</strong> Se parece muchísimo. Está mal.</p>
+<p><code>sum(DISTINCT ...)</code> no suma "un flete por pedido": suma <strong>valores de flete distintos</strong>. Dos pedidos que casualmente costaron 32,38 cuentan una sola vez. <strong>415,75 perdidos entre 65.000</strong>, imposibles de detectar mirando.</p>
+<p><code>count(DISTINCT ...)</code> <strong>sí</strong> es válido —contar identificadores únicos es exactamente lo que hace— pero <code>sum(DISTINCT)</code> y <code>avg(DISTINCT)</code> casi nunca lo son.</p>
+<h3>4.2 ✅ La correcta: agregar antes de unir</h3>
+<p>Cada métrica se calcula <strong>a su granularidad</strong>, y solo después se juntan los resultados:</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">ventas</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span>
+<span class="p">),</span>
+<span class="n">lineas</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="p">),</span>
+<span class="n">terr</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">territorios</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employee_territories</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">v</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">flete</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">       </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">t</span><span class="p">.</span><span class="n">territorios</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">ventas</span><span class="w"> </span><span class="n">v</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">lineas</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">employee_id</span><span class="p">)</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">terr</span><span class="w">   </span><span class="n">t</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">employee_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | pedidos |  flete   | facturacion | territorios
+-------------+---------+----------+-------------+-------------
+           4 |     156 | 11346.14 |   232890.85 |           3
+           3 |     127 | 10884.74 |   202812.84 |           4
+           1 |     123 |  8836.64 |   192107.60 |           2
+           2 |      96 |  8696.41 |   166537.76 |           7
+           8 |     104 |  7487.88 |   126862.28 |           4
+</code></pre></div>
+
+<p><strong>Las tres métricas son correctas a la vez</strong>, cosa que ninguna consulta de un solo <code>FROM</code> puede conseguir:</p>
+<ul>
+<li><code>pedidos</code> y <code>flete</code> a granularidad de <strong>pedido</strong></li>
+<li><code>facturacion</code> a granularidad de <strong>línea</strong></li>
+<li><code>territorios</code> a granularidad de <strong>territorio</strong></li>
+</ul>
+<p>Y se comprueba:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">flete</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> 64942.69     ✅
+</code></pre></div>
+
+<p>Los CTE (<code>WITH</code>) se ven en <a class="xref" href="../cte-with/">cte-with</a>; aquí basta con leerlos como "consultas con nombre".</p>
+<blockquote>
+<p><strong>Este es el patrón que hay que memorizar del tema: cuando un informe mezcla métricas de distinta granularidad, se agrega cada una por su lado y se unen los agregados.</strong> No hay atajo.</p>
+</blockquote>
+<h3>4.3 ⚠️ La tercera: <code>count(DISTINCT)</code>, válida pero limitada</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Correcta, y más corta. <strong>Funciona porque solo hay una métrica de la tabla inflada (<code>pedidos</code>) y se resuelve contando ids únicos.</strong> En cuanto necesites <strong>sumar</strong> algo del pedido —el flete— deja de servir y hay que volver al patrón de arriba.</p>
+<h2 id="5-un-fan-out-que-no-lo-parece">5. Un fan-out que no lo parece</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                     </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w">      </span><span class="n">p</span><span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  | productos | filas
+----------------+-----------+-------
+ Beverages      |        12 |   404
+ Condiments     |        12 |   216
+ Confections    |        13 |   334
+ Dairy Products |        10 |   366
+</code></pre></div>
+
+<p><strong>12 productos, 404 filas.</strong> El primer <code>JOIN</code> no multiplica (cada producto tiene una categoría); el segundo sí, y mucho.</p>
+<p>Si el informe pide <em>"productos por categoría"</em> y alguien escribe <code>count(*)</code>, el número sale <strong>33 veces mayor</strong>. Y <code>count(*)</code> es lo que se escribe por reflejo.</p>
+<h2 id="6-c-mo-detectarlo-antes-de-que-salga-publicado">6. Cómo detectarlo antes de que salga publicado</h2>
+<ol>
+<li><strong>Cuenta filas después de cada <code>JOIN</code>.</strong> Es la comprobación más barata que existe.</li>
+<li><strong>Comprueba los totales contra la tabla original.</strong> <code>sum(freight)</code> sobre <code>orders</code> a secas debe cuadrar con el total de tu informe.</li>
+<li><strong>Desconfía de cualquier <code>count(*)</code> en una consulta con más de dos tablas.</strong></li>
+<li><strong>Si has escrito <code>DISTINCT</code> para arreglar filas de más, párate.</strong> Estás tapando, no arreglando.</li>
+<li><strong>Suma las filas del desglose y compáralas con el total.</strong> Si no cuadran, hay fan-out o hay filas perdidas.</li>
+<li><strong>Un número sospechosamente redondo o sospechosamente grande</strong> suele ser un múltiplo exacto del bueno. Divide entre 2, 3 o 2,6 y mira si te suena.</li>
+</ol>
+<h2 id="7-errores-comunes">7. Errores comunes</h2>
+<ol>
+<li><strong><code>sum()</code> de una columna del "uno" tras unir con el "muchos".</strong> El error del tema.</li>
+<li><strong><code>count(*)</code> en un join múltiple.</strong> Cuenta la granularidad final, no lo que crees.</li>
+<li><strong><code>sum(DISTINCT)</code> como parche.</strong> Da un número plausible y falso.</li>
+<li><strong><code>avg()</code> tras un fan-out.</strong> Peor que <code>sum</code>: la media se pondera sola por el número de líneas, y ni siquiera es un múltiplo exacto que puedas detectar.</li>
+<li><strong>Encadenar tres o más tablas del "muchos" sin pensar.</strong> El multiplicador es el producto de todos.</li>
+<li><strong>Suponer que porque el <code>JOIN</code> es por la clave primaria no multiplica.</strong> Depende de <strong>qué lado</strong> es la clave primaria.</li>
+<li><strong>Validar el informe solo mirando si "tiene sentido".</strong> 207.306 tiene sentido. Es tres veces el número real.</li>
+</ol>
+<h2 id="8-diferencias-con-sql-server">8. Diferencias con SQL Server</h2>
+<p><strong>Ninguna.</strong> El fan-out es una propiedad del álgebra relacional, no del motor: ocurre igual en PostgreSQL, SQL Server, Oracle, MySQL, BigQuery y Spark.</p>
+<p>Lo único que cambia son las herramientas para evitarlo:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-agregar en CTE</td>
+<td>✅ <code>WITH</code></td>
+<td>✅ <code>WITH</code></td>
+</tr>
+<tr>
+<td><code>count(DISTINCT)</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Agregar en el <code>FROM</code> correlacionado</td>
+<td><code>LATERAL</code></td>
+<td><code>CROSS APPLY</code></td>
+</tr>
+<tr>
+<td><code>FILTER</code></td>
+<td>✅</td>
+<td>❌ → <code>CASE</code></td>
+</tr>
+</tbody>
+</table>
+<p>Y una nota que vale para cualquier herramienta de BI: <strong>Power BI, Tableau y Looker tienen exactamente este problema</strong> cuando se les da un modelo con relaciones uno-a-muchos mal declaradas. La diferencia es que allí el fan-out lo produce la herramienta y ni siquiera ves el SQL. <strong>Entenderlo aquí es lo que te permite depurarlo allí.</strong></p>
+<h2 id="9-ejercicios">9. Ejercicios</h2>
+<ol>
+<li>Cuenta las filas de <code>orders</code>, de <code>orders JOIN customers</code>, y de <code>orders JOIN order_details</code>. Explica cada número antes de ejecutarlo.</li>
+<li>Calcula el flete total por país de dos formas —directa y tras unir con <code>order_details</code>— y compáralas.</li>
+<li>Escribe un informe por categoría con: número de productos, unidades vendidas y facturación. Los tres correctos.</li>
+<li>¿Cuántos territorios tiene cada empleado y cuántos pedidos gestionó? Sin que ninguna de las dos cifras se infle.</li>
+<li>Explica por qué esta consulta da un número mayor que el real y cómo lo arreglarías:
+   <code>sql
+   SELECT c.company_name, count(*) AS pedidos
+   FROM customers c
+   JOIN orders o        ON o.customer_id = c.customer_id
+   JOIN order_details od ON od.order_id  = o.order_id
+   GROUP BY c.company_name;</code></li>
+</ol>
+<h2 id="10-pregunta-de-negocio">10. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección pide un cuadro de mando por país: número de clientes, número de pedidos, facturación y flete total. Una fila por país. El año pasado el mismo informe daba un flete "que no cuadraba con contabilidad" y nadie encontró el motivo.</em></p>
+</blockquote>
+<p>Ya sabes exactamente cuál era el motivo.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>El motivo del flete que no cuadraba es exactamente el de la sección 3: <strong>el informe unía <code>orders</code> con <code>order_details</code> para sacar la facturación, y sumaba el flete en la misma consulta.</strong> El flete salía multiplicado por las líneas de cada pedido, ~3,2 veces.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">por_pais</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span>
+<span class="p">),</span>
+<span class="n">facturacion</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span>
+<span class="p">),</span>
+<span class="n">clientes</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="k">coalesce</span><span class="p">(</span><span class="n">cl</span><span class="p">.</span><span class="n">clientes</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">p</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">flete</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">por_pais</span><span class="w"> </span><span class="n">p</span>
+<span class="k">JOIN</span><span class="w">      </span><span class="n">facturacion</span><span class="w"> </span><span class="n">f</span><span class="w">  </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">pais</span><span class="p">)</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">clientes</span><span class="w">    </span><span class="n">cl</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">pais</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Las cuatro decisiones:</strong></p>
+<ol>
+<li><strong>Tres granularidades, tres CTE.</strong> Clientes se cuentan en <code>customers</code>, pedidos y flete en <code>orders</code>, facturación en <code>order_details</code>. <strong>Mezclarlas en un solo <code>FROM</code> es la causa del bug que arrastraban.</strong></li>
+<li><strong>La comprobación que hay que hacer antes de entregar:</strong> <code>SELECT sum(freight) FROM orders</code> da <strong>64.942,69</strong>, y la suma de la columna <code>flete</code> del informe tiene que dar lo mismo. <strong>Si no cuadra con la tabla origen, no cuadra con contabilidad.</strong></li>
+<li><strong><code>LEFT JOIN</code> con <code>clientes</code>.</strong> El país del pedido (<code>ship_country</code>) y el del cliente (<code>country</code>) son columnas distintas y <strong>no tienen por qué coincidir</strong>. Un <code>INNER JOIN</code> borraría del cuadro de mando cualquier país al que se envía sin tener clientes registrados allí.</li>
+<li><strong>Lo que hay que decir al entregar:</strong> la columna <code>clientes</code> cuenta clientes <strong>domiciliados</strong> en ese país y las demás cuentan actividad <strong>enviada</strong> a ese país. En Northwind coinciden en las 830 filas, pero <strong>son dos conceptos distintos con el mismo nombre de columna</strong> — y esa ambigüedad es la siguiente que hará que "los números no cuadren".</li>
+</ol></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">                                                       </span><span class="c1">--  830</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w">     </span><span class="k">c</span><span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">  </span><span class="c1">--  830</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">;</span><span class="w">     </span><span class="c1">-- 2155</span>
+</code></pre></div>
+
+<ul>
+<li><strong>830</strong>: la tabla.</li>
+<li><strong>830</strong>: <code>customers</code> está del lado del "uno" — cada pedido tiene exactamente un cliente. <strong>No multiplica.</strong></li>
+<li><strong>2155</strong>: <code>order_details</code> está del lado del "muchos". <strong>Multiplica por 2,6 de media.</strong></li>
+</ul>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">;</span><span class="w">                   </span><span class="c1">-- 11283.28</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">;</span><span class="w">         </span><span class="c1">-- 38170.75</span>
+</code></pre></div>
+
+<p><strong>11.283 contra 38.170.</strong> El segundo es 3,4 veces el primero: exactamente las líneas por pedido de Alemania. <strong>Ningún error, ninguna advertencia.</strong></p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">cat_productos</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span>
+<span class="p">),</span>
+<span class="n">cat_ventas</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="p">)</span><span class="w">                                     </span><span class="k">AS</span><span class="w"> </span><span class="n">unidades</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">cp</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">.</span><span class="n">productos</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">unidades</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">cv</span><span class="p">.</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">cat_productos</span><span class="w"> </span><span class="n">cp</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">cat_ventas</span><span class="w">    </span><span class="n">cv</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  | productos | unidades | facturacion
+----------------+-----------+----------+-------------
+ Beverages      |        12 |     9532 |   267868.18
+ Dairy Products |        10 |     9149 |   234507.29
+ Confections    |        13 |     7906 |   167357.23
+</code></pre></div>
+
+<p><strong>Dos granularidades, dos agregaciones, un <code>JOIN</code> entre resultados ya agregados.</strong> Intentarlo en una sola consulta obliga a <code>count(DISTINCT p.product_id)</code> — que aquí funcionaría, pero deja de funcionar en cuanto una métrica haya que <strong>sumarla</strong> en vez de contarla.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">terr</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">territorios</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employee_territories</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">ped</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">territorios</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">terr</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">employee_id</span><span class="p">)</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">ped</span><span class="w">  </span><span class="n">p</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">employee_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | last_name | territorios | pedidos
+-------------+-----------+-------------+---------
+           4 | Peacock   |           3 |     156
+           3 | Leverling |           4 |     127
+           1 | Davolio   |           2 |     123
+</code></pre></div>
+
+<p><strong>Sin pre-agregar, <code>orders JOIN employee_territories</code> da 3.960 filas</strong> en vez de 830, y las dos columnas salen infladas. Margaret Peacock aparecería con 468 pedidos (156 × 3) y 468 territorios.</p>
+<p><strong>5.</strong> Porque <code>count(*)</code> <strong>después</strong> de unir con <code>order_details</code> cuenta <strong>líneas de pedido</strong>, no pedidos. Cada cliente sale con unas 2,6 veces sus pedidos reales.</p>
+<p>Dos arreglos:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- A: contar ids únicos</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="p">...</span>
+
+<span class="c1">-- B: no unir con order_details, que no hacía falta para nada</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>B es la mejor.</strong> El <code>JOIN</code> con <code>order_details</code> <strong>no aportaba ninguna columna al resultado</strong>: estaba de más. Cuando encuentres un fan-out, la primera pregunta no es cómo compensarlo — es <strong>si esa tabla tenía que estar ahí</strong>.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../union-intersect-except/"><span>Anterior</span><strong>UNION, INTERSECT y EXCEPT</strong></a><a class="nav-next" href="../subconsultas-escalares-y-multivalor/"><span>Siguiente</span><strong>Subconsultas escalares y multivalor</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-la-regla">2. La regla</a>
+<a href="#3-el-fan-out-medido">3. El fan-out, medido</a>
+<a href="#4-las-tres-formas-de-arreglarlo">4. Las tres formas de arreglarlo</a>
+<a href="#5-un-fan-out-que-no-lo-parece">5. Un fan-out que no lo parece</a>
+<a href="#6-c-mo-detectarlo-antes-de-que-salga-publicado">6. Cómo detectarlo antes de que salga publicado</a>
+<a href="#7-errores-comunes">7. Errores comunes</a>
+<a href="#8-diferencias-con-sql-server">8. Diferencias con SQL Server</a>
+<a href="#9-ejercicios">9. Ejercicios</a>
+<a href="#10-pregunta-de-negocio">10. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

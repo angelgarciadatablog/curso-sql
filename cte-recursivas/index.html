@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>CTE recursivas · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Recorrer jerarquías de profundidad desconocida" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/cte-recursivas/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CTE recursivas" />
+  <meta property="og:description" content="Recorrer jerarquías de profundidad desconocida" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/cte-recursivas/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(30 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 30 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details open><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><span class="activo">CTE recursivas</span></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 6 · Consultas dentro de consultas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>CTE recursivas</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../cte-with/">cte-with</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Un <strong>CTE recursivo</strong> es un CTE que <strong>se referencia a sí mismo</strong>. Sirve para lo único que SQL normal no sabe hacer: recorrer una estructura cuya profundidad no conoces al escribir la consulta.</p>
+<p>Los dos casos son siempre los mismos:</p>
+<ol>
+<li><strong>Jerarquías</strong> — un empleado que reporta a un empleado que reporta a otro. Categorías con subcategorías. Piezas compuestas de piezas.</li>
+<li><strong>Series generadas</strong> — todos los días entre dos fechas, aunque no exista ninguna tabla con esos días.</li>
+</ol>
+<p><strong>Por qué no basta un <code>JOIN</code>:</strong> para saber quién reporta a Fuller directamente, un <code>JOIN</code> sobra. Para saber quién reporta a Fuller <strong>a cualquier profundidad</strong>, necesitarías un <code>JOIN</code> por nivel — y tendrías que saber cuántos niveles hay antes de escribir la consulta. Si mañana la empresa añade un nivel, la consulta deja de ser correcta <strong>sin dar error</strong>.</p>
+<p>Un CTE recursivo se detiene solo cuando ya no hay más filas que añadir. <strong>No necesita saber la profundidad.</strong></p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">nombre</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w">            </span><span class="c1">-- caso base: de dónde se parte</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w">            </span><span class="c1">-- paso recursivo: usa `nombre`</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">nombre</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">...</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="o">&lt;</span><span class="n">condición</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">parada</span><span class="o">&gt;</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">nombre</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Cuatro reglas que no se negocian:</p>
+<ul>
+<li><strong><code>RECURSIVE</code> va después de <code>WITH</code>, no en el nombre del CTE.</strong> <code>WITH RECURSIVE a AS (...), b AS (...)</code> — una sola palabra <code>RECURSIVE</code> habilita la recursión para todos los CTE de esa lista.</li>
+<li><strong>Las dos ramas se unen con <code>UNION</code> o <code>UNION ALL</code></strong>, nunca con coma ni con <code>JOIN</code>.</li>
+<li><strong>El caso base va primero</strong> y no puede referenciarse a sí mismo.</li>
+<li><strong>Tiene que haber una condición de parada.</strong> O el <code>JOIN</code> se queda sin filas que emparejar, o hay un <code>WHERE</code> que corta. Sin ninguna de las dos, la consulta no termina.</li>
+</ul>
+<h3>2.1 Cómo se ejecuta, paso a paso</h3>
+<p>Esto es lo que confunde a todo el mundo la primera vez: <code>nombre</code>, dentro del paso recursivo, <strong>no es el resultado acumulado</strong>. Es solo <strong>lo que produjo la iteración anterior</strong>.</p>
+<div class="hl"><pre><span></span><code>Iteración 0: se ejecuta el caso base        → tabla de trabajo = {Fuller}
+Iteración 1: paso recursivo sobre {Fuller}  → {Davolio, Leverling, Peacock, Buchanan, Callahan}
+Iteración 2: paso recursivo sobre esas 5    → {Suyama, King, Dodsworth}
+Iteración 3: paso recursivo sobre esas 3    → {}  → para
+Resultado final: la unión de todo lo producido = 9 filas
+</code></pre></div>
+
+<p><strong>Se para cuando una iteración no produce ninguna fila.</strong> Por eso el paso recursivo va contra la tabla de trabajo y no contra el acumulado: si fuera contra el acumulado, nunca se vaciaría.</p>
+<h2 id="3-el-ejemplo-m-nimo-contar">3. El ejemplo mínimo: contar</h2>
+<p>Antes de tocar Northwind, el CTE recursivo más pequeño que existe. No lee ninguna tabla:</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">contador</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">contador</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">contador</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> n
+---
+ 1
+ 2
+ 3
+ 4
+ 5
+</code></pre></div>
+
+<p><strong>Quita el <code>WHERE n &lt; 5</code> y la consulta no termina nunca.</strong> Ese <code>WHERE</code> es lo único que separa esto de un bucle infinito. Escríbelo <em>antes</em> de escribir el resto.</p>
+<h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<h3>4.1 El organigrama</h3>
+<p><code>employees.reports_to</code> apunta a otro <code>employee_id</code>. Quien tiene <code>NULL</code> está arriba del todo:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">reports_to</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id |      nombre      |          title           | reports_to
+-------------+------------------+--------------------------+------------
+           1 | Nancy Davolio    | Sales Representative     |          2
+           2 | Andrew Fuller    | Vice President, Sales    |
+           3 | Janet Leverling  | Sales Representative     |          2
+           4 | Margaret Peacock | Sales Representative     |          2
+           5 | Steven Buchanan  | Sales Manager            |          2
+           6 | Michael Suyama   | Sales Representative     |          5
+           7 | Robert King      | Sales Representative     |          5
+           8 | Laura Callahan   | Inside Sales Coordinator |          2
+           9 | Anne Dodsworth   | Sales Representative     |          5
+</code></pre></div>
+
+<p>Tres niveles: Fuller arriba, cinco personas debajo de él, y tres más debajo de Buchanan.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">reports_to</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nivel</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w">                       </span><span class="c1">-- caso base: la cúpula</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">nivel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">employee_id</span><span class="w">   </span><span class="c1">-- paso: los hijos de lo ya encontrado</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">repeat</span><span class="p">(</span><span class="s1">'    '</span><span class="p">,</span><span class="w"> </span><span class="n">nivel</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">nombre</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">organigrama</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> nivel | employee_id |      organigrama
+-------+-------------+------------------------
+     1 |           2 | Andrew Fuller
+     2 |           1 |     Nancy Davolio
+     2 |           3 |     Janet Leverling
+     2 |           4 |     Margaret Peacock
+     2 |           5 |     Steven Buchanan
+     2 |           8 |     Laura Callahan
+     3 |           6 |         Michael Suyama
+     3 |           7 |         Robert King
+     3 |           9 |         Anne Dodsworth
+</code></pre></div>
+
+<p>Dos cosas que hacen el trabajo:</p>
+<ul>
+<li><strong><code>nivel</code> es una columna que te inventas y que se incrementa sola.</strong> No existe en la tabla. Nace en 1 en el caso base y cada iteración le suma 1. Es la forma estándar de saber la profundidad.</li>
+<li><strong><code>repeat('    ', nivel - 1)</code> convierte el número en sangría.</strong> El árbol no está en los datos: está en el orden y en los espacios.</li>
+</ul>
+<h3>4.2 La ruta completa</h3>
+<p>El mismo patrón, acumulando texto en vez de un número:</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">reports_to</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span>
+<span class="w">           </span><span class="p">(</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">last_name</span><span class="p">)::</span><span class="nb">text</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ruta</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">nivel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">           </span><span class="n">a</span><span class="p">.</span><span class="n">ruta</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' &gt; '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">ruta</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ruta</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> nivel |      nombre      |                       ruta
+-------+------------------+--------------------------------------------------
+     1 | Andrew Fuller    | Andrew Fuller
+     2 | Janet Leverling  | Andrew Fuller &gt; Janet Leverling
+     2 | Laura Callahan   | Andrew Fuller &gt; Laura Callahan
+     2 | Margaret Peacock | Andrew Fuller &gt; Margaret Peacock
+     2 | Nancy Davolio    | Andrew Fuller &gt; Nancy Davolio
+     2 | Steven Buchanan  | Andrew Fuller &gt; Steven Buchanan
+     3 | Anne Dodsworth   | Andrew Fuller &gt; Steven Buchanan &gt; Anne Dodsworth
+     3 | Michael Suyama   | Andrew Fuller &gt; Steven Buchanan &gt; Michael Suyama
+     3 | Robert King      | Andrew Fuller &gt; Steven Buchanan &gt; Robert King
+</code></pre></div>
+
+<p><strong><code>ORDER BY ruta</code> ordena el árbol como un árbol</strong>, porque el texto de un hijo empieza por el texto de su padre. Es un truco viejo y sigue funcionando.</p>
+<p><strong>El <code>::text</code> del caso base no es decorativo.</strong> Sin él, <code>first_name||' '||last_name</code> sale como <code>varchar</code> y el paso recursivo, que produce un texto más largo, choca con el tipo fijado por el caso base. <strong>El tipo de cada columna lo decide el caso base</strong>, y el paso recursivo tiene que encajar.</p>
+<h3>4.3 El ejemplo que justifica el tema: ventas de una rama</h3>
+<p>Un jefe no responde por sus ventas: responde por las de toda su rama. Eso es imposible sin recursión, porque la profundidad de cada rama es distinta.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">raiz</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span><span class="w">           </span><span class="c1">-- cada empleado, como raíz de sí mismo</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">raiz</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="w">                      </span><span class="c1">-- y todos los que cuelgan de él</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="p">),</span>
+<span class="n">ventas</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">em</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">coalesce</span><span class="p">(</span><span class="n">vp</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">propia</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">coalesce</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">rama</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">em</span><span class="w">         </span><span class="k">ON</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">raiz</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">ventas</span><span class="w"> </span><span class="n">v</span><span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">employee_id</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">ventas</span><span class="w"> </span><span class="n">vp</span><span class="w">       </span><span class="k">ON</span><span class="w"> </span><span class="n">vp</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">raiz</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="n">first_name</span><span class="p">,</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">vp</span><span class="p">.</span><span class="n">total</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">rama</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id |      nombre      |  propia   |    rama
+-------------+------------------+-----------+------------
+           2 | Andrew Fuller    | 166537.76 | 1265793.04
+           5 | Steven Buchanan  |  68792.28 |  344581.71
+           4 | Margaret Peacock | 232890.85 |  232890.85
+           3 | Janet Leverling  | 202812.84 |  202812.84
+           1 | Nancy Davolio    | 192107.60 |  192107.60
+           8 | Laura Callahan   | 126862.28 |  126862.28
+           7 | Robert King      | 124568.24 |  124568.24
+           9 | Anne Dodsworth   |  77308.07 |   77308.07
+           6 | Michael Suyama   |  73913.13 |   73913.13
+</code></pre></div>
+
+<p><strong>Léelo despacio, porque cambia por completo quién parece estar rindiendo:</strong></p>
+<ul>
+<li><strong>Por venta propia, Peacock (232 890,85) es la primera y Fuller (166 537,76) la sexta.</strong> Por rama, Fuller es el primero con 1 265 793,04 — que es <strong>exactamente la facturación total de la empresa</strong>, porque todo el mundo cuelga de él. Es la comprobación de que la consulta está bien: la rama del nodo raíz tiene que dar el total.</li>
+<li><strong>Buchanan sube del séptimo puesto al segundo.</strong> Vende 68 792,28 él mismo, pero su rama mueve 344 581,71: cinco veces más. Un cuadro de mando que solo mire venta propia le da el peor número de la casa a la persona que gestiona la segunda rama del negocio.</li>
+<li><strong>Quien no tiene subordinados tiene <code>propia = rama</code>.</strong> Es correcto y conviene verlo: confirma que el caso base incluye a cada empleado como raíz de sí mismo.</li>
+</ul>
+<p><strong>El truco del caso base es la clave.</strong> No parte de la cúpula, sino de <strong>todos los empleados a la vez</strong>, cada uno etiquetado como su propia <code>raiz</code>. La recursión propaga esa etiqueta hacia abajo. Así, en una sola pasada, obtienes la rama de los nueve.</p>
+<h3>4.4 Generar una serie que no existe en ninguna tabla</h3>
+<p>El otro uso. Aquí no hay jerarquía: la fila siguiente se calcula desde la anterior.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">calendario</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-01'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">calendario</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-10'</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">dia</span><span class="p">,</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">dia</span><span class="p">,</span><span class="w"> </span><span class="s1">'Dy'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">calendario</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    dia     |  d
+------------+-----
+ 1998-05-01 | Fri
+ 1998-05-02 | Sat
+ ...
+ 1998-05-10 | Sun
+</code></pre></div>
+
+<p><strong>En PostgreSQL esto casi nunca se escribe así</strong>, porque existe <code>generate_series</code>, que hace lo mismo en una línea y más rápido:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-01'</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-10'</span><span class="p">,</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'1 day'</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Merece la pena conocer las dos: <strong><code>generate_series</code> cuando el paso es fijo</strong> (un día, una hora, 5 en 5), <strong>recursiva cuando el paso depende de la fila anterior</strong> — un saldo que se arrastra, una fecha de vencimiento que se calcula desde la anterior, un interés compuesto.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li>
+<p><strong>Olvidar <code>RECURSIVE</code>.</strong>
+   <code>ERROR:  relation "contador" does not exist</code>
+   El mensaje no dice "te falta RECURSIVE": dice que la tabla no existe. Sin la palabra, un CTE no se ve a sí mismo y el nombre queda sin resolver.</p>
+</li>
+<li>
+<p><strong>Poner <code>RECURSIVE</code> en el CTE equivocado.</strong> Va una sola vez, pegado a <code>WITH</code>, aunque el recursivo sea el tercero de la lista: <code>WITH RECURSIVE a AS (...), b AS (...), c AS (...)</code>.</p>
+</li>
+<li>
+<p><strong>No poner condición de parada.</strong> La consulta corre hasta que se llene el disco de temporales o la mates con <code>Ctrl+C</code>. <strong>Antes de ejecutar una recursiva nueva, ponle un techo:</strong>
+   <code>sql
+   WHERE nivel &lt; 10</code>
+   Se quita después, cuando ya has visto que termina. Cuesta cinco segundos y evita colgar la sesión.</p>
+</li>
+<li>
+<p><strong>Recursión infinita por un ciclo en los datos.</strong> El caso peligroso: la consulta está bien escrita y aun así no termina, porque A reporta a B, B a C y C a A. Ninguna iteración se queda sin filas.</p>
+</li>
+</ol>
+<p><code>sql
+   WITH RECURSIVE ciclico(id, jefe) AS (
+       VALUES (1,3),(2,1),(3,2)                 -- 1←3←2←1: un ciclo
+   ),
+   r AS (
+       SELECT id, jefe, 1 AS paso, ARRAY[id] AS visitados FROM ciclico WHERE id = 1
+     UNION ALL
+       SELECT c.id, c.jefe, r.paso + 1, r.visitados || c.id
+       FROM ciclico c JOIN r ON c.jefe = r.id
+       WHERE r.paso &lt; 8                          -- el techo, sin él no para
+   )
+   SELECT paso, id, jefe, visitados FROM r;</code>
+   <code>paso | id | jefe |     visitados
+   ------+----+------+-------------------
+       1 |  1 |    3 | {1}
+       2 |  2 |    1 | {1,2}
+       3 |  3 |    2 | {1,2,3}
+       4 |  1 |    3 | {1,2,3,1}
+       5 |  2 |    1 | {1,2,3,1,2}
+       6 |  3 |    2 | {1,2,3,1,2,3}
+       7 |  1 |    3 | {1,2,3,1,2,3,1}
+       8 |  2 |    1 | {1,2,3,1,2,3,1,2}</code></p>
+<p>Se ve el ciclo dando vueltas: 1, 2, 3, 1, 2, 3…</p>
+<p><strong>Desde PostgreSQL 14 hay una cláusula que lo detecta sola</strong>, <code>CYCLE</code>:</p>
+<p><code>sql
+   WITH RECURSIVE ciclico(id, jefe) AS (
+       VALUES (1,3),(2,1),(3,2)
+   ),
+   r AS (
+       SELECT id, jefe FROM ciclico WHERE id = 1
+     UNION ALL
+       SELECT c.id, c.jefe FROM ciclico c JOIN r ON c.jefe = r.id
+   ) CYCLE id SET es_ciclo USING ruta
+   SELECT id, jefe, es_ciclo, ruta FROM r;</code>
+   <code>id | jefe | es_ciclo |       ruta
+   ----+------+----------+-------------------
+     1 |    3 | f        | {(1)}
+     2 |    1 | f        | {(1),(2)}
+     3 |    2 | f        | {(1),(2),(3)}
+     1 |    3 | t        | {(1),(2),(3),(1)}</code></p>
+<p><code>CYCLE id SET es_ciclo USING ruta</code> significa: <em>vigila la columna <code>id</code>; cuando repita, marca <code>es_ciclo = true</code> y para esa rama</em>. La columna <code>ruta</code> guarda el camino recorrido. <strong>Northwind no tiene ciclos</strong> — pero una tabla de organigrama real, mantenida a mano durante años, los tiene más a menudo de lo que nadie admite.</p>
+<ol>
+<li>
+<p><strong>Usar <code>UNION</code> en lugar de <code>UNION ALL</code> "para protegerse".</strong> <code>UNION</code> elimina duplicados, lo que en un grafo con ciclos hace que la recursión termine. Pero también <strong>borra filas legítimamente repetidas</strong> y obliga a deduplicar en cada iteración. Usa <code>UNION ALL</code> y controla el ciclo explícitamente con <code>CYCLE</code> o con un array de visitados. Si eliges <code>UNION</code>, que sea una decisión, no un amuleto.</p>
+</li>
+<li>
+<p><strong>Chocar de tipos entre las dos ramas.</strong> El caso base fija el tipo de cada columna. <code>SELECT 1 AS n</code> da <code>integer</code>; si el paso recursivo produce un <code>numeric</code>, falla. Se arregla casteando <strong>en el caso base</strong>: <code>SELECT 1::numeric AS n</code>.</p>
+</li>
+</ol>
+<h2 id="6-lo-que-no-necesita-una-recursiva">6. Lo que no necesita una recursiva</h2>
+<p>Vale la pena decirlo, porque el error contrario también existe: <strong>una jerarquía de profundidad fija no necesita recursión.</strong></p>
+<p><code>region → territories → employee_territories</code> parece un árbol, y no lo es: son exactamente dos niveles, siempre, garantizados por las claves foráneas.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">region_description</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">territorios</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">region_id</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> region_description | territorios
+--------------------+-------------
+ Eastern            |          19
+ Western            |          15
+ Northern           |          11
+ Southern           |           8
+</code></pre></div>
+
+<p>Cuatro regiones, 53 territorios, dos niveles. <strong>Un <code>JOIN</code> normal basta y es más rápido y más legible.</strong> La recursiva es para cuando la profundidad es desconocida o variable, no para cuando es simplemente mayor que uno.</p>
+<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Palabra clave</td>
+<td><code>WITH RECURSIVE nombre AS</code></td>
+<td><code>WITH nombre AS</code> — <strong>sin <code>RECURSIVE</code></strong></td>
+</tr>
+<tr>
+<td>Límite por defecto</td>
+<td>ninguno: corre hasta agotarse</td>
+<td><code>MAXRECURSION 100</code>, error al pasarse</td>
+</tr>
+<tr>
+<td>Cambiar el límite</td>
+<td>no aplica</td>
+<td><code>OPTION (MAXRECURSION 0)</code> para quitarlo</td>
+</tr>
+<tr>
+<td>Detección de ciclos</td>
+<td><code>CYCLE ... SET ... USING ...</code> (PG 14+)</td>
+<td>manual, con un array o un <code>varchar</code> de ruta</td>
+</tr>
+<tr>
+<td>Generar series</td>
+<td><code>generate_series(...)</code></td>
+<td>no existe; se hace con recursiva o <code>sys.all_objects</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>La diferencia que muerde es la primera.</strong> Una recursiva de SQL Server copiada tal cual a PostgreSQL falla con <code>relation does not exist</code>, porque le falta <code>RECURSIVE</code>. Y a la inversa, PostgreSQL no tiene la red de seguridad de <code>MAXRECURSION 100</code>: <strong>lo que en SQL Server se corta solo con un error, aquí corre indefinidamente.</strong> De ahí la costumbre del techo manual.</p>
+<h2 id="8-ejercicios">8. Ejercicios</h2>
+<ol>
+<li>El organigrama con el <strong>nombre del jefe directo</strong> en una columna, no su <code>employee_id</code>.</li>
+<li>Todos los subordinados de Steven Buchanan a cualquier profundidad, <strong>sin incluirlo a él</strong>, con cuántos saltos hay hasta cada uno.</li>
+<li>Para cada empleado, cuántos subordinados <strong>directos</strong> tiene y cuántos <strong>en total</strong> contando los indirectos.</li>
+<li>Genera todos los meses entre el primer y el último pedido, y comprueba si algún mes se quedó sin pedidos.</li>
+<li>Convierte el contador de la sección 3 en una serie que empiece en 100 y baje de 10 en 10 hasta 0. ¿Qué pasa si el paso no divide exactamente al rango?</li>
+</ol>
+<h2 id="9-pregunta-de-negocio">9. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Operaciones dice que hubo días sin actividad y quiere saber cuántos fueron y si siguen algún patrón.</em></p>
+</blockquote>
+<p>Los días sin pedidos <strong>no están en <code>orders</code></strong>: precisamente lo que los define es no estar. Ahí está el tema entero.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>El calendario no existe: hay que fabricarlo, y después preguntar qué días de ese calendario <strong>no aparecen</strong> en <code>orders</code>.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">calendario</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">calendario</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias_totales</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">dia</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias_sin_pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">calendario</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">dia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">dia</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> dias_totales | dias_sin_pedidos
+--------------+------------------
+          672 |              192
+</code></pre></div>
+
+<p><strong>192 de 672 días sin un solo pedido: el 28,6%.</strong> Eso es lo que preguntaban. Pero <em>"si siguen algún patrón"</em> es la mitad que importa:</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">calendario</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">calendario</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span>
+<span class="p">),</span>
+<span class="n">sin_pedidos</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">dia</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">calendario</span><span class="w"> </span><span class="k">c</span>
+<span class="w">    </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">dia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">dia</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">dia</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">dia</span><span class="p">,</span><span class="w"> </span><span class="s1">'Dy'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia_semana</span><span class="p">,</span>
+<span class="w">       </span><span class="k">extract</span><span class="p">(</span><span class="n">isodow</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dia</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias_sin_pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">sin_pedidos</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> dia_semana | n | dias_sin_pedidos
+------------+---+------------------
+ Sat        | 6 |               96
+ Sun        | 7 |               96
+</code></pre></div>
+
+<p><strong>Los 192 días sin pedidos son 96 sábados y 96 domingos. Y son <em>todos</em> los sábados y <em>todos</em> los domingos del periodo</strong>, porque 672 días son exactamente 96 semanas completas.</p>
+<p>Léelo en las dos direcciones, porque las dos afirmaciones son fuertes:</p>
+<ul>
+<li><strong>No hay un solo día laborable sin pedidos</strong> en 480 días hábiles seguidos. Ni Navidad, ni Año Nuevo, ni festivos.</li>
+<li><strong>No hay un solo pedido en fin de semana</strong>, lo que ya había aparecido en <a class="xref" href="../case-condicionales-en-sql/">case-condicionales-en-sql</a> mirando desde el otro lado.</li>
+</ul>
+<p><strong>La conclusión que hay que entregar no es "hubo 192 días sin actividad".</strong> Es: <em>el patrón es perfecto, y los datos reales nunca son perfectos.</em> Northwind es un dataset generado, con pedidos repartidos de lunes a viernes por un script. Un negocio real tendría fines de semana con algún pedido, y días laborables muertos en agosto y a finales de diciembre.</p>
+<p><strong>Entregar el 28,6% sin esa nota sería el error grave del análisis</strong>: Operaciones montaría un plan para "activar el fin de semana" sobre un artefacto de la generación de datos.</p>
+<p>Y esa es la advertencia general de estos dos años de Northwind: <strong>cuando un resultado sale demasiado limpio, la primera hipótesis no es que el negocio funcione así — es que los datos no son reales.</strong> La forma de comprobarlo es exactamente esta consulta: fabricar el universo completo y ver qué falta.</p>
+<p>Este patrón —generar el calendario, comparar contra lo que existe, buscar los huecos— es la primera casuística del bloque 12: <span class="xref-pend" title="Aún no publicado">fechas-sin-actividad</span>.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">reports_to</span><span class="p">,</span>
+<span class="w">           </span><span class="mi">1</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">::</span><span class="nb">text</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">jefe</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="p">,</span>
+<span class="w">           </span><span class="n">a</span><span class="p">.</span><span class="n">nivel</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">nombre</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">jefe</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span><span class="w"> </span><span class="n">nombre</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> nivel |      nombre      |      jefe
+-------+------------------+-----------------
+     1 | Andrew Fuller    |
+     2 | Janet Leverling  | Andrew Fuller
+     2 | Laura Callahan   | Andrew Fuller
+     2 | Margaret Peacock | Andrew Fuller
+     2 | Nancy Davolio    | Andrew Fuller
+     2 | Steven Buchanan  | Andrew Fuller
+     3 | Anne Dodsworth   | Steven Buchanan
+     3 | Michael Suyama   | Steven Buchanan
+     3 | Robert King      | Steven Buchanan
+</code></pre></div>
+
+<p><strong>El nombre del jefe sale gratis: es <code>a.nombre</code>, el de la fila padre.</strong> No hace falta un <code>JOIN</code> extra contra <code>employees</code> — el padre ya está ahí, es la fila de la iteración anterior. Y <code>NULL::text</code> en el caso base es obligatorio: un <code>NULL</code> pelado no tiene tipo y choca con el <code>varchar</code> del paso recursivo.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">bajo_buchanan</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">salto</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">salto</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">bajo_buchanan</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span><span class="w"> </span><span class="n">salto</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">bajo_buchanan</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">salto</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id |     nombre     | salto
+-------------+----------------+-------
+           6 | Michael Suyama |     1
+           7 | Robert King    |     1
+           9 | Anne Dodsworth |     1
+</code></pre></div>
+
+<p><strong>El caso base tiene que incluir a Buchanan aunque no lo quieras en el resultado</strong>, porque es de donde arranca la recursión. Se excluye después, con <code>WHERE salto &gt; 0</code> en el <code>SELECT</code> final. Ponerlo dentro del CTE no funcionaría: filtrarías el punto de partida y la recursión no encontraría nada.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">jefe</span><span class="p">,</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">salto</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">jefe</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">salto</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="o">||</span><span class="s1">' '</span><span class="o">||</span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">salto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">directos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">salto</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">totales</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">arbol</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">jefe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">totales</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id |      nombre      | directos | totales
+-------------+------------------+----------+---------
+           2 | Andrew Fuller    |        5 |       8
+           5 | Steven Buchanan  |        3 |       3
+           1 | Nancy Davolio    |        0 |       0
+           3 | Janet Leverling  |        0 |       0
+           4 | Margaret Peacock |        0 |       0
+           6 | Michael Suyama   |        0 |       0
+           7 | Robert King      |        0 |       0
+           8 | Laura Callahan   |        0 |       0
+           9 | Anne Dodsworth   |        0 |       0
+</code></pre></div>
+
+<p><strong>Fuller: 5 directos, 8 totales.</strong> Los 3 de diferencia son el equipo de Buchanan, que le reporta indirectamente. Es la distinción que un <code>count(*) ... GROUP BY reports_to</code> no puede dar.</p>
+<p><code>salto</code> hace todo el trabajo, y <code>FILTER</code> (del tema <a class="xref" href="../funciones-de-agregacion/">funciones-de-agregacion</a>) separa las dos cuentas en una sola pasada.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">meses</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">))::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">(</span><span class="n">mes</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'1 month'</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">meses</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">mes</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">))::</span><span class="nb">date</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">meses_totales</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">pedidos</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">meses_sin_pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">min</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">mes</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">mes</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">meses</span><span class="w"> </span><span class="n">m</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="w">           </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">mes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">mes</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> meses_totales | meses_sin_pedidos |  primero   |   ultimo
+---------------+-------------------+------------+------------
+            23 |                 0 | 1996-07-01 | 1998-05-01
+</code></pre></div>
+
+<p><strong>23 meses, ninguno vacío.</strong> El resultado es aburrido y por eso es útil: <strong>haber comprobado que no hay huecos vale tanto como encontrarlos.</strong> Sin el calendario generado no podrías afirmarlo — un <code>GROUP BY mes</code> sobre <code>orders</code> habría devuelto 23 filas y no tendrías forma de saber si faltaba alguna.</p>
+<p>El <code>LEFT JOIN</code> es imprescindible: el calendario manda, <code>orders</code> completa. Al revés perderías justo lo que buscas.</p>
+<p><strong>5.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">bajada</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span>
+<span class="w">  </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">bajada</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">bajada</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Da 100, 90, … 10, 0: once filas. <strong>Si el paso no divide exactamente al rango, <code>WHERE n &gt; 0</code> se pasa de largo.</strong> Con <code>n - 30</code> desde 100 saldría 100, 70, 40, 10, −20: la última fila es negativa, porque la condición se evalúa sobre la fila <em>anterior</em>, que aún cumplía. Si el límite es rígido, la condición va sobre el valor que se va a producir: <code>WHERE n - 30 &gt;= 0</code>.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../cte-with/"><span>Anterior</span><strong>CTE: la cláusula WITH</strong></a><a class="nav-next" href="../lateral/"><span>Siguiente</span><strong>LATERAL</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-el-ejemplo-m-nimo-contar">3. El ejemplo mínimo: contar</a>
+<a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-lo-que-no-necesita-una-recursiva">6. Lo que no necesita una recursiva</a>
+<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
+<a href="#8-ejercicios">8. Ejercicios</a>
+<a href="#9-pregunta-de-negocio">9. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

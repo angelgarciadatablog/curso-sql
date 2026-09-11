@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>LAG, LEAD, FIRST_VALUE y LAST_VALUE · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mirar la fila anterior o siguiente. Variación mes contra mes" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/lag-lead-first-last-value/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="LAG, LEAD, FIRST_VALUE y LAST_VALUE" />
+  <meta property="og:description" content="Mirar la fila anterior o siguiente. Variación mes contra mes" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/lag-lead-first-last-value/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(36 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 36 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details open><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><span class="activo">LAG, LEAD, FIRST_VALUE y LAST_VALUE</span></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 7 · Funciones de ventana</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>LAG, LEAD, FIRST_VALUE y LAST_VALUE</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../ranking-row-number-rank-ntile/">ranking-row-number-rank-ntile</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Cuatro funciones que <strong>traen el valor de otra fila</strong> a la fila actual. No agregan nada: copian.</p>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Trae</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lag(col, n, default)</code></td>
+<td>el valor de <strong>n filas antes</strong> (por defecto 1)</td>
+</tr>
+<tr>
+<td><code>lead(col, n, default)</code></td>
+<td>el valor de <strong>n filas después</strong></td>
+</tr>
+<tr>
+<td><code>first_value(col)</code></td>
+<td>el valor de la <strong>primera fila del marco</strong></td>
+</tr>
+<tr>
+<td><code>last_value(col)</code></td>
+<td>el valor de la <strong>última fila del marco</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Para qué sirven, en una frase: comparar una fila con otra sin hacer un self-join.</strong></p>
+<p>En <a class="xref" href="../cross-join-y-self-join/">cross-join-y-self-join</a> comparábamos una tabla consigo misma para poner dos filas en la misma línea. Con <code>lag</code> eso es una función y no un <code>JOIN</code>: menos código, una sola pasada, y —lo que importa— <strong>imposible equivocarse en la condición de emparejamiento</strong>.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="n">lag</span><span class="p">(</span><span class="n">columna</span><span class="p">)</span><span class="w">                    </span><span class="c1">-- la fila anterior</span>
+<span class="n">lag</span><span class="p">(</span><span class="n">columna</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w">                 </span><span class="c1">-- tres filas antes</span>
+<span class="n">lag</span><span class="p">(</span><span class="n">columna</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">              </span><span class="c1">-- la anterior; si no existe, 0 en vez de NULL</span>
+</code></pre></div>
+
+<p>Reglas:</p>
+<ul>
+<li><strong>Necesitan <code>ORDER BY</code> dentro de <code>OVER</code>.</strong> Sin orden no hay "anterior".</li>
+<li><strong><code>lag</code> y <code>lead</code> ignoran el marco.</strong> <code>ROWS</code>/<code>RANGE</code> no les afecta: siempre miran a la fila n posiciones más allá.</li>
+<li><strong><code>first_value</code> y <code>last_value</code> sí dependen del marco</strong>, y ahí está el error clásico del tema (sección 5).</li>
+<li>El tercer argumento es el <strong>valor por defecto</strong> cuando no hay fila que traer. Sin él sale <code>NULL</code>.</li>
+</ul>
+<h2 id="3-lag-comparar-con-el-periodo-anterior">3. lag: comparar con el periodo anterior</h2>
+<p>El uso número uno en cualquier informe:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">lag</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes_anterior</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">             </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="p">)</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">var_pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">))</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion | mes_anterior | var_pct
+------------+-------------+--------------+---------
+ 1997-01-01 |    61258.07 |              |
+ 1997-02-01 |    38483.64 |     61258.07 |   -37.2
+ 1997-03-01 |    38547.22 |     38483.64 |     0.2
+ 1997-04-01 |    53032.95 |     38547.22 |    37.6
+ 1997-05-01 |    53781.29 |     53032.95 |     1.4
+ 1997-06-01 |    36362.80 |     53781.29 |   -32.4
+ 1997-07-01 |    51020.86 |     36362.80 |    40.3
+ 1997-08-01 |    47287.67 |     51020.86 |    -7.3
+ 1997-09-01 |    55629.24 |     47287.67 |    17.6
+ 1997-10-01 |    66749.23 |     55629.24 |    20.0
+ 1997-11-01 |    43533.81 |     66749.23 |   -34.8
+ 1997-12-01 |    71398.43 |     43533.81 |    64.0
+</code></pre></div>
+
+<p><strong>La cláusula <code>WINDOW w AS (...)</code> evita escribir la misma ventana tres veces.</strong> Con <code>lag</code> es casi obligatoria: la expresión ya es larga sin repetirla.</p>
+<p><strong>Y ahora lee la columna <code>var_pct</code>, porque es una lección de análisis más que de SQL.</strong> Salta entre −37,2% y +64,0%. Seis meses en negativo, seis en positivo. <strong>Si esta tabla llega a una reunión mensual, cada mes hay una crisis o una celebración, y ninguna de las dos es real:</strong> en <a class="xref" href="../el-marco-rows-vs-range/">el-marco-rows-vs-range</a> vimos que la media móvil de esta misma serie sube casi sin interrupción.</p>
+<p><strong>La variación mes contra mes es la métrica más pedida y la más ruidosa que existe.</strong> Cuando la entregues, va con la media móvil al lado o no va.</p>
+<p><strong>La primera fila es <code>NULL</code> y debe serlo.</strong> No hay diciembre de 1996 dentro del filtro. Rellenarlo con 0 diría "no creció", y lo cierto es que no se sabe — la distinción de <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>.</p>
+<h3>3.1 El desplazamiento: comparar contra el año anterior</h3>
+<p><code>lag(col, 12)</code> sobre una serie mensual es el año contra año:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">lag</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mismo_mes_anio_anterior</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="p">)</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">var_yoy</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">))</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">OFFSET</span><span class="w"> </span><span class="mi">12</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | pedidos | mismo_mes_anio_anterior | var_yoy
+------------+---------+-------------------------+---------
+ 1997-07-01 |      33 |                      22 |    50.0
+ 1997-08-01 |      33 |                      25 |    32.0
+ 1997-09-01 |      37 |                      23 |    60.9
+ 1997-10-01 |      38 |                      26 |    46.2
+ 1997-11-01 |      34 |                      25 |    36.0
+ 1997-12-01 |      48 |                      31 |    54.8
+ 1998-01-01 |      55 |                      33 |    66.7
+ 1998-02-01 |      54 |                      29 |    86.2
+ 1998-03-01 |      73 |                      30 |   143.3
+ 1998-04-01 |      74 |                      31 |   138.7
+ 1998-05-01 |      14 |                      32 |   -56.3
+</code></pre></div>
+
+<p><strong>Esta es la tabla que había que enseñar desde el principio.</strong> Todos los meses crecen contra su equivalente del año anterior, del +32% al +143%, y la aceleración es continua. <strong>El año contra año elimina la estacionalidad</strong>, que es exactamente el ruido que hacía ilegible la tabla anterior.</p>
+<p><strong>Con una advertencia que ya conoces:</strong> el −56,3% de mayo de 1998 son seis días contra un mes completo. <strong>Aparece por tercera vez en este material y sigue siendo la misma trampa.</strong></p>
+<p><strong><code>lag(col, 12)</code> cuenta doce filas, no doce meses.</strong> Aquí coinciden porque <code>orders</code> tiene los 23 meses seguidos, sin huecos — lo comprobamos en <a class="xref" href="../cte-recursivas/">cte-recursivas</a>. Si faltara un mes, <code>lag(12)</code> compararía con el mes equivocado <strong>sin dar ningún error</strong>. Con series que pueden tener huecos, primero se genera el calendario completo.</p>
+<h3>3.2 El hueco entre dos filas</h3>
+<p><code>lag</code> sobre fechas da la distancia entre eventos:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span>
+<span class="w">       </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anterior</span><span class="p">,</span>
+<span class="w">       </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'QUICK'</span>
+<span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | order_id | order_date |  anterior  | dias
+-------------+----------+------------+------------+------
+ QUICK       |    10273 | 1996-08-05 |            |
+ QUICK       |    10285 | 1996-08-20 | 1996-08-05 |   15
+ QUICK       |    10286 | 1996-08-21 | 1996-08-20 |    1
+ QUICK       |    10313 | 1996-09-24 | 1996-08-21 |   34
+ QUICK       |    10345 | 1996-11-04 | 1996-09-24 |   41
+ QUICK       |    10361 | 1996-11-22 | 1996-11-04 |   18
+ QUICK       |    10418 | 1997-01-17 | 1996-11-22 |   56
+ QUICK       |    10451 | 1997-02-19 | 1997-01-17 |   33
+</code></pre></div>
+
+<p><strong>El <code>PARTITION BY customer_id</code> es lo que impide que el primer pedido de un cliente se compare con el último del anterior.</strong> Sin él, la primera fila de cada cliente traería un valor de otro cliente — y no daría error.</p>
+<p><strong>Este patrón es la base de las casuísticas de islas y brechas</strong> (<span class="xref-pend" title="Aún no publicado">islas-y-brechas</span>): una vez tienes la distancia entre eventos consecutivos, detectar rachas y huecos es filtrar por esa distancia.</p>
+<h2 id="4-lead-mirar-hacia-adelante">4. lead: mirar hacia adelante</h2>
+<p>Lo mismo en la otra dirección. Aquí, el salto de precio hasta el siguiente producto de la categoría:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">lead</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">siguiente</span><span class="p">,</span>
+<span class="w">       </span><span class="n">lead</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w">   </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_siguiente</span><span class="p">,</span>
+<span class="w">       </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lead</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">salto</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Meat/Poultry'</span>
+<span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price |    siguiente    | precio_siguiente | salto
+-------------------------+------------+-----------------+------------------+-------
+ Thüringer Rostbratwurst |     123.79 | Mishi Kobe Niku |            97.00 | 26.79
+ Mishi Kobe Niku         |      97.00 | Alice Mutton    |            39.00 | 58.00
+ Alice Mutton            |      39.00 | Perth Pasties   |            32.80 |  6.20
+ Perth Pasties           |      32.80 | Pâté chinois    |            24.00 |  8.80
+ Pâté chinois            |      24.00 | Tourtière       |             7.45 | 16.55
+ Tourtière               |       7.45 |                 |                  |
+</code></pre></div>
+
+<p><strong>El salto más grande no está arriba: está entre el segundo y el tercero.</strong> De 97,00 a 39,00 hay 58 euros de hueco. Meat/Poultry tiene <strong>dos productos premium y cuatro normales</strong>, y la frontera está ahí, no donde la pondría una media.</p>
+<p><strong>Detectar huecos en una serie ordenada es un uso de <code>lead</code> que se subestima.</strong> Sirve para encontrar tramos vacíos de precio, cortes naturales en una distribución, o números de factura que faltan.</p>
+<p><strong>La última fila es <code>NULL</code></strong>, porque no hay siguiente. <code>lead(col, 1, 0)</code> pondría un 0 — pero cuidado: aquí un 0 diría "el siguiente producto cuesta cero", que es falso. <strong>El valor por defecto solo se pone cuando tiene sentido de negocio.</strong></p>
+<h2 id="5-first-value-y-last-value-la-trampa-del-marco">5. first_value y last_value: la trampa del marco</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">first_value</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mas_caro</span><span class="p">,</span>
+<span class="w">       </span><span class="n">last_value</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">)</span><span class="w">  </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo_visto</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span>
+<span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>          product_name           | unit_price |       mas_caro        |          ultimo_visto
+---------------------------------+------------+-----------------------+---------------------------------
+ Manjimup Dried Apples           |      53.00 | Manjimup Dried Apples | Manjimup Dried Apples
+ Rössle Sauerkraut               |      45.60 | Manjimup Dried Apples | Rössle Sauerkraut
+ Uncle Bob's Organic Dried Pears |      30.00 | Manjimup Dried Apples | Uncle Bob's Organic Dried Pears
+ Tofu                            |      23.25 | Manjimup Dried Apples | Tofu
+ Longlife Tofu                   |      10.00 | Manjimup Dried Apples | Longlife Tofu
+</code></pre></div>
+
+<p><strong><code>first_value</code> funciona. <code>last_value</code> devuelve la propia fila, que es inútil.</strong></p>
+<p><strong>No es un fallo: es el marco por defecto.</strong> Con <code>ORDER BY</code> y sin marco explícito, la ventana llega <strong>hasta la fila actual</strong> — la regla de <a class="xref" href="../el-marco-rows-vs-range/">el-marco-rows-vs-range</a>. Así que:</p>
+<ul>
+<li>La <strong>primera</strong> fila del marco siempre es la primera de la partición → <code>first_value</code> acierta.</li>
+<li>La <strong>última</strong> fila del marco es siempre la fila actual → <code>last_value</code> se devuelve a sí misma.</li>
+</ul>
+<p><strong>El arreglo es extender el marco hasta el final:</strong></p>
+<div class="hl"><pre><span></span><code><span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span>
+<span class="w">             </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>          product_name           | unit_price |       mas_caro        |  mas_barato
+---------------------------------+------------+-----------------------+---------------
+ Manjimup Dried Apples           |      53.00 | Manjimup Dried Apples | Longlife Tofu
+ Rössle Sauerkraut               |      45.60 | Manjimup Dried Apples | Longlife Tofu
+ Uncle Bob's Organic Dried Pears |      30.00 | Manjimup Dried Apples | Longlife Tofu
+ Tofu                            |      23.25 | Manjimup Dried Apples | Longlife Tofu
+ Longlife Tofu                   |      10.00 | Manjimup Dried Apples | Longlife Tofu
+</code></pre></div>
+
+<p><strong>Ahora sí.</strong> Y hay una alternativa más limpia que recordar el marco: <strong>invertir el orden y usar <code>first_value</code>.</strong></p>
+<div class="hl"><pre><span></span><code><span class="n">first_value</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">ASC</span><span class="p">)</span><span class="w">   </span><span class="c1">-- el más barato</span>
+</code></pre></div>
+
+<p><strong><code>last_value</code> casi nunca es la mejor opción.</strong> Si te sorprendes escribiéndola, comprueba si <code>first_value</code> con el orden al revés dice lo mismo — suele decirlo, y sin depender de una cláusula que es fácil olvidar.</p>
+<h2 id="6-errores-comunes">6. Errores comunes</h2>
+<ol>
+<li>
+<p><strong><code>last_value</code> sin marco explícito.</strong> La sección 5. Devuelve la fila actual y <strong>no da ningún error</strong>: el informe sale con una columna que parece un dato y es un espejo.</p>
+</li>
+<li>
+<p><strong>Olvidar <code>PARTITION BY</code> al comparar dentro de grupos.</strong> El primer pedido de un cliente traería el último del cliente anterior. Silencioso y grave.</p>
+</li>
+<li>
+<p><strong>Confiar en <code>lag(col, 12)</code> sobre una serie con huecos.</strong> Cuenta filas, no meses. Si falta un mes, compara contra el equivocado.</p>
+</li>
+<li>
+<p><strong>Rellenar el <code>NULL</code> de la primera fila con 0 por costumbre.</strong> Un 0 en una columna de variación se lee como "sin cambio". Deja el <code>NULL</code> salvo que el 0 sea cierto.</p>
+</li>
+<li>
+<p><strong>Dividir entre el <code>lag</code> sin protegerse del cero.</strong>
+   <code>ERROR:  division by zero</code>
+   Si un periodo puede valer 0, la variación porcentual no existe. <code>nullif(lag(...), 0)</code> convierte el error en <code>NULL</code>, que es la respuesta honesta.</p>
+</li>
+<li>
+<p><strong>Poner <code>lag</code> en el <code>WHERE</code>.</strong> Como toda ventana: no se puede. CTE y filtro fuera.</p>
+</li>
+<li>
+<p><strong>Usar <code>lag</code> cuando lo que quieres es el acumulado.</strong> <code>lag</code> trae <strong>una</strong> fila anterior; para todas las anteriores es <code>sum() OVER (ORDER BY ...)</code>.</p>
+</li>
+</ol>
+<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LAG</code> / <code>LEAD</code></td>
+<td>igual</td>
+<td>igual (2012+)</td>
+</tr>
+<tr>
+<td>Tercer argumento (valor por defecto)</td>
+<td>sí</td>
+<td>sí</td>
+</tr>
+<tr>
+<td><code>FIRST_VALUE</code> / <code>LAST_VALUE</code></td>
+<td>igual, misma trampa del marco</td>
+<td><strong>igual, misma trampa</strong></td>
+</tr>
+<tr>
+<td><code>IGNORE NULLS</code></td>
+<td><strong>no</strong> (hasta PG 17)</td>
+<td>sí (2022+)</td>
+</tr>
+<tr>
+<td>Cláusula <code>WINDOW</code> con nombre</td>
+<td>sí</td>
+<td>2022+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Portan sin cambios, y la trampa de <code>last_value</code> es idéntica en los dos motores</strong> — no es una peculiaridad de PostgreSQL, es lo que dice el estándar.</p>
+<p><strong>La diferencia que puede morder es <code>IGNORE NULLS</code>.</strong> Sirve para arrastrar el último valor no nulo hacia abajo, que es el patrón típico de rellenar huecos en una serie. PostgreSQL 17 no lo tiene; se resuelve con un truco de dos pasos usando <code>count(col) OVER (...)</code> para agrupar los tramos.</p>
+<h2 id="8-ejercicios">8. Ejercicios</h2>
+<ol>
+<li>La variación mensual del <strong>número de pedidos</strong>, con la columna del mes anterior al lado.</li>
+<li>Los días entre pedidos consecutivos de cada cliente. Después, el mayor hueco de cada uno y su hueco medio.</li>
+<li>Año contra año en pedidos, con <code>lag(..., 12)</code>.</li>
+<li>Para cada producto de <code>Meat/Poultry</code>, el siguiente más barato de su categoría y el salto de precio.</li>
+<li>Esta consulta devuelve una columna inútil. Arréglala de dos formas distintas:
+   <code>sql
+   SELECT product_name, last_value(product_name) OVER (ORDER BY unit_price DESC)
+   FROM products WHERE category_id = 7;</code></li>
+</ol>
+<h2 id="9-pregunta-de-negocio">9. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Comercial quiere anticiparse: no saber quién dejó de comprar, sino quién </em><em>está dejando de comprar</em><em>. Detectar clientes cuyo silencio actual se sale de lo normal para ellos.</em></p>
+</blockquote>
+<p>"Lo normal para ellos" es la clave. Un cliente que compra cada dos meses y lleva tres sin comprar es más preocupante que uno que compra cada año y lleva seis meses.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">huecos</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span><span class="p">,</span>
+<span class="w">           </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span>
+<span class="w">               </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="p">),</span>
+<span class="n">ritmo</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">           </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">dias</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">cadencia</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="n">dias</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">max</span><span class="p">(</span><span class="n">dia</span><span class="p">)</span><span class="w">             </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">huecos</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span>
+<span class="w">    </span><span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="n">dias</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">4</span><span class="w">          </span><span class="c1">-- al menos 5 pedidos: sin historial no hay "normal"</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">cadencia</span><span class="p">,</span><span class="w"> </span><span class="n">ultimo</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-06'</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ultimo</span><span class="p">)</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">dias_desde_ultimo</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">((</span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-06'</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ultimo</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cadencia</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">veces_su_cadencia</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">ritmo</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">veces_su_cadencia</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | pedidos | cadencia |   ultimo   | dias_desde_ultimo | veces_su_cadencia
+-------------+---------+----------+------------+-------------------+-------------------
+ MEREP       |      13 |     31.5 | 1997-10-30 |               188 |               6.0
+ HUNGC       |       5 |     69.0 | 1997-09-08 |               240 |               3.5
+ FAMIA       |       7 |     59.8 | 1997-10-31 |               187 |               3.1
+ BLONP       |      11 |     53.6 | 1998-01-12 |               114 |               2.1
+ BERGS       |      18 |     33.5 | 1998-03-04 |                63 |               1.9
+ SEVES       |       9 |     55.0 | 1998-02-04 |                91 |               1.7
+ VICTE       |      10 |     62.7 | 1998-01-23 |               103 |               1.6
+ FOLIG       |       5 |     87.0 | 1997-12-22 |               135 |               1.6
+ ANTON       |       7 |     71.2 | 1998-01-28 |                98 |               1.4
+ VINET       |       5 |    124.0 | 1997-11-12 |               175 |               1.4
+</code></pre></div>
+
+<p><strong>La columna que responde a la pregunta es la última, no la penúltima.</strong></p>
+<ol>
+<li><strong><code>MEREP</code> es el caso urgente: 13 pedidos, uno cada 31,5 días de media, y lleva 188 sin comprar — seis veces su propio ritmo.</strong> Un cliente que compraba todos los meses lleva medio año callado. Eso no es estacionalidad, es una relación que se rompió.</li>
+<li><strong>Compáralo con <code>HUNGC</code>, que lleva más tiempo fuera —240 días— y preocupa menos.</strong> Su cadencia era de 69 días, así que lleva 3,5 veces su ritmo. Y con 5 pedidos, su "normal" está peor medido.</li>
+<li><strong><code>BERGS</code> es el hallazgo que una lista por antigüedad entierra.</strong> Solo lleva 63 días sin comprar: en una lista ordenada por fecha ocupa el <strong>puesto 20 de 89</strong>, a media tabla, donde nadie mira. Aquí es el <strong>quinto</strong>. Y merece serlo: compraba cada 33,5 días con 18 pedidos —el cliente más regular de toda la lista— y ya lleva casi el doble de su ritmo. <strong>Es la señal más temprana de la tabla, y la única que todavía se puede atender antes de perderlo.</strong></li>
+</ol>
+<p><strong>Y el contraste con la ficha de <a class="xref" href="../lateral/">lateral</a> es la lección del tema.</strong> Allí, ordenando por días desde la última compra, salían primero <code>PARIS</code> y <code>FISSA</code>, que nunca compraron, y luego <code>CENTC</code> con 657 días. <strong>Ninguno de los tres es un cliente que se está enfriando</strong> — dos no son clientes y el tercero nunca lo fue. Ordenar por antigüedad absoluta responde a <em>"quién lleva más tiempo sin comprar"</em>, que no es la pregunta.</p>
+<p><strong>Normalizar por la cadencia propia de cada cliente convierte una lista de fechas en una lista de acciones.</strong> Y todo el cálculo sale de un <code>lag</code> sobre <code>order_date</code>.</p>
+<p><strong>Dos honestidades que van con la entrega:</strong></p>
+<ul>
+<li><strong>El <code>HAVING count(dias) &gt;= 4</code> deja fuera a los clientes con menos de 5 pedidos</strong>, y eso incluye a algunos que sí se están perdiendo. Es deliberado: con dos o tres pedidos, la "cadencia media" es un número sin significado. Esos clientes necesitan otra lista, no esta.</li>
+<li><strong>La media aritmética de los huecos supone un ritmo estable.</strong> Un cliente que compraba cada 15 días y pasó a cada 90 tiene una media que no describe ninguna de las dos fases. Detectar ese cambio de régimen es un paso más, y es exactamente lo que hace <span class="xref-pend" title="Aún no publicado">periodo-contra-periodo</span>.</li>
+</ul></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">lag</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes_anterior</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">diferencia</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span>
+<span class="n">WINDOW</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong><code>lag(count(*))</code></strong> — la ventana opera sobre el resultado del <code>GROUP BY</code>, como en todo el bloque.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">           </span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span>
+<span class="w">               </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">dias</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mayor_hueco</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">dias</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hueco_medio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">dias</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">intervalos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">dias</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">mayor_hueco</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | mayor_hueco | hueco_medio | intervalos
+-------------+-------------+-------------+------------
+ ROMEY       |         532 |       150.8 |          4
+ GROSR       |         506 |       506.0 |          1
+ BOLID       |         445 |       265.0 |          2
+ VINET       |         435 |       124.0 |          4
+ THEBI       |         392 |       186.0 |          3
+ PRINI       |         387 |       133.0 |          4
+</code></pre></div>
+
+<p><strong><code>count(dias)</code> es el número de intervalos, uno menos que el de pedidos</strong>, porque el primer pedido no tiene anterior. El <code>WHERE dias IS NOT NULL</code> lo dejaría fuera igualmente, pero conviene tenerlo claro al interpretar la tabla.</p>
+<p><strong><code>GROSR</code> tiene un solo intervalo de 506 días</strong>, así que su "hueco medio" es ese mismo número: con dos pedidos no hay media que valga. <strong>Cualquier estadística sobre un cliente con dos pedidos es el dato, no una tendencia</strong> — de ahí el <code>HAVING</code> de la pregunta de negocio.</p>
+<p><strong>3.</strong> En la sección 3. El resultado se lee al revés que la variación mensual: <strong>once meses seguidos de crecimiento contra el año anterior</strong>, del +32,0% al +143,3%, y solo el mes incompleto en negativo.</p>
+<p><strong>4.</strong> En la sección 4. <strong>El salto mayor —58,00 euros— está entre el segundo y el tercer producto</strong>, no entre el primero y el segundo. Es donde se parte la categoría en gama alta y gama normal.</p>
+<p><strong>5.</strong> Las dos formas:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- (a) extender el marco</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">last_value</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span>
+<span class="w">                                      </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span>
+<span class="w">                                               </span><span class="k">AND</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mas_barato</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span>
+
+<span class="c1">-- (b) invertir el orden y usar first_value</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">first_value</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">ASC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mas_barato</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Las dos dan <code>Longlife Tofu</code> en las cinco filas. La (b) es preferible</strong>: no depende de recordar una cláusula de marco, y si alguien la lee dentro de seis meses entiende qué hace sin pensar.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../ranking-row-number-rank-ntile/"><span>Anterior</span><strong>Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</strong></a><a class="nav-next" href="../distribucion-y-percentiles/"><span>Siguiente</span><strong>Distribución y percentiles</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-lag-comparar-con-el-periodo-anterior">3. lag: comparar con el periodo anterior</a>
+<a href="#4-lead-mirar-hacia-adelante">4. lead: mirar hacia adelante</a>
+<a href="#5-first-value-y-last-value-la-trampa-del-marco">5. first_value y last_value: la trampa del marco</a>
+<a href="#6-errores-comunes">6. Errores comunes</a>
+<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
+<a href="#8-ejercicios">8. Ejercicios</a>
+<a href="#9-pregunta-de-negocio">9. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

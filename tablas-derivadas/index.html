@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Tablas derivadas · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Una consulta como si fuera una tabla" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/tablas-derivadas/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Tablas derivadas" />
+  <meta property="og:description" content="Una consulta como si fuera una tabla" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/tablas-derivadas/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(28 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 28 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details open><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><span class="activo">Tablas derivadas</span></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 6 · Consultas dentro de consultas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Tablas derivadas</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../subconsultas-correlacionadas/">subconsultas-correlacionadas</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Una <strong>tabla derivada</strong> es una subconsulta puesta <strong>en el <code>FROM</code></strong>. El resultado de un <code>SELECT</code> se comporta como si fuera una tabla más.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="w">     </span><span class="err">←</span><span class="w"> </span><span class="n">esto</span><span class="w"> </span><span class="n">es</span><span class="w"> </span><span class="n">una</span><span class="w"> </span><span class="n">tabla</span><span class="w"> </span><span class="n">derivada</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">columna</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">...</span>
+</code></pre></div>
+
+<p>Es la tercera forma de subconsulta del bloque:</p>
+<table>
+<thead>
+<tr>
+<th>Dónde va</th>
+<th>Qué devuelve</th>
+<th>Se llama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SELECT</code> / <code>WHERE</code></td>
+<td>Un valor</td>
+<td>Escalar</td>
+</tr>
+<tr>
+<td><code>WHERE ... IN</code></td>
+<td>Una columna</td>
+<td>Multivalor</td>
+</tr>
+<tr>
+<td><strong><code>FROM</code></strong></td>
+<td><strong>Una tabla</strong></td>
+<td><strong>Derivada</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Y resuelve un problema muy concreto: <strong>hay cosas que SQL no deja hacer en un solo paso.</strong></p>
+<ul>
+<li>Filtrar por un alias del <code>SELECT</code> → el <code>WHERE</code> no lo ve (<a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>).</li>
+<li>Agregar sobre un agregado → <code>avg(count(*))</code> da error.</li>
+<li>Filtrar por una función de ventana → el <code>WHERE</code> se ejecuta antes que las ventanas.</li>
+</ul>
+<p><strong>Todas se resuelven igual: haz el primer paso en una tabla derivada y trabaja sobre su resultado.</strong></p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">b</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">algo</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">otra_cosa</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li><strong>El alias (<code>AS t</code>) es obligatorio en el estándar SQL.</strong> PostgreSQL 16+ lo permite omitir, pero escríbelo siempre: sin él la consulta no es portable y las columnas no se pueden prefijar.</li>
+<li>Las columnas de dentro <strong>tienen que tener nombre</strong> para poder usarlas fuera. Un <code>count(*)</code> sin alias se llama <code>count</code>, y eso funciona pero es feo.</li>
+<li>Se pueden anidar y unir con <code>JOIN</code> como cualquier tabla.</li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Filtrar por un alias que el <code>WHERE</code> no ve:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">             </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                 </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span>
+<span class="w">             </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_medio</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">productos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">12</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">precio_medio</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_id | productos | precio_medio
+-------------+-----------+--------------
+           1 |        12 |        37.98
+           3 |        13 |        25.16
+           2 |        12 |        22.85
+           8 |        12 |        20.68
+</code></pre></div>
+
+<p>Aquí el <code>HAVING count(*) &gt;= 12</code> habría hecho lo mismo. <strong>La tabla derivada gana cuando el filtro es sobre algo que ni <code>WHERE</code> ni <code>HAVING</code> pueden ver</strong> — un alias calculado, una ventana, una expresión compuesta.</p>
+<h3>3.1 La agregación de dos niveles</h3>
+<p>Esto <strong>no se puede escribir directamente</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="p">;</span><span class="w">   </span><span class="c1">-- no es lo que parece</span>
+</code></pre></div>
+
+<p>Y esto sí:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">pedidos</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">pedidos</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">maximo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> media | maximo
+-------+--------
+  9.33 |     31
+</code></pre></div>
+
+<p><strong>"La media de pedidos por cliente" es una media de conteos</strong>: primero se cuenta por cliente, después se promedia. Son dos agregaciones a dos granularidades distintas, y la tabla derivada es lo que las separa.</p>
+<p><strong>El ticket medio, bien calculado:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">facturacion</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">max</span><span class="p">(</span><span class="n">facturacion</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mayor</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">min</span><span class="p">(</span><span class="n">facturacion</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">menor</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ticket_medio |  mayor   | menor
+--------------+----------+-------
+      1525.05 | 16387.50 | 12.50
+</code></pre></div>
+
+<p><strong>1.525,05</strong> — el mismo número del tema <a class="xref" href="../funciones-de-agregacion/">funciones-de-agregacion</a>, pero ahora <strong>con su dispersión al lado</strong>: pedidos de 12,50 y de 16.387,50. Un rango de 1.300 a 1. <strong>Esa media no describe a ningún pedido real</strong>, y solo se ve porque la tabla derivada dejó los totales por pedido a mano.</p>
+<p><strong>Dos niveles con desglose:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">pedidos_mes</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_mes_medio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">             </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">             </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_mes</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">anio</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">anio</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | pedidos_mes_medio
+------+-------------------
+ 1996 |              25.3
+ 1997 |              34.0
+ 1998 |              54.0
+</code></pre></div>
+
+<p><strong>El negocio se duplicó en dos años</strong>, y esta es la forma honesta de verlo: 1996 y 1998 están incompletos, así que comparar <strong>totales anuales</strong> engaña (152 / 408 / 270) y comparar <strong>medias mensuales</strong> no. Es el mismo aviso del gráfico que se desploma en el último periodo.</p>
+<h3>3.2 Filtrar por una función de ventana</h3>
+<p>Las ventanas se calculan <strong>después</strong> del <code>WHERE</code>, así que no se pueden filtrar donde se calculan. La tabla derivada es la salida:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">             </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">             </span><span class="n">rank</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">puesto</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">puesto</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  pais   | pedidos
+---------+---------
+ Germany |     122
+ USA     |     122
+ Brazil  |      83
+</code></pre></div>
+
+<p><strong>Tres filas para "el top 3", y Alemania y EE. UU. empatan a 122.</strong> <code>rank()</code> da el mismo puesto a los empatados, así que aquí el corte es honesto. Con <code>LIMIT 3</code> habría salido uno de los dos arbitrariamente. Las ventanas están en el bloque 7 (<a class="xref" href="../ranking-row-number-rank-ntile/">ranking-row-number-rank-ntile</a>); este patrón —<strong>ventana dentro, filtro fuera</strong>— es el que más se repite de todo SQL analítico.</p>
+<h3>3.3 Unir dos agregados</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">b</span>
+<span class="w">  </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+    15
+</code></pre></div>
+
+<p><strong>15 clientes cumplen las dos condiciones.</strong> Es el patrón de <a class="xref" href="../joins-multiples-y-granularidad/">joins-multiples-y-granularidad</a>: <strong>agregar por separado y unir los agregados.</strong> Aquí las dos condiciones cabrían en un solo <code>HAVING</code>, pero en cuanto vengan de tablas distintas esta es la única forma.</p>
+<h2 id="4-el-problema-se-leen-del-rev-s">4. El problema: se leen del revés</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">pedidos</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="w">            </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t1</span>
+<span class="w">      </span><span class="k">WHERE</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">pedidos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t2</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Funciona. <strong>Y hay que leerla de dentro hacia fuera</strong>, mientras que el ojo va de arriba abajo. Con dos niveles ya cuesta; con cuatro es ilegible.</p>
+<p>Esa es la única razón por la que existe el tema siguiente: <strong>un CTE es una tabla derivada con nombre, escrita en el orden en que se piensa</strong> (<a class="xref" href="../cte-with/">cte-with</a>).</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Lo mismo, legible</span>
+<span class="k">WITH</span><span class="w"> </span><span class="n">por_pais</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">por_pais</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Cuándo sigue mereciendo la pena una tabla derivada:</strong> cuando es corta, se usa una sola vez y está dentro de un <code>FROM</code> que ya se lee bien. Para todo lo demás, CTE.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong>Olvidar el alias.</strong> PostgreSQL 16+ lo perdona; el estándar y SQL Server no. Escríbelo.</li>
+<li><strong>Columnas sin nombre dentro.</strong> No se pueden referenciar bien desde fuera.</li>
+<li><strong>Anidar tres o más niveles.</strong> Legal e ilegible. Pasa a CTE.</li>
+<li><strong>Repetir la misma tabla derivada dos veces</strong> en la misma consulta. Se ejecuta dos veces y hay que mantenerla en dos sitios. Es la señal exacta de que quieres un CTE.</li>
+<li><strong>Usar una tabla derivada donde bastaba <code>HAVING</code>.</strong> Si el filtro es sobre una agregación del mismo nivel, <code>HAVING</code> es más corto.</li>
+<li><strong>Filtrar dentro cuando podías filtrar fuera, o al revés.</strong> Filtra <strong>lo antes posible</strong>: reducir filas dentro de la derivada es lo que abarata todo lo de fuera.</li>
+<li><strong>Creer que una tabla derivada "materializa" el resultado.</strong> No es una tabla temporal: PostgreSQL suele fusionarla con la consulta externa. No hay coste extra por usarla, ni ahorro por reutilizarla.</li>
+</ol>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tabla derivada en <code>FROM</code></td>
+<td>✅</td>
+<td>✅ <strong>Idéntica</strong></td>
+</tr>
+<tr>
+<td>Alias obligatorio</td>
+<td>❌ Opcional desde la 16</td>
+<td>✅ <strong>Obligatorio</strong></td>
+</tr>
+<tr>
+<td>Anidar</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Correlacionar con la consulta externa</td>
+<td>Solo con <code>LATERAL</code></td>
+<td>Solo con <code>APPLY</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>La única diferencia práctica es el alias</strong>, y como SQL Server lo exige, escribirlo siempre hace el código portable sin coste.</p>
+<p>El punto importante: <strong>una tabla derivada normal no puede ver las columnas de la consulta externa.</strong> Esto falla en los dos motores:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">media</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="p">,</span>
+<span class="w">     </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">                                                                        </span><span class="err">↑</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">no</span><span class="w"> </span><span class="n">existe</span><span class="w"> </span><span class="n">aquí</span>
+</code></pre></div>
+
+<p>Para eso está <code>LATERAL</code> (o <code>APPLY</code>), y es el tema <a class="xref" href="../lateral/">lateral</a>.</p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>La media, el máximo y el mínimo de productos por categoría.</li>
+<li>Los clientes cuyo ticket medio supera los 2.000, con su número de pedidos.</li>
+<li>El número medio de líneas por pedido.</li>
+<li>Los tres empleados con más facturación, usando <code>rank()</code> dentro de una tabla derivada.</li>
+<li>Explica por qué esto da error y arréglalo:
+   <code>sql
+   SELECT category_id, count(*) AS productos
+   FROM products
+   WHERE productos &gt; 10
+   GROUP BY category_id;</code></li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere saber si el negocio depende demasiado de unos pocos clientes: qué porcentaje de la facturación total aportan los 10 mayores.</em></p>
+</blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                   </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes_top</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">facturacion</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion_top10</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">((</span><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion_total</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">facturacion</span><span class="p">)</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">             </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">      </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">      </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span>
+<span class="w">      </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> clientes_top | facturacion_top10 | facturacion_total | pct
+--------------+-------------------+-------------------+------
+           10 |         570145.05 |        1265793.04 | 45.0
+</code></pre></div>
+
+<p><strong>Los 10 mayores clientes de 89 aportan el 45% de la facturación.</strong></p>
+<p>Tres cosas del diseño:</p>
+<ol>
+<li><strong>El <code>ORDER BY ... LIMIT 10</code> va dentro de la tabla derivada.</strong> Fuera no serviría: <code>LIMIT</code> es el último paso y recortaría el resultado final, que es una sola fila. <strong>Ordenar y cortar dentro, agregar fuera</strong> es el patrón.</li>
+<li><strong>El total va como subconsulta escalar, no como otra derivada.</strong> Es un único número que no depende de nada, así que la forma más simple es la del tema 26.</li>
+<li><strong>Comprobación obligatoria:</strong> <code>570.145,05 / 1.265.793,04 = 45,0%</code>, y el total coincide con el del tema <a class="xref" href="../funciones-de-agregacion/">funciones-de-agregacion</a>. <strong>Si el denominador no cuadra con la facturación conocida de la empresa, el porcentaje no vale nada</strong> por muy bien calculado que esté el numerador.</li>
+</ol>
+<p><strong>Y lo que hay que decir al entregar.</strong> El 11% de los clientes aporta el 45% del negocio: está en la línea de lo que se ve en cualquier cartera, algo por debajo del 20/80 clásico.</p>
+<p>Pero la pregunta era sobre <strong>riesgo</strong>, y el riesgo no está en la suma de los diez — está en el máximo individual:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | pct
+-------------+------
+ QUICK       | 8.71
+ ERNSH       | 8.29
+ SAVEA       | 8.24
+</code></pre></div>
+
+<p><strong>Tres clientes rondan el 8,5% cada uno: entre los tres, la cuarta parte del negocio.</strong> Perder a <code>QUICK</code> cuesta casi el 9% de la facturación anual. <em>Ese</em> es el número que contesta a "¿dependemos demasiado?", y no estaba en lo que pidieron.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">productos</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">productos</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">maximo</span><span class="p">,</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">productos</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">minimo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> media | maximo | minimo
+-------+--------+--------
+  9.63 |     13 |      5
+</code></pre></div>
+
+<p><strong>Media de conteos otra vez.</strong> Y 9,63 × 8 = 77. ✓ Comprobar que el producto cuadra con el total es la verificación de una línea.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">ticket_medio</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">             </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">             </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">               </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">      </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">ticket_medio</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2000</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">ticket_medio</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>12 clientes.</strong> El <code>count(DISTINCT o.order_id)</code> sigue siendo obligatorio por el fan-out con <code>order_details</code>.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">lineas</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas_por_pedido</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> lineas_por_pedido
+-------------------
+              2.60
+</code></pre></div>
+
+<p><strong>2,60</strong> — el multiplicador exacto del fan-out del tema 25. Ahí lo estimé; aquí está calculado.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">puesto</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">             </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">             </span><span class="n">rank</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">puesto</span>
+<span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">      </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">      </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">puesto</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">puesto</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | facturacion | puesto
+-------------+-------------+--------
+           4 |   232890.85 |      1
+           3 |   202812.84 |      2
+           1 |   192107.60 |      3
+</code></pre></div>
+
+<p><strong>Una ventana sobre una agregación</strong>: <code>rank() OVER (ORDER BY sum(...))</code> es legal porque las ventanas se calculan <strong>después</strong> del <code>GROUP BY</code>. Lo que no se puede es filtrarla ahí — por eso la tabla derivada.</p>
+<p><strong>5.</strong> Falla porque <code>productos</code> es un <strong>alias del <code>SELECT</code></strong> y el <code>WHERE</code> se ejecuta antes (<a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>). Además es una agregación, y las agregaciones no van en el <code>WHERE</code>.</p>
+<p>Dos arreglos:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- A: HAVING (más corto)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="c1">-- B: tabla derivada (permite usar el alias)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">productos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Los dos dan <strong>4 categorías</strong>. <strong>A es mejor aquí</strong>: <code>HAVING</code> existe justo para esto. <strong>B es la única opción</strong> cuando el filtro es sobre algo que <code>HAVING</code> tampoco ve, como una función de ventana.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../subconsultas-correlacionadas/"><span>Anterior</span><strong>Subconsultas correlacionadas</strong></a><a class="nav-next" href="../cte-with/"><span>Siguiente</span><strong>CTE: la cláusula WITH</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-el-problema-se-leen-del-rev-s">4. El problema: se leen del revés</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

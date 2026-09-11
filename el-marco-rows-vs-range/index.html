@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>El marco: ROWS contra RANGE · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="El punto que más confunde. Acumulados y medias móviles" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/el-marco-rows-vs-range/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="El marco: ROWS contra RANGE" />
+  <meta property="og:description" content="El punto que más confunde. Acumulados y medias móviles" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/el-marco-rows-vs-range/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(34 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 34 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details open><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><span class="activo">El marco: ROWS contra RANGE</span></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 7 · Funciones de ventana</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>El marco: ROWS contra RANGE</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../partition-by-y-order-by/">partition-by-y-order-by</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>El <strong>marco</strong> (<em>frame</em>) es la tercera pieza de <code>OVER</code>, y responde a la pregunta que las otras dos dejan abierta: <strong>dentro de la partición ya ordenada, ¿qué trozo entra en el cálculo?</strong></p>
+<div class="hl"><pre><span></span><code><span class="n">funcion</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">...</span><span class="w">     </span><span class="c1">-- qué grupos</span>
+<span class="w">    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">...</span><span class="w">         </span><span class="c1">-- en qué orden</span>
+<span class="w">    </span><span class="k">ROWS</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="p">...</span><span class="w">     </span><span class="c1">-- ← qué trozo</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Es la parte que más gente se salta, y por eso es donde aparecen los resultados que "salen mal" sin dar error. <strong>El marco existe siempre</strong>: si no lo escribes, PostgreSQL pone uno por defecto, y el que pone depende de si hay <code>ORDER BY</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Lo que escribes</th>
+<th>Marco real</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OVER ()</code></td>
+<td>toda la partición</td>
+</tr>
+<tr>
+<td><code>OVER (ORDER BY x)</code></td>
+<td><strong><code>RANGE UNBOUNDED PRECEDING</code></strong> — del principio a la fila actual, <strong>por valor</strong></td>
+</tr>
+<tr>
+<td><code>OVER (ORDER BY x ROWS UNBOUNDED PRECEDING)</code></td>
+<td>del principio a la fila actual, <strong>por fila</strong></td>
+</tr>
+</tbody>
+</table>
+<p>La segunda fila de esa tabla es todo el tema. <strong>El marco por defecto no es "hasta esta fila": es "hasta este valor".</strong></p>
+<h2 id="2-el-problema-visto">2. El problema, visto</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w">                        </span><span class="k">AS</span><span class="w"> </span><span class="n">range_def</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">rows_acum</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       product_name        | unit_price | range_def | rows_acum
+---------------------------+------------+-----------+-----------
+ Guaraná Fantástica        |       4.50 |      4.50 |      4.50
+ Rhönbräu Klosterbier      |       7.75 |     12.25 |     12.25
+ Laughing Lumberjack Lager |      14.00 |     40.25 |     26.25
+ Sasquatch Ale             |      14.00 |     40.25 |     40.25
+ Outback Lager             |      15.00 |     55.25 |     55.25
+ Lakkalikööri              |      18.00 |    127.25 |     73.25
+ Steeleye Stout            |      18.00 |    127.25 |     91.25
+ Chartreuse verte          |      18.00 |    127.25 |    109.25
+ Chai                      |      18.00 |    127.25 |    127.25
+ Chang                     |      19.00 |    146.25 |    146.25
+ Ipoh Coffee               |      46.00 |    192.25 |    192.25
+ Côte de Blaye             |     263.50 |    455.75 |    455.75
+</code></pre></div>
+
+<p><strong>Las dos columnas son correctas y responden a preguntas distintas:</strong></p>
+<ul>
+<li><code>range_def</code> — <em>"suma de todos los productos que cuestan 18,00 o menos"</em>. Las cuatro filas de 18,00 dan <strong>el mismo número</strong>, porque comparten valor y por tanto comparten ventana.</li>
+<li><code>rows_acum</code> — <em>"suma de las filas que van hasta esta, incluida"</em>. Avanza fila a fila: 73,25 / 91,25 / 109,25 / 127,25.</li>
+</ul>
+<p><strong>Coinciden donde no hay empates, y se separan donde los hay.</strong> Por eso el error se esconde: en una tabla de fechas únicas o de <code>order_id</code> nunca se ve. Aparece el día que ordenas por precio, por país o por importe redondeado.</p>
+<p><strong>La regla práctica:</strong></p>
+<blockquote>
+<p>Si el <code>ORDER BY</code> de la ventana <strong>puede tener empates</strong> y quieres un acumulado fila a fila, escribe <code>ROWS</code>. Siempre.</p>
+</blockquote>
+<p>Y si escribes <code>ROWS</code>, fija el desempate en el <code>ORDER BY</code> —<code>ORDER BY unit_price, product_id</code>— porque <strong>con <code>ROWS</code> el resultado de las filas empatadas depende del orden en que caigan</strong>, y sin desempate ese orden es arbitrario. (Con <code>RANGE BETWEEN n PRECEDING</code> ese desempate no es posible; ver la sección 5.)</p>
+<h2 id="3-sintaxis-del-marco">3. Sintaxis del marco</h2>
+<div class="hl"><pre><span></span><code><span class="k">ROWS</span><span class="w">  </span><span class="k">BETWEEN</span><span class="w"> </span><span class="o">&lt;</span><span class="n">inicio</span><span class="o">&gt;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="o">&lt;</span><span class="n">fin</span><span class="o">&gt;</span>
+<span class="n">RANGE</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="o">&lt;</span><span class="n">inicio</span><span class="o">&gt;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="o">&lt;</span><span class="n">fin</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<p>Los límites disponibles:</p>
+<table>
+<thead>
+<tr>
+<th>Límite</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UNBOUNDED PRECEDING</code></td>
+<td>desde el principio de la partición</td>
+</tr>
+<tr>
+<td><code>n PRECEDING</code></td>
+<td>n filas antes (<code>ROWS</code>) o n unidades de valor menos (<code>RANGE</code>)</td>
+</tr>
+<tr>
+<td><code>CURRENT ROW</code></td>
+<td>la fila actual (<code>ROWS</code>) o todas las de su mismo valor (<code>RANGE</code>)</td>
+</tr>
+<tr>
+<td><code>n FOLLOWING</code></td>
+<td>n filas después / n unidades de valor más</td>
+</tr>
+<tr>
+<td><code>UNBOUNDED FOLLOWING</code></td>
+<td>hasta el final de la partición</td>
+</tr>
+</tbody>
+</table>
+<p>Y hay una forma corta: <code>ROWS UNBOUNDED PRECEDING</code> equivale a <code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>. Cuando solo se escribe un límite, el otro es <code>CURRENT ROW</code>.</p>
+<p><strong><code>ROWS</code> cuenta filas. <code>RANGE</code> cuenta valores.</strong> Todo lo demás sale de ahí.</p>
+<h2 id="4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</h2>
+<h3>4.1 Media móvil de 3 meses</h3>
+<p>El uso más común del marco, y el que hace legible una serie con ruido:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">CURRENT</span><span class="w"> </span><span class="k">ROW</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_movil_3</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion | media_movil_3
+------------+-------------+---------------
+ 1996-07-01 |    27861.90 |      27861.90
+ 1996-08-01 |    25485.28 |      26673.59
+ 1996-09-01 |    26381.40 |      26576.19
+ 1996-10-01 |    37515.73 |      29794.13
+ 1996-11-01 |    45600.05 |      36499.06
+ 1996-12-01 |    45239.63 |      42785.13
+ 1997-01-01 |    61258.07 |      50699.25
+ 1997-02-01 |    38483.64 |      48327.11
+ 1997-03-01 |    38547.22 |      46096.31
+ 1997-04-01 |    53032.95 |      43354.60
+ 1997-05-01 |    53781.29 |      48453.82
+ 1997-06-01 |    36362.80 |      47725.68
+ 1997-07-01 |    51020.86 |      47054.98
+ 1997-08-01 |    47287.67 |      44890.44
+ 1997-09-01 |    55629.24 |      51312.59
+ 1997-10-01 |    66749.23 |      56555.38
+ 1997-11-01 |    43533.81 |      55304.09
+ 1997-12-01 |    71398.43 |      60560.49
+ 1998-01-01 |    94222.11 |      69718.12
+ 1998-02-01 |    99415.29 |      88345.28
+ 1998-03-01 |   104854.16 |      99497.18
+ 1998-04-01 |   123798.68 |     109356.04
+ 1998-05-01 |    18333.63 |      82328.82
+</code></pre></div>
+
+<p><strong><code>2 PRECEDING AND CURRENT ROW</code> son tres meses: los dos anteriores y este.</strong> La columna suavizada cuenta una historia que la cruda no deja ver:</p>
+<ul>
+<li><strong>La facturación mensual salta constantemente</strong> — enero de 1997 hace 61 258 y febrero 38 484: un −37% que no significa nada. Diciembre de 1997 hace 71 398 y enero de 1998 hace 94 222.</li>
+<li><strong>La media móvil sube casi sin interrupción de 26 673 a 109 356.</strong> Es una empresa que crece de forma sostenida durante 22 meses, y eso en la columna cruda no se ve.</li>
+</ul>
+<p><strong>Las dos primeras filas no son medias de tres meses.</strong> Julio de 1996 es su propio valor, agosto es la media de dos. <strong>El marco no inventa filas que no existen: se recorta.</strong> Es correcto, pero hay que decirlo al entregar el gráfico, porque el arranque de la curva está calculado con menos datos que el resto.</p>
+<p><strong>Y la última fila es una trampa:</strong> la media móvil cae de 109 356 a 82 329 porque mayo de 1998 solo tiene seis días de datos. <strong>Suavizar no protege de un periodo incompleto</strong> — lo reparte entre tres meses y lo disimula, que es peor.</p>
+<h3>4.2 Marco centrado</h3>
+<div class="hl"><pre><span></span><code><span class="p">...</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">mes</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion | centrada_3
+------------+-------------+------------
+ 1996-07-01 |    27861.90 |   26673.59
+ 1996-08-01 |    25485.28 |   26576.19
+ 1996-09-01 |    26381.40 |   29794.13
+ 1996-10-01 |    37515.73 |   36499.06
+ 1996-11-01 |    45600.05 |   42785.13
+ 1996-12-01 |    45239.63 |   50699.25
+</code></pre></div>
+
+<p><strong>Mira el mes de agosto: la media centrada de agosto (26 576,19) es idéntica a la media móvil de septiembre del ejemplo anterior.</strong> Es el mismo cálculo desplazado una fila — julio, agosto, septiembre.</p>
+<p><strong>La diferencia es la honestidad temporal.</strong> La media móvil hacia atrás solo usa datos que ya existían en ese momento; la centrada usa el mes siguiente. Para un gráfico histórico, la centrada se ve mejor. <strong>Para cualquier cosa que alimente una predicción, la centrada es información del futuro y no vale.</strong></p>
+<h3>4.3 Lo que queda por delante</h3>
+<p><code>FOLLOWING</code> mira hacia el otro lado:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">resto</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1997-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion |   resto
+------------+-------------+-----------
+ 1996-07-01 |    27861.90 | 180222.08
+ 1996-08-01 |    25485.28 | 154736.80
+ 1996-09-01 |    26381.40 | 128355.40
+ 1996-10-01 |    37515.73 |  90839.68
+ 1996-11-01 |    45600.05 |  45239.63
+ 1996-12-01 |    45239.63 |
+</code></pre></div>
+
+<p><strong>La última fila es <code>NULL</code> y tiene que serlo:</strong> después de diciembre no queda nada. Un marco vacío devuelve <code>NULL</code> en <code>sum</code> y <code>avg</code>, y <code>0</code> en <code>count</code>. Es la misma distinción de <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>: ausencia de dato, no cero.</p>
+<h3>4.4 <code>RANGE</code> usado a propósito</h3>
+<p><code>RANGE</code> no es solo el defecto molesto: cuando lo que quieres es <strong>"todo lo que está cerca en valor"</strong>, es la herramienta correcta.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="w">                      </span><span class="n">RANGE</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos_cerca</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       product_name        | unit_price | productos_cerca
+---------------------------+------------+-----------------
+ Guaraná Fantástica        |       4.50 |               2
+ Rhönbräu Klosterbier      |       7.75 |               2
+ Laughing Lumberjack Lager |      14.00 |               8
+ Sasquatch Ale             |      14.00 |               8
+ Outback Lager             |      15.00 |               8
+ Lakkalikööri              |      18.00 |               8
+ Steeleye Stout            |      18.00 |               8
+ Chartreuse verte          |      18.00 |               8
+ Chai                      |      18.00 |               8
+ Chang                     |      19.00 |               8
+ Ipoh Coffee               |      46.00 |               1
+ Côte de Blaye             |     263.50 |               1
+</code></pre></div>
+
+<p><strong>Aquí el <code>5 PRECEDING</code> son cinco euros, no cinco filas.</strong> Cuenta cuántos productos tienen un precio a menos de 5 € de distancia — una medida de densidad de la banda de precio.</p>
+<p>Y el resultado dibuja el catálogo de Beverages de una forma que ninguna consulta anterior había mostrado: <strong>ocho de los doce productos se apiñan entre 14 y 19 €</strong>, y <code>Ipoh Coffee</code> y <code>Côte de Blaye</code> <strong>están solos</strong>: no tienen ningún producto a menos de 5 € de su precio. No son solo caros, están <strong>desconectados del resto del catálogo</strong>.</p>
+<h3>4.5 <code>RANGE</code> con fechas</h3>
+<p><code>RANGE</code> acepta intervalos, que es donde se vuelve imprescindible:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span>
+<span class="w">                           </span><span class="n">RANGE</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'6 days'</span><span class="w"> </span><span class="n">PRECEDING</span>
+<span class="w">                                     </span><span class="k">AND</span><span class="w"> </span><span class="k">CURRENT</span><span class="w"> </span><span class="k">ROW</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimos_7_dias</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="s1">'1997-01-20'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    dia     | pedidos | ultimos_7_dias
+------------+---------+----------------
+ 1997-01-01 |       2 |              2
+ 1997-01-02 |       1 |              3
+ 1997-01-03 |       2 |              5
+ 1997-01-06 |       1 |              6
+ 1997-01-07 |       2 |              8
+ 1997-01-08 |       1 |              7
+ 1997-01-09 |       1 |              7
+ 1997-01-10 |       2 |              7
+ 1997-01-13 |       1 |              7
+ ...
+</code></pre></div>
+
+<p><strong>Esto con <code>ROWS</code> sería imposible de hacer bien.</strong> Los días 4 y 5 de enero no existen en la tabla — son sábado y domingo, y ya sabemos de <a class="xref" href="../cte-recursivas/">cte-recursivas</a> que Northwind no tiene ni un pedido en fin de semana. <code>ROWS BETWEEN 6 PRECEDING</code> contaría <strong>seis filas hacia atrás</strong>, que aquí son ocho o nueve días naturales.</p>
+<p><strong><code>RANGE</code> con <code>INTERVAL</code> cuenta días de calendario aunque falten filas.</strong> Es la única forma correcta de una ventana móvil temporal sobre datos con huecos, y los datos reales siempre tienen huecos.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li>
+<p><strong>Escribir un acumulado con <code>ORDER BY</code> y nada más, sobre una columna con empates.</strong> El caso de la sección 2. Es el error más frecuente del bloque entero y no da ningún aviso.</p>
+</li>
+<li>
+<p><strong>Usar <code>ROWS</code> sin desempate.</strong> <code>ORDER BY unit_price ROWS ...</code> con cuatro productos a 18,00 da un resultado que depende del orden físico. Añade siempre una columna única al final del <code>ORDER BY</code>.</p>
+</li>
+<li>
+<p><strong>Creer que el marco recorta la partición.</strong> No: <strong>el marco se recorta contra los bordes de la partición.</strong> <code>2 PRECEDING</code> en la primera fila usa una fila, no falla ni devuelve <code>NULL</code>.</p>
+</li>
+<li>
+<p><strong>Poner un marco <code>ROWS</code> sin <code>ORDER BY</code>. PostgreSQL lo acepta, y ese es el problema.</strong></p>
+</li>
+</ol>
+<p><code>sql
+   SELECT product_name, unit_price,
+          sum(unit_price) OVER (ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS s
+   FROM products WHERE category_id = 7;</code>
+   <code>product_name           | unit_price |   s
+   ---------------------------------+------------+-------
+    Uncle Bob's Organic Dried Pears |      30.00 | 30.00
+    Tofu                            |      23.25 | 53.25
+    Rössle Sauerkraut               |      45.60 | 68.85
+    Manjimup Dried Apples           |      53.00 | 98.60
+    Longlife Tofu                   |      10.00 | 63.00</code></p>
+<p><strong>No da error: suma cada fila con la anterior en el orden físico de la tabla.</strong> Ese orden no está definido por nada — puede cambiar tras un <code>UPDATE</code>, un <code>VACUUM</code> o una lectura en paralelo. <strong>Un resultado reproducible hoy y distinto mañana, sin ningún aviso.</strong> Si escribes un marco, escribe el <code>ORDER BY</code>.</p>
+<ol>
+<li><strong>Intentar arreglar un empate en un marco <code>RANGE</code> con desplazamiento.</strong> El consejo de la sección 2 —añadir una columna de desempate— <strong>no se puede aplicar a <code>RANGE BETWEEN n PRECEDING</code></strong>:
+   <code>ERROR:  RANGE with offset PRECEDING/FOLLOWING requires exactly one ORDER BY column</code>
+   Tiene sentido: para restar 5 al valor hace falta un único valor al que restarle 5. <strong><code>RANGE</code> con desplazamiento y desempate son incompatibles por definición</strong> — si necesitas las dos cosas, lo que quieres es <code>ROWS</code>.</li>
+</ol>
+<p>Y por el mismo motivo, la columna tiene que ser restable:
+   <code>sql
+   ... OVER (ORDER BY product_name RANGE BETWEEN 5 PRECEDING AND CURRENT ROW)</code>
+   <code>ERROR:  RANGE with offset PRECEDING/FOLLOWING is not supported for column type text</code></p>
+<ol>
+<li><strong>Mezclar en la misma tabla un acumulado particionado por año con una media móvil que no lo está.</strong> Es un error de diseño, no de sintaxis, y se ve en la pregunta de negocio.</li>
+</ol>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ROWS BETWEEN ...</code></td>
+<td>sí</td>
+<td>sí (2012+)</td>
+</tr>
+<tr>
+<td><code>RANGE</code> con <code>n PRECEDING</code> numérico</td>
+<td><strong>sí</strong></td>
+<td><strong>no</strong> — solo <code>UNBOUNDED</code> y <code>CURRENT ROW</code></td>
+</tr>
+<tr>
+<td><code>RANGE</code> con <code>INTERVAL</code> sobre fechas</td>
+<td><strong>sí</strong></td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>GROUPS</code> como tercer modo</td>
+<td>sí (11+)</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Esta es la diferencia más grande de todo el bloque.</strong> SQL Server implementa <code>RANGE</code> solo con los límites no acotados: <code>RANGE BETWEEN 5 PRECEDING</code> no existe, y <code>RANGE BETWEEN INTERVAL '6 days' PRECEDING</code> tampoco.</p>
+<p><strong>Consecuencia práctica:</strong> las ventanas móviles por tiempo real —"los últimos 7 días naturales"— que en PostgreSQL son una línea, en SQL Server se resuelven con un <code>JOIN</code> contra una tabla de calendario o con <code>APPLY</code>. Si vas a portar código en esa dirección, es lo primero que hay que revisar.</p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>El acumulado de precios de <code>Confections</code>, fila a fila y con el desempate fijado.</li>
+<li>La media móvil de 3 meses del <strong>número de pedidos</strong> (no de la facturación).</li>
+<li>Para cada mes, cuál es el mejor mes registrado <strong>hasta esa fecha</strong> — un récord histórico que solo puede subir.</li>
+<li>Para cada mes de 1996, cuánto queda por facturar desde el mes siguiente hasta el final del año.</li>
+<li>¿Por qué la media móvil de las dos primeras filas no es de tres meses? ¿Y cómo se dejaría en <code>NULL</code> en lugar de calcularla con menos datos?</li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere el informe mensual definitivo: facturación del mes, la tendencia sin el ruido, y cuánto llevamos acumulado en el año.</em></p>
+</blockquote>
+<p>Las tres columnas usan tres ventanas distintas. Y dos de ellas no están de acuerdo sobre dónde empieza el año.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">CURRENT</span><span class="w"> </span><span class="k">ROW</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_movil_3</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'year'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">acum_anio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'year'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">),</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion | media_movil_3 | acum_anio
+------------+-------------+---------------+-----------
+ 1996-07-01 |    27861.90 |      27861.90 |  27861.90
+ 1996-08-01 |    25485.28 |      26673.59 |  53347.17
+ 1996-09-01 |    26381.40 |      26576.19 |  79728.57
+ 1996-10-01 |    37515.73 |      29794.13 | 117244.30
+ 1996-11-01 |    45600.05 |      36499.06 | 162844.34
+ 1996-12-01 |    45239.63 |      42785.13 | 208083.97
+ 1997-01-01 |    61258.07 |      50699.25 |  61258.07
+ 1997-02-01 |    38483.64 |      48327.11 |  99741.71
+ 1997-03-01 |    38547.22 |      46096.31 | 138288.93
+ 1997-04-01 |    53032.95 |      43354.60 | 191321.88
+ 1997-05-01 |    53781.29 |      48453.82 | 245103.17
+ 1997-06-01 |    36362.80 |      47725.68 | 281465.97
+ 1997-07-01 |    51020.86 |      47054.98 | 332486.83
+ 1997-08-01 |    47287.67 |      44890.44 | 379774.50
+ 1997-09-01 |    55629.24 |      51312.59 | 435403.74
+ 1997-10-01 |    66749.23 |      56555.38 | 502152.97
+ 1997-11-01 |    43533.81 |      55304.09 | 545686.78
+ 1997-12-01 |    71398.43 |      60560.49 | 617085.20
+ 1998-01-01 |    94222.11 |      69718.12 |  94222.11
+ 1998-02-01 |    99415.29 |      88345.28 | 193637.40
+ 1998-03-01 |   104854.16 |      99497.18 | 298491.55
+ 1998-04-01 |   123798.68 |     109356.04 | 422290.24
+ 1998-05-01 |    18333.63 |      82328.82 | 440623.87
+</code></pre></div>
+
+<p><strong>Tres ventanas distintas en una consulta, y cada una responde a una pregunta:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th>Ventana</th>
+<th>Pregunta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>facturacion</code></td>
+<td>ninguna, es el <code>GROUP BY</code></td>
+<td>¿cuánto hicimos este mes?</td>
+</tr>
+<tr>
+<td><code>media_movil_3</code></td>
+<td><code>ORDER BY mes ROWS 2 PRECEDING</code></td>
+<td>¿hacia dónde vamos?</td>
+</tr>
+<tr>
+<td><code>acum_anio</code></td>
+<td><code>PARTITION BY año ORDER BY mes</code></td>
+<td>¿cómo vamos contra el año?</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Y ahora la trampa que hay que ver, porque está a la vista en la fila de enero de 1998:</strong></p>
+<ul>
+<li><code>acum_anio</code> <strong>se reinicia</strong> en 94 222,11 — está particionado por año.</li>
+<li><code>media_movil_3</code> marca 69 718,12, que es la media de <strong>noviembre y diciembre de 1997 más enero de 1998</strong> — no está particionado por nada.</li>
+</ul>
+<p><strong>Las dos son correctas.</strong> Una media móvil que se reiniciara cada enero sería inútil: perdería justo la comparación que la hace valer. Un acumulado que no se reiniciara no sería "acumulado del año".</p>
+<p><strong>Pero puestas una al lado de la otra sin explicación, la tabla se lee mal</strong>: parece que enero de 1998 tiene una media de tres meses cuando solo lleva uno. Quien la mire por encima concluirá que hay un error.</p>
+<p><strong>Lo que hay que entregar con la tabla</strong>, y es la diferencia entre un informe y una consulta:</p>
+<ol>
+<li>Una nota de que la media móvil cruza el cambio de año <strong>a propósito</strong>.</li>
+<li>Una advertencia sobre <strong>mayo de 1998</strong>: 18 333,63 no es una caída, son seis días. Arrastra la media móvil de 109 356 a 82 329 y hunde la línea de tendencia en el gráfico.</li>
+<li><strong>La lectura real, que la columna cruda no permite:</strong> la media móvil sube de 26 673 a 109 356 en 22 meses. <strong>La empresa multiplica por cuatro su ritmo mensual y no da un solo retroceso sostenido.</strong> Ese es el titular; la varianza mes a mes es ruido.</li>
+</ol>
+<p><strong>Regla que vale para todo el bloque:</strong> cuando varias ventanas conviven en una tabla, escribe explícitamente qué particiona cada una. La mitad de los informes que "no cuadran" son dos ventanas con particiones distintas que nadie documentó.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span>
+<span class="w">                             </span><span class="k">ROWS</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">acum</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>        product_name        | unit_price |  acum
+----------------------------+------------+--------
+ Teatime Chocolate Biscuits |       9.20 |   9.20
+ Zaanse koeken              |       9.50 |  18.70
+ Sir Rodney's Scones        |      10.00 |  28.70
+ Scottish Longbreads        |      12.50 |  41.20
+ Chocolade                  |      12.75 |  53.95
+ NuNuCa Nuß-Nougat-Creme    |      14.00 |  67.95
+ Valkoinen suklaa           |      16.25 |  84.20
+ Pavlova                    |      17.45 | 101.65
+ Maxilaku                   |      20.00 | 121.65
+ Gumbär Gummibärchen        |      31.23 | 152.88
+ Schoggi Schokolade         |      43.90 | 196.78
+ Tarte au sucre             |      49.30 | 246.08
+ Sir Rodney's Marmalade     |      81.00 | 327.08
+</code></pre></div>
+
+<p>En Confections <strong>no hay precios repetidos</strong>, así que <code>RANGE</code> habría dado lo mismo. <strong>Escribir <code>ROWS</code> igualmente es la costumbre correcta</strong>: no depende de que los datos de hoy no tengan empates, porque los de mañana pueden tenerlos.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span>
+<span class="w">                                 </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">CURRENT</span><span class="w"> </span><span class="k">ROW</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_movil</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong><code>avg(count(*)) OVER (...)</code></strong> — la ventana promedia las cuentas ya agrupadas, igual que <code>sum(sum(...))</code> en el tema 32.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">max</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">record_hasta_ahora</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1997-07-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion | record_hasta_ahora
+------------+-------------+--------------------
+ 1996-07-01 |    27861.90 |           27861.90
+ 1996-08-01 |    25485.28 |           27861.90
+ 1996-09-01 |    26381.40 |           27861.90
+ 1996-10-01 |    37515.73 |           37515.73
+ 1996-11-01 |    45600.05 |           45600.05
+ 1996-12-01 |    45239.63 |           45600.05
+ 1997-01-01 |    61258.07 |           61258.07
+ 1997-02-01 |    38483.64 |           61258.07
+ 1997-03-01 |    38547.22 |           61258.07
+ 1997-04-01 |    53032.95 |           61258.07
+ 1997-05-01 |    53781.29 |           61258.07
+ 1997-06-01 |    36362.80 |           61258.07
+</code></pre></div>
+
+<p><strong><code>max()</code> con <code>ORDER BY</code> y sin marco explícito es un máximo acumulado</strong>, y aquí <code>RANGE</code> no molesta porque los meses no se repiten. La columna <strong>solo puede subir o quedarse igual</strong>: es la definición de un récord.</p>
+<p>Nótese que enero de 1997 marca un récord que <strong>aguanta cinco meses</strong>. La lectura correcta no es "enero fue excepcional" sino que la serie tiene mucha varianza mensual — lo mismo que decía la media móvil desde el otro ángulo.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="p">...</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">mes</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">FOLLOWING</span><span class="p">)</span>
+</code></pre></div>
+
+<p>El ejemplo de la sección 4. <strong>Diciembre sale <code>NULL</code>, no 0.</strong> Si el informe necesita un 0, <code>coalesce(..., 0)</code> — pero conviene preguntarse antes si el 0 es honesto: significa "no queda nada por facturar" y eso es distinto de "no hay dato".</p>
+<p><strong>5.</strong> Porque <strong>el marco se recorta contra el borde de la partición</strong>: en julio de 1996 no hay dos meses anteriores, así que la ventana tiene una sola fila. Para dejarlas en <code>NULL</code> hay que contar cuántas filas entraron de verdad:</p>
+<div class="hl"><pre><span></span><code><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">mes</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">CURRENT</span><span class="w"> </span><span class="k">ROW</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">     </span><span class="k">THEN</span><span class="w"> </span><span class="k">avg</span><span class="p">(...)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">mes</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">PRECEDING</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">CURRENT</span><span class="w"> </span><span class="k">ROW</span><span class="p">)</span>
+<span class="k">END</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     |   mm3
+------------+----------
+ 1996-07-01 |
+ 1996-08-01 |
+ 1996-09-01 | 26576.19
+ 1996-10-01 | 29794.13
+ 1996-11-01 | 36499.06
+</code></pre></div>
+
+<p><strong>No hay una opción del marco que lo haga.</strong> Se comprueba a mano —y la cláusula <code>WINDOW w AS (...)</code> evita repetir la definición tres veces. En un informe serio merece la pena: una media móvil calculada con un dato en vez de tres, presentada sin distinguir, es una afirmación más débil de lo que aparenta.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../partition-by-y-order-by/"><span>Anterior</span><strong>PARTITION BY y ORDER BY</strong></a><a class="nav-next" href="../ranking-row-number-rank-ntile/"><span>Siguiente</span><strong>Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-el-problema-visto">2. El problema, visto</a>
+<a href="#3-sintaxis-del-marco">3. Sintaxis del marco</a>
+<a href="#4-ejemplos-sobre-northwind">4. Ejemplos sobre Northwind</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

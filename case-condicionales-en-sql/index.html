@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>CASE: condicionales en SQL · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CASE WHEN, en SELECT, WHERE, ORDER BY y GROUP BY. Pivotar con CASE" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/case-condicionales-en-sql/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CASE: condicionales en SQL" />
+  <meta property="og:description" content="CASE WHEN, en SELECT, WHERE, ORDER BY y GROUP BY. Pivotar con CASE" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/case-condicionales-en-sql/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(15 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 15 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details open><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><span class="activo">CASE: condicionales en SQL</span></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 3 · Transformar valores</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>CASE: condicionales en SQL</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../funciones-dentro-del-select/">funciones-dentro-del-select</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p><code>CASE</code> es el <strong><code>if / else</code> de SQL</strong>. Evalúa condiciones en orden y devuelve el valor de la primera que se cumple.</p>
+<p>Y es más importante de lo que parece, porque SQL no tiene bucles ni variables: <strong><code>CASE</code> es prácticamente la única lógica de decisión que existe dentro de una consulta.</strong> Con él se hacen tres cosas que se usan a diario:</p>
+<ol>
+<li><strong>Clasificar</strong> — convertir un número en una categoría (<code>económico</code>, <code>medio</code>, <code>premium</code>).</li>
+<li><strong>Ordenar a medida</strong> — un orden que no es alfabético ni numérico.</li>
+<li><strong>Pivotar</strong> — convertir filas en columnas.</li>
+</ol>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<p>Hay dos formas.</p>
+<p><strong>Buscada</strong> — la que se usa el 90% de las veces. Cada <code>WHEN</code> lleva su propia condición completa:</p>
+<div class="hl"><pre><span></span><code><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">condición1</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">valor1</span>
+<span class="w">     </span><span class="k">WHEN</span><span class="w"> </span><span class="n">condición2</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">valor2</span>
+<span class="w">     </span><span class="k">ELSE</span><span class="w"> </span><span class="n">valor_por_defecto</span>
+<span class="k">END</span>
+</code></pre></div>
+
+<p><strong>Simple</strong> — compara una expresión contra valores concretos. Más corta, pero solo sirve para igualdad:</p>
+<div class="hl"><pre><span></span><code><span class="k">CASE</span><span class="w"> </span><span class="n">expresión</span>
+<span class="w">     </span><span class="k">WHEN</span><span class="w"> </span><span class="n">valor1</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">resultado1</span>
+<span class="w">     </span><span class="k">WHEN</span><span class="w"> </span><span class="n">valor2</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">resultado2</span>
+<span class="w">     </span><span class="k">ELSE</span><span class="w"> </span><span class="n">otro</span>
+<span class="k">END</span>
+</code></pre></div>
+
+<p>Tres reglas:</p>
+<ul>
+<li><strong>Se evalúa de arriba abajo y gana el primer <code>WHEN</code> que se cumple.</strong> El orden no es decorativo.</li>
+<li><strong><code>ELSE</code> es opcional. Si falta y nada coincide, devuelve <code>NULL</code>.</strong></li>
+<li><strong>Todos los <code>THEN</code> deben devolver tipos compatibles.</strong> Un <code>THEN 'texto'</code> junto a un <code>THEN 0</code> da error de tipos.</li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<h3>3.1 Clasificar</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'económico'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'medio'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'premium'</span>
+<span class="w">       </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gama</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price |  gama
+-------------------------+------------+---------
+ Côte de Blaye           |     263.50 | premium
+ Thüringer Rostbratwurst |     123.79 | premium
+ Mishi Kobe Niku         |      97.00 | premium
+</code></pre></div>
+
+<p>Fíjate en que el segundo <code>WHEN</code> dice <code>unit_price &lt; 50</code> a secas, no <code>BETWEEN 20 AND 50</code>. <strong>No hace falta</strong>: si la fila llegó al segundo <code>WHEN</code> es porque el primero falló, así que ya sabemos que vale 20 o más. Escribir el rango completo es redundante y una fuente de huecos.</p>
+<h3>3.2 El orden de los <code>WHEN</code> decide el resultado</h3>
+<p>La misma clasificación, con los dos primeros <code>WHEN</code> intercambiados:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'medio'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'económico'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'premium'</span>
+<span class="w">       </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gama_mal</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> product_name  | unit_price | gama_mal
+---------------+------------+----------
+ Chai          |      18.00 | medio
+ Chang         |      19.00 | medio
+ Aniseed Syrup |      10.00 | medio
+</code></pre></div>
+
+<p><strong>Un producto de 10 euros clasificado como "medio".</strong> El segundo <code>WHEN</code> es <strong>inalcanzable</strong>: todo lo que vale menos de 20 vale también menos de 50, así que el primero se lo lleva siempre. No hay error, no hay aviso — solo una categoría que nunca aparece.</p>
+<blockquote>
+<p><strong>Regla: en un <code>CASE</code> de rangos, escribe los <code>WHEN</code> de más restrictivo a menos.</strong> Y comprueba que todas las categorías aparecen en el resultado; si una no sale nunca, probablemente es inalcanzable.</p>
+</blockquote>
+<h3>3.3 <code>CASE</code> en el <code>GROUP BY</code></h3>
+<p>Como el <code>CASE</code> produce una columna, se puede agrupar por ella:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'económico'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'medio'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'premium'</span>
+<span class="w">       </span><span class="k">END</span><span class="w">                      </span><span class="k">AS</span><span class="w"> </span><span class="n">gama</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                 </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_medio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   gama    | productos | precio_medio
+-----------+-----------+--------------
+ económico |        39 |        12.95
+ medio     |        31 |        31.59
+ premium   |         7 |       105.11
+</code></pre></div>
+
+<p><strong>39 productos económicos, 31 medios y 7 premium.</strong> Ese <code>GROUP BY 1</code> es el número de posición; también vale <code>GROUP BY gama</code> (el alias, que sí se acepta en <code>GROUP BY</code> — ver <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>). Lo que <strong>no</strong> vale es repetir el <code>CASE</code> entero: funciona, pero es doce líneas duplicadas que hay que mantener sincronizadas.</p>
+<h3>3.4 La forma simple</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="n">dow</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'domingo'</span><span class="w">  </span><span class="k">WHEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'lunes'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'martes'</span><span class="w">   </span><span class="k">WHEN</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'miércoles'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'jueves'</span><span class="w">   </span><span class="k">WHEN</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'viernes'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'sábado'</span>
+<span class="w">       </span><span class="k">END</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">dia</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    dia    | pedidos
+-----------+---------
+ martes    |     168
+ jueves    |     168
+ lunes     |     165
+ miércoles |     165
+ viernes   |     164
+</code></pre></div>
+
+<p><strong>Cinco filas, no siete.</strong> Ni sábado ni domingo aparecen:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="n">dow</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 0</span>
+</code></pre></div>
+
+<p><strong>Cero pedidos en fin de semana en toda la base.</strong> Es un hallazgo real sobre estos datos —Northwind registra pedidos solo en días laborables— y es el tipo de cosa que descubres solo cuando agrupas. Si alguien te pide una media diaria de pedidos, dividir entre 671 días naturales está mal: hay que dividir entre días hábiles.</p>
+<h3>3.5 <code>CASE</code> en el <code>ORDER BY</code> — orden a medida</h3>
+<p>Ordenar los cargos por jerarquía, que no es su orden alfabético:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">title</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Vice%'</span><span class="w">    </span><span class="k">THEN</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Manager%'</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">       </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">orden</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">orden</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>          title           | orden
+--------------------------+-------
+ Vice President, Sales    |     0
+ Sales Manager            |     1
+ Inside Sales Coordinator |     2
+ Sales Representative     |     2
+</code></pre></div>
+
+<p>El <code>CASE</code> puede ir <strong>directamente en el <code>ORDER BY</code></strong> sin sacarlo al <code>SELECT</code>. Lo he sacado aquí solo para que se vea el número. En un informe real, ordenar por una columna invisible es incómodo de verificar; enseñarla suele compensar.</p>
+<h3>3.6 <code>CASE</code> en el <code>WHERE</code></h3>
+<p>Es legal, y casi siempre innecesario:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Funciona, pero es una forma retorcida de escribir un OR</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="k">END</span>
+</code></pre></div>
+
+<p><strong>El caso donde sí vale la pena</strong> es forzar el orden de evaluación para evitar un error:</p>
+<div class="hl"><pre><span></span><code><span class="k">WHERE</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="k">false</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">END</span>
+</code></pre></div>
+
+<p><code>AND</code> no garantiza que se evalúe de izquierda a derecha (<a class="xref" href="../where-y-operadores/">where-y-operadores</a>); <code>CASE</code> <strong>sí garantiza</strong> que no se evalúa un <code>THEN</code> cuyo <code>WHEN</code> falló. Es la forma de blindarse contra una división por cero. La otra es <code>nullif(quantity, 0)</code>, más corta.</p>
+<h3>3.7 Pivotar: filas a columnas</h3>
+<p>Es el uso más vistoso de <code>CASE</code>. Pedidos por país <strong>y por año, en columnas</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1996</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">END</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">y1996</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1997</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">END</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">y1997</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1998</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">END</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">y1998</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   pais    | y1996 | y1997 | y1998 | total
+-----------+-------+-------+-------+-------
+ Germany   |    24 |    64 |    34 |   122
+ USA       |    23 |    60 |    39 |   122
+ Brazil    |    13 |    42 |    28 |    83
+ France    |    15 |    39 |    23 |    77
+ UK        |    10 |    30 |    16 |    56
+ Venezuela |     8 |    20 |    18 |    46
+</code></pre></div>
+
+<p><strong>El patrón es siempre el mismo:</strong> <code>sum(CASE WHEN &lt;columna a pivotar&gt; = &lt;valor&gt; THEN &lt;métrica&gt; ELSE 0 END)</code> — una columna del resultado por cada valor.</p>
+<p>PostgreSQL tiene una forma más limpia de escribir exactamente esto:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1996</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">y1996</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1997</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">y1997</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1998</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">y1998</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Mismo resultado, y se lee. <code>FILTER</code> es del estándar SQL pero <strong>no lo implementa SQL Server</strong>; se ve en <a class="xref" href="../agregacion-avanzada/">agregacion-avanzada</a>.</p>
+<p><strong>La limitación del pivote con <code>CASE</code>:</strong> hay que escribir una línea por valor, a mano. Si el año que viene aparece 1999, la consulta no lo muestra y <strong>no da error</strong>. Un pivote dinámico no se puede hacer en SQL puro — se resuelve en la herramienta de informes, o con <code>crosstab</code> (<span class="xref-pend" title="Aún no publicado">pivotar-datos</span>).</p>
+<h3>3.8 <code>CASE</code> sin <code>ELSE</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'baja'</span><span class="w"> </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">estado</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> product_name  | estado
+---------------+--------
+ Chai          | baja
+ Chang         | baja
+ Aniseed Syrup |
+</code></pre></div>
+
+<p>Sin <code>ELSE</code>, lo que no encaja sale <code>NULL</code>. <strong>A veces es lo que quieres</strong>; muchas veces es un <code>ELSE</code> olvidado. Y como <code>NULL</code> se propaga, ese hueco puede reaparecer tres consultas más tarde convertido en una suma vacía (<a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>).</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong><code>WHEN</code> en mal orden.</strong> El caso de "medio" comiéndose a "económico". Ni error ni aviso.</li>
+<li><strong>Olvidar el <code>ELSE</code>.</strong> Aparecen <code>NULL</code> donde esperabas una categoría.</li>
+<li><strong>Mezclar tipos en los <code>THEN</code>.</strong> <code>THEN 'sin datos'</code> junto a <code>THEN 0</code> da error de tipo.</li>
+<li><strong>Comparar con <code>NULL</code> dentro de un <code>WHEN</code>.</strong> <code>WHEN region = NULL</code> nunca se cumple. Se escribe <code>WHEN region IS NULL</code>.</li>
+<li><strong>Repetir el <code>CASE</code> entero en el <code>GROUP BY</code>.</strong> Usa el número de posición o el alias.</li>
+<li><strong>Pivotar con <code>CASE</code> y olvidar actualizar la lista de valores.</strong> El dato nuevo desaparece del informe en silencio.</li>
+<li><strong>Usar <code>CASE</code> donde basta <code>coalesce</code>.</strong> <code>CASE WHEN x IS NULL THEN y ELSE x END</code> es exactamente <code>coalesce(x, y)</code>.</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<p><code>CASE</code> es <strong>idéntico</strong> en los dos motores: mismas dos formas, mismas reglas, misma sintaxis. Es de lo poco que se copia y pega sin tocar nada.</p>
+<p>Lo que cambia es lo que hay alrededor:</p>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>SQL Server</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CASE</code></td>
+<td>Igual</td>
+<td>Igual</td>
+</tr>
+<tr>
+<td>Condicional corto</td>
+<td><code>IIF(cond, a, b)</code></td>
+<td>❌ No existe → <code>CASE WHEN cond THEN a ELSE b END</code></td>
+</tr>
+<tr>
+<td>Elegir de una lista</td>
+<td><code>CHOOSE(n, a, b, c)</code></td>
+<td>❌ No existe</td>
+</tr>
+<tr>
+<td>Agregar con filtro</td>
+<td><code>SUM(CASE WHEN ... THEN 1 ELSE 0 END)</code></td>
+<td><code>count(*) FILTER (WHERE ...)</code></td>
+</tr>
+<tr>
+<td>Pivotar</td>
+<td><code>PIVOT</code> / <code>UNPIVOT</code> (operador propio)</td>
+<td>❌ No existe → <code>CASE</code> o <code>crosstab</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>IIF</code> y <code>PIVOT</code> son extensiones de SQL Server. <strong><code>PIVOT</code> tampoco es dinámico</strong>: también hay que enumerar los valores a mano, así que la limitación es la misma con mejor sintaxis.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Clasifica los clientes por continente aproximado según su país: <code>América</code>, <code>Europa</code>, <code>Otros</code>. Cuenta cuántos hay de cada uno.</li>
+<li>Clasifica los productos por estado de stock: <code>sin stock</code>, <code>bajo</code> (por debajo del punto de reposición) y <code>ok</code>. ¿Cuántos hay de cada uno?</li>
+<li>Ordena los productos poniendo primero los descatalogados y, dentro de cada grupo, del más caro al más barato.</li>
+<li>Pivota los pedidos por año (filas) y trimestre (columnas).</li>
+<li>Reescribe esto sin <code>CASE</code>:
+   <code>sql
+   SELECT company_name, CASE WHEN region IS NULL THEN 'n/a' ELSE region END FROM customers;</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere un semáforo de inventario para la reunión del lunes: por categoría de producto, cuántos están en rojo, ámbar y verde. Rojo es sin stock, ámbar es por debajo del punto de reposición, verde el resto. Y quieren verlo de un vistazo, no una lista de 77 filas.</em></p>
+</blockquote>
+<p>Todavía no sabes hacer <code>JOIN</code>, así que la categoría tendrá que ser su id. Eso también es información que hay que dar.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">                                        </span><span class="k">AS</span><span class="w"> </span><span class="n">rojo</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reorder_level</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">ambar</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">reorder_level</span><span class="p">)</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">verde</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                                                          </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">rojo</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">ambar</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_id | rojo | ambar | verde | total
+-------------+------+-------+-------+-------
+           4 |    1 |     2 |     7 |    10
+           3 |    0 |     4 |     9 |    13
+           8 |    0 |     3 |     9 |    12
+           1 |    0 |     2 |     7 |     9
+           5 |    0 |     2 |     4 |     6
+           2 |    0 |     2 |     9 |    11
+           7 |    0 |     1 |     3 |     4
+           6 |    0 |     0 |     2 |     2
+</code></pre></div>
+
+<p><strong>Ocho filas en vez de 77.</strong> Eso era la mitad del encargo: "de un vistazo" significa agregar.</p>
+<p>Y las tres cosas que van dichas al entregarlo:</p>
+<ol>
+<li><strong>Las categorías salen como número porque todavía no hemos unido tablas.</strong> <code>category_id = 4</code> es "Dairy Products", y el nombre está en <code>categories</code>. Con un <code>JOIN</code> la tabla se lee sola (<a class="xref" href="../inner-join/">inner-join</a>). Entregar ids a Dirección es entregar la mitad del trabajo.</li>
+<li><strong>He filtrado los descatalogados.</strong> Un producto que ya no se vende y está a cero no es una alerta roja, es lo normal. El filtro cambia mucho el cuadro: con toda la tabla hay <strong>5 productos sin stock</strong>, y con <code>NOT discontinued</code> queda <strong>1</strong>. Los otros cuatro son ruido que habría pintado de rojo cuatro categorías. <strong>Es una decisión, y se cuenta.</strong></li>
+<li><strong>El ámbar necesita <code>units_in_stock &gt; 0</code> explícito.</strong> Aquí, a diferencia del <code>CASE</code> del ejercicio 2, cada <code>FILTER</code> se evalúa por separado: no hay "el anterior ya se lo llevó". Sin esa condición, los productos a cero contarían en rojo <strong>y</strong> en ámbar, y las columnas no sumarían el total. <strong>Cuando pivotas con <code>FILTER</code>, comprueba siempre que las columnas suman.</strong></li>
+</ol></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'USA'</span><span class="p">,</span><span class="s1">'Canada'</span><span class="p">,</span><span class="s1">'Mexico'</span><span class="p">,</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="s1">'Argentina'</span><span class="p">,</span><span class="s1">'Venezuela'</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'América'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Germany'</span><span class="p">,</span><span class="s1">'France'</span><span class="p">,</span><span class="s1">'UK'</span><span class="p">,</span><span class="s1">'Spain'</span><span class="p">,</span><span class="s1">'Italy'</span><span class="p">,</span><span class="s1">'Portugal'</span><span class="p">,</span><span class="s1">'Sweden'</span><span class="p">,</span>
+<span class="w">                             </span><span class="s1">'Norway'</span><span class="p">,</span><span class="s1">'Denmark'</span><span class="p">,</span><span class="s1">'Finland'</span><span class="p">,</span><span class="s1">'Austria'</span><span class="p">,</span><span class="s1">'Switzerland'</span><span class="p">,</span>
+<span class="w">                             </span><span class="s1">'Belgium'</span><span class="p">,</span><span class="s1">'Ireland'</span><span class="p">,</span><span class="s1">'Poland'</span><span class="p">)</span><span class="w">                              </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'Europa'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'Otros'</span>
+<span class="w">       </span><span class="k">END</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">continente</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> continente | clientes
+------------+----------
+ Europa     |       54
+ América    |       37
+</code></pre></div>
+
+<p><strong>Solo dos filas: <code>Otros</code> no aparece.</strong> Y eso no se da por bueno, se comprueba — el <code>ELSE</code> es donde se esconden los países que clasificaste mal:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'USA'</span><span class="p">,</span><span class="s1">'Canada'</span><span class="p">,</span><span class="s1">'Mexico'</span><span class="p">,</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="s1">'Argentina'</span><span class="p">,</span><span class="s1">'Venezuela'</span><span class="p">,</span>
+<span class="w">                      </span><span class="s1">'Germany'</span><span class="p">,</span><span class="s1">'France'</span><span class="p">,</span><span class="s1">'UK'</span><span class="p">,</span><span class="s1">'Spain'</span><span class="p">,</span><span class="s1">'Italy'</span><span class="p">,</span><span class="s1">'Portugal'</span><span class="p">,</span><span class="s1">'Sweden'</span><span class="p">,</span>
+<span class="w">                      </span><span class="s1">'Norway'</span><span class="p">,</span><span class="s1">'Denmark'</span><span class="p">,</span><span class="s1">'Finland'</span><span class="p">,</span><span class="s1">'Austria'</span><span class="p">,</span><span class="s1">'Switzerland'</span><span class="p">,</span>
+<span class="w">                      </span><span class="s1">'Belgium'</span><span class="p">,</span><span class="s1">'Ireland'</span><span class="p">,</span><span class="s1">'Poland'</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">             </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'sin stock'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reorder_level</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'bajo'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'ok'</span>
+<span class="w">       </span><span class="k">END</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">estado</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  estado   | productos
+-----------+-----------
+ ok        |        55
+ bajo      |        17
+ sin stock |         5
+</code></pre></div>
+
+<p>El orden de los <code>WHEN</code> importa: <code>sin stock</code> <strong>tiene que ir primero</strong>, porque un producto con 0 unidades también cumple <code>&lt; reorder_level</code> y saldría como <code>bajo</code>.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">discontinued</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">discontinued</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">ELSE</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">END</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Con un <code>boolean</code> hay un atajo: <code>ORDER BY discontinued DESC, unit_price DESC</code> hace lo mismo, porque <code>true</code> ordena después de <code>false</code>. <strong>El <code>CASE</code> sigue siendo la respuesta buena</strong> en cuanto el criterio no sea un booleano — por ejemplo, poner primero un estado concreto de entre cinco.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="n">quarter</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">q1</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="n">quarter</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">q2</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="n">quarter</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">q3</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="n">quarter</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">q4</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | q1  | q2 | q3  | q4  | total
+------+-----+----+-----+-----+-------
+ 1996 |   0 |  0 |  70 |  82 |   152
+ 1997 |  92 | 93 | 103 | 120 |   408
+ 1998 | 182 | 88 |   0 |   0 |   270
+</code></pre></div>
+
+<p><strong>Los ceros de las esquinas son la parte informativa:</strong> la base empieza en julio de 1996 y termina en mayo de 1998. Un gráfico de esta tabla sin esa advertencia hace pensar que el negocio se hundió en 1998.</p>
+<p><strong>5.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="s1">'n/a'</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>CASE WHEN x IS NULL THEN y ELSE x END</code> <strong>es</strong> <code>coalesce(x, y)</code>. Más corto, más rápido de leer y no se puede escribir al revés por error.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../funciones-dentro-del-select/"><span>Anterior</span><strong>Funciones dentro del SELECT</strong></a><a class="nav-next" href="../funciones-de-agregacion/"><span>Siguiente</span><strong>Funciones de agregación</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

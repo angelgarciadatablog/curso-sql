@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>CROSS JOIN y self-join · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Producto cartesiano. La tabla consigo misma: jerarquías" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/cross-join-y-self-join/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CROSS JOIN y self-join" />
+  <meta property="og:description" content="Producto cartesiano. La tabla consigo misma: jerarquías" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/cross-join-y-self-join/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(22 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 22 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details open><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><span class="activo">CROSS JOIN y self-join</span></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 5 · Combinar tablas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>CROSS JOIN y self-join</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../left-right-y-full-join/">left-right-y-full-join</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Dos <code>JOIN</code> que parecen rarezas y no lo son.</p>
+<p><strong><code>CROSS JOIN</code></strong> empareja <strong>cada fila con todas</strong> las de la otra tabla: el producto cartesiano. Sin <code>ON</code>, porque no hay condición. 8 categorías × 4 regiones = 32 filas.</p>
+<p><strong>Self-join</strong> es una tabla unida <strong>consigo misma</strong>. No es un tipo de <code>JOIN</code> distinto —se escribe con <code>JOIN</code> o <code>LEFT JOIN</code> normales— sino un uso: aparece siempre que una fila se relaciona con otra fila de su misma tabla. Jerarquías (<code>reports_to</code>), duplicados, comparaciones entre pares.</p>
+<p>Los dos comparten un rasgo: <strong>cuando aparecen sin querer, son bugs; cuando aparecen a propósito, resuelven cosas que ninguna otra herramienta resuelve.</strong></p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="c1">-- CROSS JOIN: sin ON</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">b</span>
+
+<span class="c1">-- La forma antigua, idéntica y peligrosa</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+
+<span class="c1">-- Self-join: la misma tabla, dos alias distintos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span>
+</code></pre></div>
+
+<p><strong>En un self-join los alias no son opcionales: son lo que hace posible la consulta.</strong> <code>e</code> y <code>j</code> son la misma tabla vista dos veces, y sin alias no habría forma de decir de cuál hablas.</p>
+<h2 id="3-cross-join">3. CROSS JOIN</h2>
+<h3>3.1 El producto cartesiano</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">region</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 32</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">region_description</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">r</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name | region_description
+---------------+--------------------
+ Beverages     | Eastern
+ Beverages     | Northern
+ Beverages     | Southern
+ Beverages     | Western
+ Condiments    | Eastern
+</code></pre></div>
+
+<p>8 × 4 = 32. <strong>El tamaño se multiplica</strong>, y eso es lo que lo hace peligroso: dos tablas de 10.000 filas dan <strong>cien millones</strong>.</p>
+<h3>3.2 Cuando aparece sin querer</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">,</span><span class="w"> </span><span class="n">categories</span><span class="p">;</span><span class="w">            </span><span class="c1">-- 616</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">,</span><span class="w"> </span><span class="n">categories</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">categories</span><span class="p">.</span><span class="n">category_id</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 77</span>
+</code></pre></div>
+
+<p><strong>616 contra 77.</strong> Con la sintaxis de coma, <strong>olvidar la condición no da error</strong>: da un producto cartesiano que parece un resultado. Con <code>JOIN ... ON</code>, olvidar el <code>ON</code> da error de sintaxis y te enteras al momento.</p>
+<blockquote>
+<p><strong>Esa es toda la razón por la que la sintaxis de coma se abandonó.</strong> No es estilo: es que una de las dos formas te avisa y la otra no.</p>
+</blockquote>
+<h3>3.3 Cuando se usa a propósito</h3>
+<p><strong>El uso legítimo casi siempre es fabricar un esqueleto</strong>: todas las combinaciones que <em>deberían</em> existir, para luego comprobar cuáles faltan.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">g</span><span class="p">.</span><span class="n">mes</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="s1">'1997-01-01'</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span><span class="w"> </span><span class="s1">'1997-12-01'</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span><span class="w"> </span><span class="s1">'1 month'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">g</span><span class="p">(</span><span class="n">mes</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>96 filas: 8 categorías × 12 meses.</strong> Ninguna viene de los datos — es un calendario completo, inventado a propósito.</p>
+<p>¿Para qué? Porque un <code>GROUP BY</code> sobre las ventas <strong>solo devuelve los meses que tuvieron ventas</strong> (<a class="xref" href="../group-by/">group-by</a>). Si una categoría no vendió nada en marzo, marzo desaparece y el gráfico dibuja una línea continua sobre un agujero. <strong>El <code>CROSS JOIN</code> genera el eje completo, y un <code>LEFT JOIN</code> contra las ventas rellena lo que hay.</strong> Es el patrón entero de <span class="xref-pend" title="Aún no publicado">fechas-sin-actividad</span>.</p>
+<p>Los otros dos usos reales: <strong>plantillas de informe</strong> (todas las combinaciones categoría × región aunque estén vacías) y <strong>generar datos de prueba</strong>.</p>
+<h2 id="4-self-join">4. Self-join</h2>
+<h3>4.1 Jerarquías: quién es el jefe de quién</h3>
+<p><code>employees.reports_to</code> apunta a <code>employees.employee_id</code>. La tabla se relaciona consigo misma:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="n">j</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">jefe</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     empleado     |      jefe
+------------------+-----------------
+ Nancy Davolio    | Andrew Fuller
+ Andrew Fuller    |
+ Janet Leverling  | Andrew Fuller
+ Margaret Peacock | Andrew Fuller
+ Steven Buchanan  | Andrew Fuller
+ Michael Suyama   | Steven Buchanan
+ Robert King      | Steven Buchanan
+ Laura Callahan   | Andrew Fuller
+ Anne Dodsworth   | Steven Buchanan
+</code></pre></div>
+
+<p><strong>Tiene que ser <code>LEFT JOIN.</code></strong> Andrew Fuller no reporta a nadie (<code>reports_to</code> es <code>NULL</code>), así que con un <code>INNER JOIN</code> <strong>desaparecería el director de la lista de empleados</strong> — el error más irónico posible.</p>
+<p>Y dado la vuelta, cuántos subordinados tiene cada jefe:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">jefe</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">subordinados</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      jefe       | subordinados
+-----------------+--------------
+ Andrew Fuller   |            5
+ Steven Buchanan |            3
+</code></pre></div>
+
+<p><strong>Dos niveles: Fuller arriba, Buchanan en medio con 3 a su cargo.</strong> Un self-join recorre <strong>un solo nivel</strong> de jerarquía. Para bajar por un organigrama de profundidad desconocida hace falta una CTE recursiva (<a class="xref" href="../cte-recursivas/">cte-recursivas</a>).</p>
+<h3>4.2 Pares: clientes de la misma ciudad</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cliente_a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cliente_b</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>           cliente_a            |       cliente_b        |     city
+--------------------------------+------------------------+--------------
+ Cactus Comidas para llevar     | Océano Atlántico Ltda. | Buenos Aires
+ Cactus Comidas para llevar     | Rancho grande          | Buenos Aires
+ Océano Atlántico Ltda.         | Rancho grande          | Buenos Aires
+ Furia Bacalhau e Frutos do Mar | Princesa Isabel Vinhos | Lisboa
+ Around the Horn                | B's Beverages          | London
+</code></pre></div>
+
+<p><strong>El <code>b.customer_id &gt; a.customer_id</code> es la pieza clave.</strong> Sin él:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span><span class="p">;</span><span class="w">                          </span><span class="c1">-- 179</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span>
+<span class="w">                                                 </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">            </span><span class="c1">-- 44</span>
+</code></pre></div>
+
+<p><strong>179 contra 44.</strong> Los 179 se descomponen así: <strong>91 filas donde cada cliente se empareja consigo mismo</strong>, más 88 = 44 parejas contadas <strong>dos veces</strong> (A-B y B-A).</p>
+<table>
+<thead>
+<tr>
+<th>Condición</th>
+<th>Qué obtienes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>b.city = a.city</code></td>
+<td>Cada cliente consigo mismo + cada pareja duplicada</td>
+</tr>
+<tr>
+<td><code>... AND b.customer_id &lt;&gt; a.customer_id</code></td>
+<td>Quita los espejos, deja las parejas por duplicado (88)</td>
+</tr>
+<tr>
+<td><code>... AND b.customer_id &gt; a.customer_id</code></td>
+<td><strong>44 parejas, cada una una vez</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>En un self-join de pares, <code>&gt;</code> es la condición correcta, no <code>&lt;&gt;</code>.</strong> Con <code>&lt;&gt;</code> cada pareja sale dos veces y cualquier <code>count</code> o <code>sum</code> sale al doble.</p>
+</blockquote>
+<h3>4.3 Comparar filas de la misma tabla</h3>
+<p>Productos que cuestan menos de la décima parte que otro de su misma categoría:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">caro</span><span class="p">,</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">barato</span><span class="p">,</span>
+<span class="w">       </span><span class="n">p1</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p1</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p2</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">                </span><span class="k">AND</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">unit_price</span><span class="w">  </span><span class="o">&lt;</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     caro      |          barato           | unit_price | unit_price
+---------------+---------------------------+------------+------------
+ Côte de Blaye | Laughing Lumberjack Lager |     263.50 |      14.00
+ Côte de Blaye | Rhönbräu Klosterbier      |     263.50 |       7.75
+ Côte de Blaye | Outback Lager             |     263.50 |      15.00
+</code></pre></div>
+
+<p>Fíjate en que el <code>ON</code> <strong>no lleva ninguna igualdad entre claves</strong>: lleva una desigualdad. Es un <strong>non-equi join</strong>, es legítimo, y es caro: el motor no puede usar los atajos de un emparejamiento por igualdad.</p>
+<h3>4.4 Duplicados sospechosos</h3>
+<p>El caso de <a class="xref" href="../distinct-y-duplicados/">distinct-y-duplicados</a>, ahora con las dos filas al lado:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o1</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedido_1</span><span class="p">,</span><span class="w"> </span><span class="n">o2</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedido_2</span><span class="p">,</span>
+<span class="w">       </span><span class="n">o1</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">o1</span><span class="p">.</span><span class="n">order_date</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o1</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o2</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o2</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o1</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">              </span><span class="k">AND</span><span class="w"> </span><span class="n">o2</span><span class="p">.</span><span class="n">order_date</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">o1</span><span class="p">.</span><span class="n">order_date</span>
+<span class="w">              </span><span class="k">AND</span><span class="w"> </span><span class="n">o2</span><span class="p">.</span><span class="n">order_id</span><span class="w">    </span><span class="o">&gt;</span><span class="w"> </span><span class="n">o1</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o1</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> pedido_1 | pedido_2 | customer_id | order_date
+----------+----------+-------------+------------
+    10410 |    10411 | BOTTM       | 1997-01-10
+    10456 |    10457 | KOENE       | 1997-02-25
+    10616 |    10617 | GREAL       | 1997-07-31
+    10713 |    10714 | SAVEA       | 1997-10-22
+</code></pre></div>
+
+<p><strong>7 parejas.</strong> Con <code>GROUP BY ... HAVING count(*) &gt; 1</code> sabías <em>cuántos</em> había; con el self-join ves <strong>los dos ids concretos</strong>, que es lo que hace falta para investigar. Y aquí saltan a la vista <strong>ids consecutivos</strong> —10410/10411, 10456/10457—: dos pedidos creados uno detrás de otro. Eso es exactamente lo que parece un doble clic... y también lo que parece un cliente que pide dos cosas seguidas. <strong>El SQL localiza los candidatos; decidir cuáles son errores no es SQL.</strong></p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong><code>FROM a, b</code> sin condición.</strong> Producto cartesiano silencioso.</li>
+<li><strong>Un <code>CROSS JOIN</code> sobre tablas grandes.</strong> 10.000 × 10.000 = cien millones de filas. Se nota.</li>
+<li><strong>Self-join con <code>INNER</code> cuando la referencia puede ser <code>NULL</code>.</strong> Desaparece el director.</li>
+<li><strong>Self-join de pares con <code>&lt;&gt;</code> en vez de <code>&gt;</code>.</strong> Todo sale por duplicado.</li>
+<li><strong>Olvidar los alias en un self-join.</strong> <code>column reference is ambiguous</code> en el mejor caso.</li>
+<li><strong>Usar self-join para recorrer una jerarquía de más de un nivel.</strong> Un self-join = un nivel. Para <em>n</em> niveles, <code>n</code> joins o una CTE recursiva.</li>
+<li><strong>Non-equi joins sobre tablas grandes sin pensar.</strong> Correctos y caros.</li>
+</ol>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CROSS JOIN</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>FROM a, b</code></td>
+<td>✅ (no lo uses)</td>
+<td>✅ (no lo uses)</td>
+</tr>
+<tr>
+<td>Self-join</td>
+<td>✅ Igual</td>
+<td>✅ Igual</td>
+</tr>
+<tr>
+<td>Generar series</td>
+<td><code>generate_series(...)</code></td>
+<td>❌ No existe → tabla de números, <code>master.dbo.spt_values</code> o una CTE recursiva</td>
+</tr>
+<tr>
+<td>Correlación en el <code>FROM</code></td>
+<td><code>CROSS JOIN LATERAL</code></td>
+<td><code>CROSS APPLY</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>generate_series</code> es la diferencia práctica</strong>, y aparece cada vez que hay que fabricar un calendario. En SQL Server lo habitual es mantener una tabla de fechas permanente en la base — que, dicho sea de paso, <strong>también es buena idea en PostgreSQL</strong> cuando los informes de calendario son frecuentes.</p>
+<p><code>CROSS APPLY</code> de SQL Server es el equivalente exacto de <code>CROSS JOIN LATERAL</code> — se ve en <a class="xref" href="../lateral/">lateral</a>.</p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>Genera todas las combinaciones de categoría y región. ¿Cuántas son?</li>
+<li>Lista cada empleado con su jefe y el cargo del jefe. Los 9 tienen que salir.</li>
+<li>Encuentra las parejas de productos de la misma categoría cuyo precio difiere en menos de 0,50. Cada pareja una sola vez.</li>
+<li>¿Cuántos empleados hay en cada nivel de la jerarquía: sin jefe, con jefe directo, y con jefe que a su vez tiene jefe?</li>
+<li>Sin ejecutarla, di cuántas filas devuelve y por qué:
+   <code>sql
+   SELECT count(*) FROM employees e1, employees e2;</code></li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>El responsable de datos sospecha que hay clientes duplicados: la misma empresa dada de alta dos veces con códigos distintos. Te pide que los busques.</em></p>
+</blockquote>
+<p>No hay una columna que lo diga. Hay que definir qué significa "el mismo cliente".</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>Primero hay que definir "el mismo cliente". Ninguna definición es perfecta, así que se prueban varias y se enseña el resultado de cada una:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Candidato 1: mismo teléfono</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">phone</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">phone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">phone</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span>
+
+<span class="c1">-- Candidato 2: misma dirección y ciudad</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">address</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span>
+
+<span class="c1">-- Candidato 3: mismo nombre de contacto y ciudad</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contact_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">contact_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contact_name</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">city</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span>
+
+<span class="c1">-- Candidato 4: nombre de empresa parecido, ignorando mayúsculas y espacios</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">company_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="n">b</span>
+<span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="k">lower</span><span class="p">(</span><span class="k">replace</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="s1">' '</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">lower</span><span class="p">(</span><span class="k">replace</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="s1">' '</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">))</span>
+<span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Las cuatro devuelven 0 filas. No hay duplicados en Northwind.</strong></p>
+<p>Y eso <strong>es</strong> la respuesta, entregada así:</p>
+<ol>
+<li><strong>"No he encontrado ninguno" solo vale si dices qué buscaste.</strong> Un "no hay duplicados" a secas es indistinguible de "no supe buscarlos". Las cuatro consultas son la prueba, y cada una define "el mismo cliente" de una forma distinta.</li>
+<li><strong>Ninguna de las cuatro encontraría los duplicados de verdad difíciles.</strong> <code>Ana Trujillo Emparedados</code> y <code>Ana Trujillo Emparedados y helados</code> son el mismo negocio y ninguna condición de igualdad los junta. Para eso hace falta similitud de texto —<code>pg_trgm</code>, distancia de edición— y <strong>entonces aparecen falsos positivos</strong> y alguien tiene que revisarlos a mano.</li>
+<li><strong>La conclusión útil no es el resultado, es la propuesta:</strong> si los duplicados de clientes son un problema recurrente, se resuelve con una <strong>restricción <code>UNIQUE</code></strong> en el momento del alta, no con una consulta que los busca después (<span class="xref-pend" title="Aún no publicado">restricciones</span>). Buscar duplicados es limpiar; impedirlos es arreglar.</li>
+</ol></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">region</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 32</span>
+</code></pre></div>
+
+<p>8 × 4. <strong>El único <code>count</code> de todo el curso que se puede predecir multiplicando</strong> — precisamente porque el <code>CROSS JOIN</code> no depende de los datos.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="k">coalesce</span><span class="p">(</span><span class="n">j</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="s1">'(nadie)'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">jefe</span><span class="p">,</span>
+<span class="w">       </span><span class="k">coalesce</span><span class="p">(</span><span class="n">j</span><span class="p">.</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="s1">'—'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cargo_del_jefe</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>LEFT JOIN</code> + <code>coalesce</code>: <strong>los 9 salen</strong>, y Andrew Fuller aparece con <code>(nadie)</code> en vez de una celda vacía que parece un fallo de datos.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">producto_a</span><span class="p">,</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">producto_b</span><span class="p">,</span>
+<span class="w">       </span><span class="n">p1</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p1</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p2</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">                </span><span class="k">AND</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">product_id</span><span class="w">  </span><span class="o">&gt;</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">product_id</span>
+<span class="w">                </span><span class="k">AND</span><span class="w"> </span><span class="k">abs</span><span class="p">(</span><span class="n">p1</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p2</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">50</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p1</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>13 parejas</strong>. El <code>p2.product_id &gt; p1.product_id</code> evita los espejos; <code>abs()</code> hace que la comparación funcione en los dos sentidos sin escribirla dos veces.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'nivel 1 — sin jefe'</span>
+<span class="w">            </span><span class="k">WHEN</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'nivel 2 — reporta al director'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w">                           </span><span class="s1">'nivel 3 — reporta a un mando'</span>
+<span class="w">       </span><span class="k">END</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">nivel</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleados</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">j</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">reports_to</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>             nivel             | empleados
+-------------------------------+-----------
+ nivel 1 — sin jefe            |         1
+ nivel 2 — reporta al director |         5
+ nivel 3 — reporta a un mando  |         3
+</code></pre></div>
+
+<p>1 + 5 + 3 = 9. ✓ <strong>El self-join da acceso a la fila del jefe</strong>, y por eso se puede preguntar por <code>j.reports_to</code> — el jefe del jefe. Cada nivel más exigiría otro <code>JOIN</code>; ahí es donde deja de compensar frente a una CTE recursiva.</p>
+<p><strong>5.</strong> <strong>81 filas.</strong> 9 empleados × 9 empleados, producto cartesiano completo: no hay <code>WHERE</code> ni <code>ON</code>. Es la misma consulta que <code>employees CROSS JOIN employees</code>, escrita de la forma que no avisa.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../left-right-y-full-join/"><span>Anterior</span><strong>LEFT, RIGHT y FULL JOIN</strong></a><a class="nav-next" href="../anti-join-y-semi-join/"><span>Siguiente</span><strong>Anti-join y semi-join</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-cross-join">3. CROSS JOIN</a>
+<a href="#4-self-join">4. Self-join</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

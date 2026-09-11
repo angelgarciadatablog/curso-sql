@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Subconsultas escalares y multivalor · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Una consulta como valor o como lista" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/subconsultas-escalares-y-multivalor/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Subconsultas escalares y multivalor" />
+  <meta property="og:description" content="Una consulta como valor o como lista" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/subconsultas-escalares-y-multivalor/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(26 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 26 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details open><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><span class="activo">Subconsultas escalares y multivalor</span></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 6 · Consultas dentro de consultas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Subconsultas escalares y multivalor</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../joins-multiples-y-granularidad/">joins-multiples-y-granularidad</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Una <strong>subconsulta</strong> es un <code>SELECT</code> dentro de otro <code>SELECT</code>. Se escribe entre paréntesis y el motor la resuelve primero.</p>
+<p>Lo que decide cómo puedes usarla es <strong>qué forma tiene lo que devuelve</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Qué devuelve</th>
+<th>Dónde va</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Escalar</strong></td>
+<td>1 fila, 1 columna</td>
+<td>Donde quepa un valor: <code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code></td>
+</tr>
+<tr>
+<td><strong>Multivalor</strong></td>
+<td>N filas, 1 columna</td>
+<td>Con <code>IN</code>, <code>ANY</code>, <code>ALL</code></td>
+</tr>
+<tr>
+<td><strong>Tabla</strong></td>
+<td>N filas, N columnas</td>
+<td>En el <code>FROM</code> → <a class="xref" href="../tablas-derivadas/">tablas-derivadas</a></td>
+</tr>
+</tbody>
+</table>
+<p>Este tema son las dos primeras. Y las dos existen para lo mismo: <strong>comparar una fila contra algo que hay que calcular antes</strong> — la media, el máximo, una lista.</p>
+<h2 id="2-subconsulta-escalar">2. Subconsulta escalar</h2>
+<p>Devuelve <strong>exactamente un valor</strong>. Se comporta como si escribieras el número a mano.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price | media
+-------------------------+------------+-------
+ Côte de Blaye           |     263.50 | 28.83
+ Thüringer Rostbratwurst |     123.79 | 28.83
+ Mishi Kobe Niku         |      97.00 | 28.83
+</code></pre></div>
+
+<p><strong>El mismo valor en todas las filas</strong>, porque la subconsulta no depende de la fila: se calcula <strong>una vez</strong> para toda la consulta. (La que sí depende de la fila es la correlacionada, tema siguiente.)</p>
+<p>Y lo que hace útil eso: <strong>comparar cada fila contra el agregado</strong>, que sin subconsulta es imposible en una sola pasada.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">vs_media</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">vs_media</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price | vs_media
+-------------------------+------------+----------
+ Côte de Blaye           |     263.50 |   234.67
+ Thüringer Rostbratwurst |     123.79 |    94.96
+ Mishi Kobe Niku         |      97.00 |    68.17
+</code></pre></div>
+
+<p><strong>En el <code>WHERE</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 25</span>
+</code></pre></div>
+
+<p><strong>25 productos de 77 están por encima de la media.</strong> No 38: la media está arrastrada hacia arriba por los caros (<a class="xref" href="../funciones-de-agregacion/">funciones-de-agregacion</a>).</p>
+<p><strong>Varias en el mismo <code>SELECT</code>, sin <code>FROM</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> pedidos | clientes | productos
+---------+----------+-----------
+     830 |       91 |        77
+</code></pre></div>
+
+<p>Una fila de resumen a partir de tres tablas distintas, <strong>sin ningún <code>JOIN</code></strong>. Es el patrón de las tarjetas de un cuadro de mando.</p>
+<h3>2.1 Las dos formas de romperla</h3>
+<p><strong>Devuelve más de una fila → error:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  more than one row returned by a subquery used as an expression
+</code></pre></div>
+
+<p><strong>Este error es una suerte.</strong> Aparece cuando los datos crecen: la consulta funcionó en pruebas con una fila y revienta en producción con dos. Si esperas una sola fila, <strong>garantízalo</strong> con un <code>LIMIT 1</code> y un <code>ORDER BY</code> que decida cuál, o con una agregación (<code>max</code>, <code>min</code>) que por definición devuelve una.</p>
+<p><strong>Devuelve cero filas → <code>NULL</code>, sin error:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">99</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">inexistente</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> product_name | inexistente
+--------------+-------------
+ Chai         |
+ Chang        |
+</code></pre></div>
+
+<p><strong>Este es el peligroso.</strong> Una subconsulta vacía no protesta: devuelve <code>NULL</code>, y ese <code>NULL</code> se propaga por toda la expresión (<a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>). Si va en un <code>WHERE</code>, <strong>la condición nunca se cumple y la consulta devuelve cero filas</strong>.</p>
+<h2 id="3-subconsulta-multivalor-in-any-all">3. Subconsulta multivalor: IN, ANY, ALL</h2>
+<p>Devuelve <strong>una columna con varias filas</strong>. Hace falta un operador que sepa comparar contra un conjunto.</p>
+<table>
+<thead>
+<tr>
+<th>Operador</th>
+<th>Significa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x IN (subconsulta)</code></td>
+<td><code>x</code> es igual a <strong>alguno</strong></td>
+</tr>
+<tr>
+<td><code>x = ANY (...)</code></td>
+<td>Lo mismo que <code>IN</code></td>
+</tr>
+<tr>
+<td><code>x &gt; ANY (...)</code></td>
+<td>Mayor que <strong>al menos uno</strong> → mayor que el mínimo</td>
+</tr>
+<tr>
+<td><code>x &gt; ALL (...)</code></td>
+<td>Mayor que <strong>todos</strong> → mayor que el máximo</td>
+</tr>
+<tr>
+<td><code>x &lt;&gt; ALL (...)</code></td>
+<td>Distinto de todos → lo mismo que <code>NOT IN</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>IN</code> con subconsulta:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span>
+<span class="w">                      </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Beverages'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Seafood'</span><span class="p">));</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+    24
+</code></pre></div>
+
+<p>Fíjate en los dos <code>IN</code> distintos: el de fuera con <strong>subconsulta</strong>, el de dentro con <strong>lista literal</strong>. Los dos son válidos y hacen cosas distintas.</p>
+<p><strong><code>ANY</code> contra <code>ALL</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="c1">-- 75</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="c1">--  0</span>
+</code></pre></div>
+
+<p><strong>75 contra 0.</strong></p>
+<ul>
+<li><code>&gt; ANY</code> = más caro que <strong>el más barato</strong> de las bebidas. Casi todos lo son.</li>
+<li><code>&gt; ALL</code> = más caro que <strong>el más caro</strong> de las bebidas, que es <code>Côte de Blaye</code> a 263,50 — el producto más caro de toda la base. Nadie lo supera.</li>
+</ul>
+<p>En la práctica <strong>casi siempre es más claro escribir el agregado</strong>: <code>&gt; (SELECT max(unit_price) ...)</code> dice lo mismo que <code>&gt; ALL</code> y se lee sin pensar. <code>ANY</code> y <code>ALL</code> se conocen sobre todo para <strong>leer</strong> código ajeno.</p>
+<h3>3.1 La trampa: <code>ALL</code> sobre un conjunto vacío</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">900</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+    77
+</code></pre></div>
+
+<p><strong>Los 77.</strong> No hay ningún producto con id mayor que 900, así que la condición <em>"mayor que todos los de un conjunto vacío"</em> es <strong>cierta por vacuidad</strong>: no hay ninguno que la incumpla.</p>
+<p>Es lógicamente correcto y prácticamente venenoso: <strong>un filtro que se supone restrictivo deja pasar la tabla entera</strong> el día que la subconsulta se queda sin filas.</p>
+<h3>3.2 La otra trampa: <code>ALL</code> con <code>NULL</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">);</span><span class="w">                       </span><span class="c1">-- 1</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span><span class="w"> </span><span class="c1">-- 0</span>
+</code></pre></div>
+
+<p><strong>1 contra 0.</strong> El máximo de la categoría 6 es 123,79, así que solo <code>Côte de Blaye</code> (263,50) lo supera. <strong>Añadir un solo <code>NULL</code> al conjunto lo borra</strong>: <code>263.50 &gt; NULL</code> es <code>UNKNOWN</code>, y <code>ALL</code> exige que <strong>todas</strong> las comparaciones sean ciertas.</p>
+<p>Y <code>&lt;&gt; ALL</code> es literalmente <code>NOT IN</code>, con la misma trampa:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">);</span><span class="w">                        </span><span class="c1">-- 0  ❌</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">employee_id</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span><span class="w">  </span><span class="c1">-- 7  ✅</span>
+</code></pre></div>
+
+<p><strong>Los mismos 0 contra 7 del tema <a class="xref" href="../anti-join-y-semi-join/">anti-join-y-semi-join</a></strong>, con otra sintaxis. La conclusión no cambia: <strong>para negar, <code>NOT EXISTS</code>.</strong></p>
+<h2 id="4-cu-ndo-subconsulta-y-cu-ndo-join">4. Cuándo subconsulta y cuándo JOIN</h2>
+<table>
+<thead>
+<tr>
+<th>Situación</th>
+<th>Mejor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comparar contra un agregado global</td>
+<td><strong>Subconsulta escalar</strong></td>
+</tr>
+<tr>
+<td>Necesitas columnas de la otra tabla</td>
+<td><strong><code>JOIN</code></strong></td>
+</tr>
+<tr>
+<td>Solo quieres filtrar por existencia</td>
+<td><strong><code>EXISTS</code></strong></td>
+</tr>
+<tr>
+<td>Un valor de resumen en cada fila</td>
+<td><strong>Subconsulta escalar</strong> o función de ventana</td>
+</tr>
+<tr>
+<td>Filtrar por una lista de otra tabla</td>
+<td><code>IN</code> o <code>EXISTS</code> — equivalentes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El criterio no es el rendimiento</strong> —PostgreSQL reescribe casi todo esto internamente— <strong>sino cuál se lee mejor.</strong> Un <code>WHERE unit_price &gt; (SELECT avg(unit_price) FROM products)</code> dice exactamente lo que hace; la versión con <code>JOIN</code> contra una subconsulta agregada dice lo mismo con el triple de ruido.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong>Subconsulta escalar que devuelve más de una fila.</strong> Error en tiempo de ejecución, a veces solo cuando crecen los datos.</li>
+<li><strong>Subconsulta escalar vacía.</strong> <code>NULL</code> silencioso que anula la expresión o vacía el <code>WHERE</code>.</li>
+<li><strong><code>NOT IN</code> / <code>&lt;&gt; ALL</code> sobre una columna con nulos.</strong> Cero filas.</li>
+<li><strong><code>ALL</code> sobre un conjunto vacío.</strong> Cierto para todo.</li>
+<li><strong>Usar subconsulta cuando necesitas columnas de la otra tabla.</strong> Acabas escribiendo cinco subconsultas escalares donde cabía un <code>JOIN</code>.</li>
+<li><strong>Repetir la misma subconsulta escalar varias veces.</strong> Se calcula una vez, así que no es un problema de rendimiento — <strong>pero sí de mantenimiento</strong>: el día que cambia el criterio hay que tocarla en cinco sitios. Ahí es donde entra un CTE (<a class="xref" href="../cte-with/">cte-with</a>).</li>
+<li><strong>Olvidar los paréntesis.</strong> Error de sintaxis, este avisa.</li>
+</ol>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subconsulta escalar</td>
+<td>✅</td>
+<td>✅ <strong>Idéntico</strong></td>
+</tr>
+<tr>
+<td><code>IN</code> / <code>ANY</code> / <code>ALL</code></td>
+<td>✅</td>
+<td>✅ <strong>Idéntico</strong></td>
+</tr>
+<tr>
+<td>Subconsulta escalar vacía → <code>NULL</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Más de una fila → error</td>
+<td>✅</td>
+<td>✅ (<code>Subquery returned more than 1 value</code>)</td>
+</tr>
+<tr>
+<td><code>SOME</code> como sinónimo de <code>ANY</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Este tema es completamente portable</strong>, trampas incluidas. <code>ALL</code> sobre vacío es cierto en los dos, y <code>NOT IN</code> con nulos falla igual en los dos: es el estándar SQL, no una decisión de motor.</p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>Los productos que cuestan más que la media de su tabla, con la diferencia respecto a esa media.</li>
+<li>El pedido con el flete más alto, mostrando id, cliente y flete.</li>
+<li>Los clientes que están en alguno de los países donde también hay proveedores.</li>
+<li>Los productos más caros que el más caro de la categoría <code>Seafood</code>.</li>
+<li>Explica por qué esta consulta devuelve <strong>todas</strong> las filas y cómo la arreglarías:
+   <code>sql
+   SELECT count(*) FROM orders
+   WHERE freight &gt; ALL (SELECT freight FROM orders WHERE ship_country = 'Narnia');</code></li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere una ficha de una línea por producto para la reunión: nombre, precio, cuánto se aleja del precio medio de la empresa, y qué porcentaje de la facturación total representa. Solo los productos que estén por encima de la media.</em></p>
+</blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sobre_la_media</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span>
+<span class="w">                      </span><span class="k">WHERE</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">)</span>
+<span class="w">                   </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pct_facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price | sobre_la_media | pct_facturacion
+-------------------------+------------+----------------+-----------------
+ Côte de Blaye           |     263.50 |         234.67 |           11.17
+ Thüringer Rostbratwurst |     123.79 |          94.96 |            6.35
+ Raclette Courdavault    |      55.00 |          26.17 |            5.62
+ Tarte au sucre          |      49.30 |          20.47 |            3.73
+</code></pre></div>
+
+<p><strong>25 filas.</strong> Tres cosas del diseño:</p>
+<ol>
+<li><strong>Hay tres tipos de subconsulta en juego y conviene distinguirlos.</strong> <code>(SELECT avg(unit_price) FROM products)</code> y el denominador de la facturación son <strong>escalares globales</strong>: se calculan una vez. La del numerador <strong>es correlacionada</strong> —lleva <code>WHERE od.product_id = p.product_id</code>— y se evalúa por fila. Es el tema siguiente, <a class="xref" href="../subconsultas-correlacionadas/">subconsultas-correlacionadas</a>, y es donde esta consulta empieza a ser cara.</li>
+<li><strong>El <code>coalesce</code> del numerador no es decorativo.</strong> Un producto que no se hubiera vendido nunca daría <code>NULL</code>, y ese <code>NULL</code> convertiría todo el porcentaje en <code>NULL</code> — apareciendo arriba del todo en un <code>ORDER BY ... DESC</code>. Aquí no pasa (los 77 se han vendido), <strong>pero la consulta tiene que aguantar el día que entre un producto nuevo.</strong></li>
+<li><strong><code>Côte de Blaye</code> es el 11,17% de la facturación de la empresa.</strong> Ese es el dato que justifica el informe: un solo producto, de 77, concentra una novena parte del negocio. <strong>Y también es el que arrastraba la media de precios en el tema 18</strong> — el mismo valor extremo apareciendo por tercera vez.</li>
+</ol>
+<p><strong>Y lo que hay que decir al entregar:</strong> el filtro <em>"por encima de la media"</em> deja fuera productos que facturan mucho siendo baratos. La lista responde literalmente a lo que pidieron, pero <strong>si la pregunta real es "qué productos importan", el criterio debería ser la facturación, no el precio.</strong></p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sobre_la_media</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">sobre_la_media</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>25 productos.</strong> La subconsulta aparece dos veces y <strong>se calcula una sola vez</strong>: PostgreSQL detecta que no depende de la fila. El problema de escribirla dos veces no es de velocidad, es que <strong>hay que cambiarla en dos sitios</strong> si mañana la media pasa a ser solo de productos activos.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | company_name | freight
+----------+--------------+---------
+    10540 | QUICK-Stop   | 1007.64
+</code></pre></div>
+
+<p><strong>Aquí conviven las dos herramientas bien usadas:</strong> subconsulta para el máximo (un valor calculado), <code>JOIN</code> para el nombre del cliente (una columna de otra tabla). <strong>Es exactamente el criterio de la sección 4.</strong></p>
+<p>Ojo con una alternativa tentadora: <code>ORDER BY freight DESC LIMIT 1</code> da lo mismo <strong>pero se comporta distinto en un empate</strong> — devuelve una fila arbitraria, mientras que la subconsulta devuelve todas las empatadas (<a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>).</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">country</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>69 clientes</strong> en los 12 países que también tienen proveedores. Con <code>EXISTS</code> sería equivalente; con <code>INTERSECT</code> no, porque <code>INTERSECT</code> solo devolvería la columna <code>country</code> (<a class="xref" href="../union-intersect-except/">union-intersect-except</a>).</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="w">                    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">                    </span><span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Seafood'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       | unit_price
+-------------------------+------------
+ Côte de Blaye           |     263.50
+ Thüringer Rostbratwurst |     123.79
+ Mishi Kobe Niku         |      97.00
+ Sir Rodney's Marmalade  |      81.00
+</code></pre></div>
+
+<p><strong>4 productos</strong> superan los 62,50 de <code>Carnarvon Tigers</code>. Escrito con <code>&gt; ALL</code> daría lo mismo; <strong>con <code>max()</code> se entiende sin releerlo</strong>.</p>
+<p><strong>5.</strong> No hay ningún pedido a <code>Narnia</code>, así que la subconsulta devuelve <strong>cero filas</strong> y <code>&gt; ALL</code> sobre un conjunto vacío es <strong>cierto para todo</strong>: salen los 830.</p>
+<p>El arreglo depende de lo que quisieras:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Si querías "cero cuando no hay referencia":</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Narnia'</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Devuelve <strong>0</strong>, porque <code>max()</code> sobre vacío es <code>NULL</code> y <code>freight &gt; NULL</code> es <code>UNKNOWN</code> para todas las filas.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Si querías que el filtro simplemente no aplique cuando no hay referencia:</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="k">coalesce</span><span class="p">((</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Narnia'</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>Lo importante del ejercicio: <code>&gt; ALL</code> sobre vacío da 830 y <code>&gt; max()</code> sobre vacío da 0.</strong> Dos respuestas opuestas a la misma pregunta mal planteada. <strong>Cuando una subconsulta puede quedarse vacía, hay que decidir explícitamente qué pasa entonces</strong> — no dejar que lo decida la lógica de tres valores.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../joins-multiples-y-granularidad/"><span>Anterior</span><strong>Joins múltiples y granularidad</strong></a><a class="nav-next" href="../subconsultas-correlacionadas/"><span>Siguiente</span><strong>Subconsultas correlacionadas</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-subconsulta-escalar">2. Subconsulta escalar</a>
+<a href="#3-subconsulta-multivalor-in-any-all">3. Subconsulta multivalor: IN, ANY, ALL</a>
+<a href="#4-cu-ndo-subconsulta-y-cu-ndo-join">4. Cuándo subconsulta y cuándo JOIN</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

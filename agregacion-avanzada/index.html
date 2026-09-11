@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Agregación avanzada · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FILTER, GROUPING SETS, ROLLUP, CUBE" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/agregacion-avanzada/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Agregación avanzada" />
+  <meta property="og:description" content="FILTER, GROUPING SETS, ROLLUP, CUBE" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/agregacion-avanzada/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(19 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 19 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details open><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><span class="activo">Agregación avanzada</span></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 4 · Agregar</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Agregación avanzada</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../having-vs-where/">having-vs-where</a></div>
+    
+    <div class="post-body"><blockquote>
+<p><strong>Este tema no está en las guías al uso.</strong> Verificado sobre el material de referencia: <code>GROUPING SETS</code>, <code>ROLLUP</code> y <code>CUBE</code> no aparecen ni una vez en sus 249 archivos. Y son exactamente lo que se pide en un informe real: <em>"lo mismo, pero con subtotales"</em>.</p>
+</blockquote>
+<h2 id="1-qu-es">1. Qué es</h2>
+<p>Con lo visto hasta aquí, un <code>GROUP BY</code> produce <strong>un solo nivel</strong> de agregación. Si además quieres subtotales y un total general, la salida ingenua es escribir tres consultas y unirlas con <code>UNION ALL</code> — tres pasadas sobre la misma tabla para responder a una sola pregunta.</p>
+<p>Este tema son las cuatro herramientas que evitan eso:</p>
+<table>
+<thead>
+<tr>
+<th>Herramienta</th>
+<th>Qué resuelve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FILTER</code></td>
+<td>Agregar solo un subconjunto, <strong>por columna</strong></td>
+</tr>
+<tr>
+<td><code>GROUPING SETS</code></td>
+<td>Varios niveles de agrupación en una sola pasada</td>
+</tr>
+<tr>
+<td><code>ROLLUP</code></td>
+<td>Subtotales <strong>jerárquicos</strong> + total general</td>
+</tr>
+<tr>
+<td><code>CUBE</code></td>
+<td><strong>Todas</strong> las combinaciones posibles</td>
+</tr>
+<tr>
+<td><code>GROUPING()</code></td>
+<td>Distinguir un subtotal de un <code>NULL</code> real</td>
+</tr>
+</tbody>
+</table>
+<p>Las cuatro primeras hacen <strong>una sola lectura de la tabla</strong>. Esa es la ventaja real, no la brevedad.</p>
+<h2 id="2-filter-agregar-un-subconjunto">2. FILTER — agregar un subconjunto</h2>
+<div class="hl"><pre><span></span><code><span class="n">agregación</span><span class="p">(...)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">condición</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Aplica la condición <strong>solo a esa agregación</strong>, no a la consulta. Ya ha aparecido en temas anteriores; aquí está su explicación completa.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                              </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">caros</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_caros</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1997</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete_1997</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country | pedidos | caros | pct_caros | flete_1997
+--------------+---------+-------+-----------+------------
+ Germany      |     122 |    32 |      26.2 |    6232.55
+ USA          |     122 |    40 |      32.8 |    5819.37
+ Brazil       |      83 |    12 |      14.5 |    2226.01
+ France       |      77 |    13 |      16.9 |    2467.76
+ UK           |      56 |     9 |      16.1 |    1188.55
+</code></pre></div>
+
+<p><strong>Cuatro métricas con cuatro criterios distintos, en una pasada.</strong> Alemania y EE. UU. empatan a 122 pedidos, pero <strong>el 32,8% de los de EE. UU. son caros frente al 26,2% de los alemanes</strong>. Esa comparación necesita <code>FILTER</code>: con un <code>WHERE</code> habrías perdido el denominador.</p>
+<p><code>FILTER</code> es del estándar SQL. <strong>SQL Server no lo implementa</strong>, y allí se escribe <code>SUM(CASE WHEN ... THEN 1 ELSE 0 END)</code> — que hace lo mismo, peor.</p>
+<blockquote>
+<p><strong>Regla mental:</strong> <code>WHERE</code> filtra la consulta entera; <code>FILTER</code> filtra una columna del resultado.</p>
+</blockquote>
+<h2 id="3-rollup-subtotales-jer-rquicos">3. ROLLUP — subtotales jerárquicos</h2>
+<div class="hl"><pre><span></span><code><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Agrupa por <code>(a,b)</code>, luego por <code>(a)</code>, y finalmente por <code>()</code> — el total general. Es lo que quieres cuando las columnas forman una <strong>jerarquía</strong>: año → mes, país → ciudad, categoría → producto.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="w"> </span><span class="s1">'France'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">),</span><span class="w"> </span><span class="n">ship_country</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span><span class="w"> </span><span class="n">ship_country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | ship_country | count
+------+--------------+-------
+ 1996 | Brazil       |    13
+ 1996 | France       |    15
+ 1996 |              |    28     ← subtotal de 1996
+ 1997 | Brazil       |    42
+ 1997 | France       |    39
+ 1997 |              |    81     ← subtotal de 1997
+ 1998 | Brazil       |    28
+ 1998 | France       |    23
+ 1998 |              |    51     ← subtotal de 1998
+      |              |   160     ← total general
+</code></pre></div>
+
+<p><strong>10 filas en una sola consulta.</strong> Sin <code>ROLLUP</code> serían tres consultas y un <code>UNION ALL</code>, con tres lecturas de <code>orders</code>.</p>
+<p><strong>Las celdas vacías marcan el nivel del subtotal.</strong> Cuanto más a la izquierda empieza el vacío, más agregada es la fila.</p>
+<h3>3.1 Etiquetar los subtotales</h3>
+<p>Un informe con celdas en blanco se lee mal. Se arregla con <code>GROUPING()</code> y <code>coalesce</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">GROUPING</span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'TOTAL'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">text</span><span class="w"> </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">coalesce</span><span class="p">(</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="s1">'— todos —'</span><span class="p">)</span><span class="w">                </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="w"> </span><span class="s1">'France'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">),</span><span class="w"> </span><span class="n">ship_country</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio  |   pais    | count
+-------+-----------+-------
+ 1996  | — todos — |    28
+ 1996  | Brazil    |    13
+ 1996  | France    |    15
+ 1997  | — todos — |    81
+ ...
+ TOTAL | — todos — |   160
+</code></pre></div>
+
+<blockquote>
+<p><strong>Gotcha:</strong> <code>GROUPING()</code> <strong>no acepta el alias</strong> de la columna. Hay que repetir la expresión entera (<code>GROUPING(extract(year FROM order_date))</code>). Con el alias da <code>column "anio" does not exist</code>.</p>
+</blockquote>
+<h2 id="4-cube-todas-las-combinaciones">4. CUBE — todas las combinaciones</h2>
+<div class="hl"><pre><span></span><code><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">CUBE</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Agrupa por <code>(a,b)</code>, <code>(a)</code>, <code>(b)</code> y <code>()</code>. Con <code>n</code> columnas produce <strong>2ⁿ niveles</strong>.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span>
+<span class="w">       </span><span class="k">GROUPING</span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">g_anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">GROUPING</span><span class="p">(</span><span class="n">ship_country</span><span class="p">)</span><span class="w">                  </span><span class="k">AS</span><span class="w"> </span><span class="n">g_pais</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="w"> </span><span class="s1">'France'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">CUBE</span><span class="w"> </span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">),</span><span class="w"> </span><span class="n">ship_country</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">g_anio</span><span class="p">,</span><span class="w"> </span><span class="n">g_pais</span><span class="p">,</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span><span class="w"> </span><span class="n">ship_country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | ship_country | count | g_anio | g_pais
+------+--------------+-------+--------+--------
+ 1996 | Brazil       |    13 |      0 |      0
+ 1996 | France       |    15 |      0 |      0
+ 1997 | Brazil       |    42 |      0 |      0
+ ...
+ 1996 |              |    28 |      0 |      1    ← por año
+ 1997 |              |    81 |      0 |      1
+ 1998 |              |    51 |      0 |      1
+      | Brazil       |    83 |      1 |      0    ← por país  (esto ROLLUP no lo da)
+      | France       |    77 |      1 |      0
+      |              |   160 |      1 |      1    ← total
+</code></pre></div>
+
+<p><strong>12 filas contra las 10 de <code>ROLLUP</code>.</strong> Las dos que añade son los totales <strong>por país sin desglosar por año</strong> — el nivel que <code>ROLLUP</code> se salta porque no está en la jerarquía.</p>
+<p><strong>Cuándo cada uno:</strong></p>
+<ul>
+<li><strong><code>ROLLUP</code></strong> si las columnas son una jerarquía (año → mes). El total de "todos los meses de marzo de cualquier año" no tiene sentido.</li>
+<li><strong><code>CUBE</code></strong> si las dimensiones son independientes (país × categoría). Ahí sí quieres los totales por cada una.</li>
+<li><strong><code>CUBE</code> con 4 columnas son 16 niveles.</strong> Crece rápido; con más de tres dimensiones casi siempre quieres <code>GROUPING SETS</code>.</li>
+</ul>
+<h2 id="5-grouping-sets-los-niveles-exactos-que-quieres">5. GROUPING SETS — los niveles exactos que quieres</h2>
+<div class="hl"><pre><span></span><code><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">GROUPING</span><span class="w"> </span><span class="k">SETS</span><span class="w"> </span><span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="w"> </span><span class="p">())</span>
+</code></pre></div>
+
+<p>Es la forma general: <strong><code>ROLLUP</code> y <code>CUBE</code> son atajos de esto.</strong> Se enumeran los niveles a mano y no sale ninguno de más.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Brazil'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">GROUPING</span><span class="w"> </span><span class="k">SETS</span><span class="w"> </span><span class="p">((</span><span class="n">ship_country</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)),</span><span class="w"> </span><span class="p">())</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country | anio | count
+--------------+------+-------
+              | 1996 |    13
+              | 1997 |    42
+              | 1998 |    28
+ Brazil       |      |    83     ← total por país
+              |      |    83     ← total general
+</code></pre></div>
+
+<p>Tres niveles pedidos, tres bloques devueltos. Aquí los dos últimos coinciden porque el <code>WHERE</code> dejó un solo país.</p>
+<h2 id="6-grouping-el-subtotal-contra-el-null-de-verdad">6. GROUPING() — el subtotal contra el NULL de verdad</h2>
+<p>Este es el problema serio de <code>ROLLUP</code>, y en Northwind se puede tocar con la mano:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'USA'</span><span class="p">,</span><span class="w"> </span><span class="s1">'UK'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> country |    region     | count
+---------+---------------+-------
+ UK      | Isle of Wight |     1
+ UK      |               |     6     ← ¿?
+ UK      |               |     7     ← ¿?
+ USA     | AK            |     1
+ ...
+</code></pre></div>
+
+<p><strong>Dos filas de UK con la región en blanco.</strong> ¿Cuál es cuál? Una es "los 6 clientes británicos cuya <code>region</code> es <code>NULL</code>" y la otra es "el subtotal de UK: 7". <strong>Indistinguibles a simple vista, y suman mal si alguien se equivoca.</strong></p>
+<p><code>GROUPING()</code> lo resuelve: devuelve <strong>1</strong> si esa columna se agregó en ese nivel, y <strong>0</strong> si el <code>NULL</code> es un valor real del dato.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span>
+<span class="w">       </span><span class="k">GROUPING</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">es_subtotal</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'USA'</span><span class="p">,</span><span class="w"> </span><span class="s1">'UK'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">es_subtotal</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> country |    region     | es_subtotal | count
+---------+---------------+-------------+-------
+ UK      | Isle of Wight |           0 |     1
+ UK      |               |           0 |     6     ← NULL real: 6 clientes sin región
+ UK      |               |           1 |     7     ← subtotal de UK
+ USA     | AK            |           0 |     1
+ ...
+ USA     |               |           1 |    13     ← subtotal de USA
+         |               |           1 |    20     ← total general
+</code></pre></div>
+
+<blockquote>
+<p><strong>Regla: si la columna del <code>ROLLUP</code> admite <code>NULL</code>, <code>GROUPING()</code> no es opcional.</strong> Sin él, el informe tiene dos filas idénticas que significan cosas distintas.</p>
+</blockquote>
+<h2 id="7-errores-comunes">7. Errores comunes</h2>
+<ol>
+<li><strong>Usar el alias dentro de <code>GROUPING()</code>.</strong> Hay que repetir la expresión.</li>
+<li><strong><code>ROLLUP</code> sobre una columna con nulos, sin <code>GROUPING()</code>.</strong> Subtotales indistinguibles de los datos.</li>
+<li><strong><code>CUBE</code> con muchas dimensiones.</strong> 2ⁿ niveles: con 5 columnas son 32 bloques y un resultado ilegible.</li>
+<li><strong>Sumar la columna del resultado en una hoja de cálculo.</strong> Las filas de subtotal <strong>ya están dentro</strong>: sumar la columna entera cuenta todo dos o tres veces. Es el error más caro de este tema.</li>
+<li><strong><code>ROLLUP</code> con las columnas en el orden equivocado.</strong> <code>ROLLUP (ciudad, pais)</code> da subtotales por ciudad, no por país. <strong>El orden es la jerarquía.</strong></li>
+<li><strong>Usar <code>WHERE</code> cuando querías <code>FILTER</code>.</strong> Te llevas el denominador por delante.</li>
+<li><strong>Ordenar sin tener en cuenta los subtotales.</strong> Un <code>ORDER BY count(*) DESC</code> mezcla totales y detalle: el total general sale el primero. Ordena por <code>GROUPING()</code> primero.</li>
+</ol>
+<h2 id="8-diferencias-con-sql-server">8. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GROUPING SETS</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>ROLLUP</code> / <code>CUBE</code></td>
+<td>✅</td>
+<td>✅ (<code>GROUP BY ROLLUP(...)</code> desde 2008)</td>
+</tr>
+<tr>
+<td><code>GROUPING()</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>GROUPING_ID()</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong><code>FILTER</code></strong></td>
+<td>✅</td>
+<td>❌ → <code>SUM(CASE WHEN ... THEN 1 ELSE 0 END)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>FILTER</code> es la única diferencia</strong>, y es la que más se usa de las cinco. Si el código tiene que valer para los dos motores, escribe el <code>CASE</code>: funciona en ambos.</p>
+<p>Nota histórica que puede caer en una entrevista: SQL Server tuvo <code>WITH ROLLUP</code> y <code>WITH CUBE</code> como sintaxis propia antes de 2008. Está obsoleta; la forma correcta hoy es <code>GROUP BY ROLLUP(...)</code> en los dos motores.</p>
+<h2 id="9-ejercicios">9. Ejercicios</h2>
+<ol>
+<li>Pedidos por año con subtotal por año y total general, usando <code>ROLLUP</code>.</li>
+<li>Por categoría de producto: cuántos productos hay, cuántos descatalogados y qué porcentaje representan — con <code>FILTER</code>, en una sola pasada.</li>
+<li>La misma tabla del ejercicio 1 pero etiquetando el total general como <code>TOTAL</code>.</li>
+<li>Facturación por país y por año con todos los cruces posibles, usando <code>CUBE</code>. ¿Cuántas filas salen y por qué?</li>
+<li>Explica por qué estas dos consultas devuelven un número de filas distinto:
+   ```sql
+   SELECT ship_country, extract(year FROM order_date), count(*) FROM orders
+   GROUP BY ROLLUP (ship_country, extract(year FROM order_date));</li>
+</ol>
+<p>SELECT ship_country, extract(year FROM order_date), count(*) FROM orders
+   GROUP BY CUBE   (ship_country, extract(year FROM order_date));
+   ```</p>
+<h2 id="10-pregunta-de-negocio">10. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere el informe de ventas del año: facturación por país, con subtotal por país, y el total general al final. En una sola tabla, para pegarla en una diapositiva. Y avisan de que el año pasado alguien les entregó un informe donde los números "no cuadraban con el total".</em></p>
+</blockquote>
+<p>La segunda frase es el encargo de verdad.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">GROUPING</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'TOTAL GENERAL'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">GROUPING</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">),</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     pais      | pedidos | facturacion
+---------------+---------+-------------
+ Germany       |      64 |   117320.16
+ USA           |      60 |   114845.26
+ Austria       |      21 |    57401.84
+ France        |      39 |    45263.38
+ Brazil        |      42 |    41941.19
+ ...
+ TOTAL GENERAL |     408 |   617085.20
+</code></pre></div>
+
+<p><strong>Y lo que había que resolver era la última frase del encargo.</strong> "Los números no cuadraban con el total" tiene una causa casi segura y hay que decirla al entregar:</p>
+<ol>
+<li><strong>La fila de total ya contiene a todas las demás.</strong> Si alguien pega la tabla en una hoja y arrastra un <code>SUMA()</code> por la columna, obtiene <strong>el doble</strong> de la facturación real. Por eso la fila va etiquetada <code>TOTAL GENERAL</code> y no con una celda en blanco: <strong>una etiqueta explícita es lo que evita que se sume dos veces.</strong></li>
+<li><strong>El <code>count(DISTINCT o.order_id)</code> es obligatorio aquí.</strong> Al unir con <code>order_details</code>, cada pedido aparece una vez por línea. Sin el <code>DISTINCT</code>, la columna "pedidos" contaría líneas —2,6 veces más— mientras la facturación seguiría siendo correcta. <strong>Una tabla con una columna inflada y otra correcta es exactamente la que hace que "los números no cuadren".</strong></li>
+<li><strong>El <code>ORDER BY GROUPING(...)</code> primero</strong> deja el total abajo, donde se espera. Sin él, <code>NULL</code> ordena donde le toque y el total puede aparecer en medio de la lista, que es la otra forma de que alguien lo sume sin darse cuenta.</li>
+</ol></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">anio</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | pedidos
+------+---------
+ 1996 |     152
+ 1997 |     408
+ 1998 |     270
+      |     830
+</code></pre></div>
+
+<p>Con una sola columna, <code>ROLLUP</code> añade <strong>exactamente una fila</strong>: el total. <code>152 + 408 + 270 = 830</code>. ✓</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                  </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">descatalogados</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_id | productos | descatalogados | pct
+-------------+-----------+----------------+------
+           6 |         6 |              4 | 66.7
+           1 |        12 |              3 | 25.0
+           7 |         5 |              1 | 20.0
+           5 |         7 |              1 | 14.3
+           2 |        12 |              1 |  8.3
+           3 |        13 |              0 |  0.0
+           4 |        10 |              0 |  0.0
+           8 |        12 |              0 |  0.0
+</code></pre></div>
+
+<p><strong>La categoría 6 tiene el 66,7% de sus productos descatalogados</strong> — dos tercios. Eso solo se ve porque <code>FILTER</code> conserva el denominador. Con <code>WHERE discontinued</code> habrías tenido el numerador y nada con qué compararlo.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="k">GROUPING</span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'TOTAL'</span>
+<span class="w">            </span><span class="k">ELSE</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">text</span><span class="w"> </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">ROLLUP</span><span class="w"> </span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">GROUPING</span><span class="p">(</span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)),</span><span class="w"> </span><span class="n">anio</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Fíjate en el <code>ORDER BY</code>: <strong>ordena primero por <code>GROUPING()</code></strong> para que el total quede abajo. Ordenando solo por <code>anio</code>, el <code>NULL</code> del total se coloca según las reglas de nulos (<a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>) y puede salir el primero.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">CUBE</span><span class="w"> </span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">))</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">,</span><span class="w"> </span><span class="n">anio</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Salen <strong>87 filas</strong>. La tentación es calcular 21 países × 3 años = 63 combinaciones y sumar los subtotales, pero <strong>el resultado real es 62</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 62</span>
+</code></pre></div>
+
+<p><code>62 + 21 (subtotales por país) + 3 (por año) + 1 (total) = 87</code>.</p>
+<p><strong>La combinación que falta es la clave del ejercicio:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anios</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">))</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country | anios
+--------------+-------
+ Argentina    |     2
+</code></pre></div>
+
+<p><strong>Argentina no tiene pedidos en 1996</strong>, y <code>CUBE</code> <strong>no inventa ese cruce vacío</strong>. Es la misma regla de los grupos vacíos de <a class="xref" href="../group-by/">group-by</a>: se agrupan las filas que hay, no las que podría haber. Nunca calcules el tamaño de un <code>CUBE</code> multiplicando cardinalidades.</p>
+<p><strong>5.</strong> <code>ROLLUP (a, b)</code> produce 3 niveles: <code>(a,b)</code>, <code>(a)</code> y <code>()</code>. <code>CUBE (a, b)</code> produce 4: los mismos <strong>más <code>(b)</code></strong>, el total por año sin desglosar por país.</p>
+<p><strong>La diferencia son exactamente 3 filas</strong> — una por año. <code>ROLLUP</code> supone que <code>ship_country</code> está <em>por encima</em> de <code>anio</code> en una jerarquía; <code>CUBE</code> no supone nada. <strong>La elección no es de sintaxis: es una afirmación sobre si tus dimensiones son jerárquicas o independientes.</strong></p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../having-vs-where/"><span>Anterior</span><strong>HAVING vs WHERE</strong></a><a class="nav-next" href="../inner-join/"><span>Siguiente</span><strong>INNER JOIN</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-filter-agregar-un-subconjunto">2. FILTER — agregar un subconjunto</a>
+<a href="#3-rollup-subtotales-jer-rquicos">3. ROLLUP — subtotales jerárquicos</a>
+<a href="#4-cube-todas-las-combinaciones">4. CUBE — todas las combinaciones</a>
+<a href="#5-grouping-sets-los-niveles-exactos-que-quieres">5. GROUPING SETS — los niveles exactos que quieres</a>
+<a href="#6-grouping-el-subtotal-contra-el-null-de-verdad">6. GROUPING() — el subtotal contra el NULL de verdad</a>
+<a href="#7-errores-comunes">7. Errores comunes</a>
+<a href="#8-diferencias-con-sql-server">8. Diferencias con SQL Server</a>
+<a href="#9-ejercicios">9. Ejercicios</a>
+<a href="#10-pregunta-de-negocio">10. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

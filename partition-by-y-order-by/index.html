@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>PARTITION BY y ORDER BY · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dividir en ventanas y ordenar dentro de cada una" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/partition-by-y-order-by/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="PARTITION BY y ORDER BY" />
+  <meta property="og:description" content="Dividir en ventanas y ordenar dentro de cada una" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/partition-by-y-order-by/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(33 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 33 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details open><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><span class="activo">PARTITION BY y ORDER BY</span></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 7 · Funciones de ventana</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>PARTITION BY y ORDER BY</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../que-es-una-funcion-de-ventana/">que-es-una-funcion-de-ventana</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Las dos cláusulas que dan forma a la ventana. Cada una responde a una pregunta:</p>
+<ul>
+<li><strong><code>PARTITION BY</code></strong> — <em>¿en qué grupos se divide la tabla?</em> Cada grupo es una ventana independiente.</li>
+<li><strong><code>ORDER BY</code></strong> — <em>¿en qué orden se recorre cada ventana?</em> Y con eso, <strong>qué filas ha visto ya la función cuando llega a la fila actual</strong>.</li>
+</ul>
+<div class="hl"><pre><span></span><code><span class="n">funcion</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">columna</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">otra</span><span class="p">)</span>
+</code></pre></div>
+
+<p>La segunda es la que sorprende. <code>ORDER BY</code> dentro de <code>OVER</code> <strong>no ordena el resultado</strong>: cambia lo que la función calcula. Es la diferencia entre un total y un acumulado, y es el 90% de la confusión con este bloque.</p>
+<p><strong><code>PARTITION BY</code> no es <code>GROUP BY</code>.</strong> Se parecen y hacen cosas opuestas:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>GROUP BY</code></th>
+<th><code>PARTITION BY</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Filas de salida</td>
+<td>una por grupo</td>
+<td><strong>todas</strong></td>
+</tr>
+<tr>
+<td>Alcance</td>
+<td>toda la consulta</td>
+<td>solo esa función</td>
+</tr>
+<tr>
+<td>Varios criterios a la vez</td>
+<td>no</td>
+<td><strong>sí</strong>, una ventana distinta por columna</td>
+</tr>
+</tbody>
+</table>
+<p>Ese último punto es el que más se aprovecha: en la misma consulta puedes tener la media global, la media de la categoría y la media del país, cada una en su columna.</p>
+<h2 id="2-partition-by-partir-la-tabla">2. PARTITION BY: partir la tabla</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">media_categoria</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">vs_categoria</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Beverages'</span><span class="p">,</span><span class="s1">'Produce'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name |          product_name           | unit_price | media_categoria | vs_categoria
+---------------+---------------------------------+------------+-----------------+--------------
+ Beverages     | Côte de Blaye                   |     263.50 |           37.98 |       225.52
+ Beverages     | Ipoh Coffee                     |      46.00 |           37.98 |         8.02
+ Beverages     | Chang                           |      19.00 |           37.98 |       -18.98
+ Beverages     | Chai                            |      18.00 |           37.98 |       -19.98
+ Beverages     | Lakkalikööri                    |      18.00 |           37.98 |       -19.98
+ ...
+ Beverages     | Guaraná Fantástica              |       4.50 |           37.98 |       -33.48
+ Produce       | Manjimup Dried Apples           |      53.00 |           32.37 |        20.63
+ Produce       | Rössle Sauerkraut               |      45.60 |           32.37 |        13.23
+ Produce       | Uncle Bob's Organic Dried Pears |      30.00 |           32.37 |        -2.37
+ Produce       | Tofu                            |      23.25 |           32.37 |        -9.12
+ Produce       | Longlife Tofu                   |      10.00 |           32.37 |       -22.37
+</code></pre></div>
+
+<p><strong>Dos ventanas, dos medias.</strong> 37,98 se repite en las 12 filas de Beverages, 32,37 en las 5 de Produce. La función se reinicia en cada partición.</p>
+<p><strong>Y mira la columna <code>vs_categoria</code> de Beverages: diez de doce productos están por debajo de su propia media.</strong> La media de 37,98 la produce un solo producto, <code>Côte de Blaye</code> a 263,50. Sin él, la media de la categoría baja de 37,98 a <strong>17,48</strong>. <strong>Una media con un atípico dentro describe al atípico, no al grupo.</strong></p>
+<h3>2.1 Varias ventanas distintas en la misma consulta</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">media_global</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_cat</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Côte de Blaye'</span><span class="p">,</span><span class="s1">'Manjimup Dried Apples'</span><span class="p">,</span><span class="s1">'Longlife Tofu'</span><span class="p">,</span>
+<span class="w">                         </span><span class="s1">'Chai'</span><span class="p">,</span><span class="s1">'Konbu'</span><span class="p">,</span><span class="s1">'Thüringer Rostbratwurst'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name |      product_name       | unit_price | media_global | media_cat
+---------------+-------------------------+------------+--------------+-----------
+ Beverages     | Côte de Blaye           |     263.50 |        79.05 |    140.75
+ Meat/Poultry  | Thüringer Rostbratwurst |     123.79 |        79.05 |    123.79
+ Produce       | Manjimup Dried Apples   |      53.00 |        79.05 |     31.50
+ Beverages     | Chai                    |      18.00 |        79.05 |    140.75
+ Produce       | Longlife Tofu           |      10.00 |        79.05 |     31.50
+ Seafood       | Konbu                   |       6.00 |        79.05 |      6.00
+</code></pre></div>
+
+<p><strong>Dos <code>OVER</code> distintos, dos ventanas independientes, una sola pasada.</strong> Con <code>GROUP BY</code> esto necesitaría dos consultas y un <code>JOIN</code>.</p>
+<p><strong>Y aquí hay una trampa que hay que ver ahora:</strong> las medias no son las de la tabla completa. <code>media_global</code> sale 79,05 y no 28,83, porque <strong>el <code>WHERE</code> filtró a 6 productos antes de que la ventana existiera</strong>. <code>media_cat</code> de Meat/Poultry sale 123,79 porque en la selección solo sobrevivió un producto de esa categoría — es su propia media.</p>
+<p><strong>La ventana opera sobre lo que sobrevive al <code>WHERE</code>, no sobre la tabla.</strong> Es la misma regla del tema anterior, y con <code>PARTITION BY</code> engaña más porque el número parece plausible.</p>
+<h3>2.2 Particionar por varias columnas</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_pais</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="s1">'UK'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country | anio | pedidos | pedidos_pais
+--------------+------+---------+--------------
+ Brazil       | 1996 |      13 |           83
+ Brazil       | 1997 |      42 |           83
+ Brazil       | 1998 |      28 |           83
+ UK           | 1996 |      10 |           56
+ UK           | 1997 |      30 |           56
+ UK           | 1998 |      16 |           56
+</code></pre></div>
+
+<p><strong>El <code>GROUP BY</code> agrupa por país y año; la ventana particiona solo por país.</strong> Así conviven el detalle anual y el total del país en la misma fila. Es el patrón de "detalle y su subtotal al lado", y sin ventanas exige una subconsulta.</p>
+<h2 id="3-order-by-recorrer-la-ventana">3. ORDER BY: recorrer la ventana</h2>
+<p>Aquí está el giro del tema. <strong>Añadir <code>ORDER BY</code> dentro de <code>OVER</code> cambia el resultado de la función.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">()</span><span class="w">                      </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_order</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_order</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>          product_name           | unit_price | sin_order | con_order
+---------------------------------+------------+-----------+-----------
+ Longlife Tofu                   |      10.00 |    161.85 |     10.00
+ Tofu                            |      23.25 |    161.85 |     33.25
+ Uncle Bob's Organic Dried Pears |      30.00 |    161.85 |     63.25
+ Rössle Sauerkraut               |      45.60 |    161.85 |    108.85
+ Manjimup Dried Apples           |      53.00 |    161.85 |    161.85
+</code></pre></div>
+
+<p><strong>Sin <code>ORDER BY</code>: el total, repetido. Con <code>ORDER BY</code>: el acumulado.</strong> La última fila coincide, porque al llegar al final ya ha sumado todo.</p>
+<p><strong>El motivo:</strong> sin <code>ORDER BY</code>, la ventana de cada fila es la partición entera. Con <code>ORDER BY</code>, la ventana por defecto pasa a ser <strong>"desde el principio hasta la fila actual"</strong>. La función ya no ve el futuro.</p>
+<p>Eso convierte cualquier agregación en su versión acumulada: <code>sum</code> en running total, <code>count</code> en cuántas van, <code>max</code> en el máximo hasta ahora.</p>
+<h3>3.1 El acumulado que se usa de verdad</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes_facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">acumulado</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1997-07-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | mes_facturacion | acumulado
+------------+-----------------+-----------
+ 1997-01-01 |        61258.07 |  61258.07
+ 1997-02-01 |        38483.64 |  99741.71
+ 1997-03-01 |        38547.22 | 138288.93
+ 1997-04-01 |        53032.95 | 191321.88
+ 1997-05-01 |        53781.29 | 245103.17
+ 1997-06-01 |        36362.80 | 281465.97
+</code></pre></div>
+
+<p>Es el gráfico de "objetivo acumulado del año" de cualquier informe comercial, en tres líneas.</p>
+<p><strong>Comprobación:</strong> los 138 288,93 de marzo son exactamente la facturación de 1997-Q1 que salió en <a class="xref" href="../cte-with/">cte-with</a>. El acumulado de un trimestre tiene que dar el trimestre.</p>
+<h2 id="4-el-gotcha-que-hay-que-ver-antes-de-seguir">4. El gotcha que hay que ver antes de seguir</h2>
+<p>Repite el acumulado sobre una categoría con precios repetidos:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">acum</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       product_name        | unit_price |  acum
+---------------------------+------------+--------
+ Guaraná Fantástica        |       4.50 |   4.50
+ Rhönbräu Klosterbier      |       7.75 |  12.25
+ Laughing Lumberjack Lager |      14.00 |  40.25
+ Sasquatch Ale             |      14.00 |  40.25
+ Outback Lager             |      15.00 |  55.25
+ Lakkalikööri              |      18.00 | 127.25
+ Steeleye Stout            |      18.00 | 127.25
+ Chartreuse verte          |      18.00 | 127.25
+ Chai                      |      18.00 | 127.25
+ Chang                     |      19.00 | 146.25
+ Ipoh Coffee               |      46.00 | 192.25
+ Côte de Blaye             |     263.50 | 455.75
+</code></pre></div>
+
+<p><strong>Los cuatro productos de 18,00 muestran el mismo acumulado: 127,25.</strong> No es 73,25 / 91,25 / 109,25 / 127,25 como esperarías de un acumulado fila a fila. Los dos de 14,00 hacen lo mismo: los dos marcan 40,25.</p>
+<p><strong>Es correcto, y es la causa número uno de "mi acumulado sale mal".</strong> Con <code>ORDER BY</code> y sin más, la ventana por defecto es <code>RANGE</code>, que trabaja <strong>por valor y no por fila</strong>: todas las filas empatadas comparten ventana, así que la función salta el bloque entero de golpe.</p>
+<p>Si quieres el acumulado fila a fila hay que decirlo:</p>
+<div class="hl"><pre><span></span><code><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Ese <code>ROWS</code> es el tema siguiente</strong>, <a class="xref" href="../el-marco-rows-vs-range/">el-marco-rows-vs-range</a>, y esta consulta es el motivo de que exista. Por ahora basta con la regla: <strong>si el <code>ORDER BY</code> de la ventana tiene empates, <code>RANGE</code> los agrupa.</strong> Con una fecha única o un <code>order_id</code> no se nota nunca; con un precio o una categoría, sí.</p>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li>
+<p><strong>Creer que el <code>ORDER BY</code> de dentro ordena la salida.</strong> No. Ordena el recorrido de la ventana. Para ordenar el resultado hace falta el <code>ORDER BY</code> final de la consulta, y son independientes: puedes acumular por fecha y presentar por importe.</p>
+</li>
+<li>
+<p><strong>Ponerlo dentro y esperar el total.</strong> Si querías el total y sale un acumulado, sobra el <code>ORDER BY</code>.</p>
+</li>
+<li>
+<p><strong>Usar <code>GROUP BY &lt;posición&gt;</code> con una ventana que ordena por la misma expresión.</strong>
+   <code>sql
+   ... OVER (ORDER BY date_trunc('month', o.order_date)) ... GROUP BY 1</code>
+   <code>ERROR:  column "o.order_date" must appear in the GROUP BY clause</code>
+   <strong><code>GROUP BY 1</code> funciona en el <code>SELECT</code> pero no vale como referencia para el <code>ORDER BY</code> de una ventana.</strong> PostgreSQL no reconoce que la expresión de la ventana es la misma que la agrupada. Se arregla escribiendo el <code>GROUP BY</code> con la expresión completa: <code>GROUP BY date_trunc('month', o.order_date)</code>.</p>
+</li>
+<li>
+<p><strong>Suponer que <code>PARTITION BY</code> reduce filas.</strong> No reduce nada. Si el resultado tiene más filas de las esperadas, el problema está en los <code>JOIN</code>, no en la ventana.</p>
+</li>
+<li>
+<p><strong>Olvidar que el <code>WHERE</code> va antes.</strong> La media de la categoría se calcula sobre los productos que pasaron el filtro. Si el informe dice "media de la categoría", tiene que ser la de la categoría completa: entonces la ventana va en un CTE <strong>antes</strong> de filtrar.</p>
+</li>
+<li>
+<p><strong>Repetir la misma definición de ventana en cinco columnas.</strong> Funciona, pero se puede nombrar una vez:
+   <code>sql
+   SELECT product_name,
+          avg(unit_price) OVER w,
+          max(unit_price) OVER w,
+          min(unit_price) OVER w
+   FROM products
+   WINDOW w AS (PARTITION BY category_id);</code>
+   La cláusula <code>WINDOW</code> va después del <code>HAVING</code> y antes del <code>ORDER BY</code>. Con tres o más columnas compartiendo ventana, merece la pena.</p>
+</li>
+</ol>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PARTITION BY</code> / <code>ORDER BY</code></td>
+<td>igual</td>
+<td>igual</td>
+</tr>
+<tr>
+<td>Cláusula <code>WINDOW</code> con nombre</td>
+<td>desde 8.4</td>
+<td>desde 2022</td>
+</tr>
+<tr>
+<td><code>RANGE</code> por defecto con <code>ORDER BY</code></td>
+<td>sí</td>
+<td>sí</td>
+</tr>
+<tr>
+<td>Agregadas con <code>ORDER BY</code> sin marco</td>
+<td>sí</td>
+<td>desde 2012</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Porta sin cambios</strong>, salvo la cláusula <code>WINDOW</code> si el servidor destino es anterior a SQL Server 2022: hay que repetir la definición en cada columna.</p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>Cada producto de <code>Condiments</code> con el precio máximo de su categoría y qué porcentaje representa de ese máximo.</li>
+<li>Cada pedido con cuántos pedidos ha hecho ese cliente en total, sin subconsultas.</li>
+<li>Facturación por país y año, con el total del país al lado y qué porcentaje aporta cada año dentro de su país. Para Germany y Brazil.</li>
+<li>El acumulado de facturación mensual de 1998.</li>
+<li>Explica por qué las cuatro cervezas de 18,00 comparten acumulado, y escribe la versión que acumula fila a fila.</li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Marketing quiere saber si el catálogo está equilibrado: dentro de cada categoría, qué porcentaje de la facturación aporta cada producto.</em></p>
+</blockquote>
+<p>La pregunta real que hay detrás es cuánto depende cada categoría de un solo producto.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">               </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_cat</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w">   </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">pct_cat</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Son 77 filas. El resumen —el líder de cada categoría y cuánto pesa— es lo que se entrega:</p>
+<div class="hl"><pre><span></span><code> category_name  |          líder          | pct_líder | productos
+----------------+-------------------------+-----------+-----------
+ Beverages      | Côte de Blaye           |      52.8 |        12
+ Meat/Poultry   | Thüringer Rostbratwurst |      49.3 |         6
+ Grains/Cereals | Gnocchi di nonna Alice  |      44.5 |         7
+ Produce        | Manjimup Dried Apples   |      41.8 |         5
+ Dairy Products | Raclette Courdavault    |      30.3 |        10
+ Confections    | Tarte au sucre          |      28.2 |        13
+ Seafood        | Carnarvon Tigers        |      22.2 |        12
+ Condiments     | Vegie-spread            |      15.7 |        12
+</code></pre></div>
+
+<p><strong>La respuesta es que el catálogo no está equilibrado, y se parte en dos mitades muy distintas:</strong></p>
+<ol>
+<li><strong>Cuatro categorías dependen de un producto.</strong> <code>Côte de Blaye</code> es el <strong>52,8% de Beverages</strong> él solo: si ese producto desaparece, media categoría desaparece con él. Meat/Poultry (49,3%) y Grains/Cereals (44,5%) están casi igual.</li>
+<li><strong>Cuatro están repartidas.</strong> En Condiments el líder es el 15,7% y los doce productos van del 15,7% al 1,7% en una curva suave. Perder cualquiera de ellos es asumible.</li>
+<li><strong>El número de productos no explica la concentración.</strong> Beverages y Condiments tienen <strong>doce productos cada una</strong> y una está al 52,8% y la otra al 15,7%. Un catálogo amplio no protege de nada si uno de los productos se lleva la mitad.</li>
+</ol>
+<p><strong>Lo que hay que decir al entregarlo:</strong> la pregunta era sobre el catálogo y la respuesta útil es sobre <strong>riesgo</strong>. Las cuatro categorías concentradas son las que hay que mirar en una negociación con proveedores o ante una rotura de stock — y <code>Côte de Blaye</code>, que lleva todo el curso apareciendo como una curiosidad estadística, resulta ser el punto único de fallo más grande de la empresa.</p>
+<p><strong>Y el matiz que cambia la conclusión.</strong> Esto mide facturación, no unidades. La misma consulta con <code>sum(od.quantity)</code> sobre Beverages da otra lista:</p>
+<div class="hl"><pre><span></span><code>     product_name     | unidades
+----------------------+----------
+ Rhönbräu Klosterbier |     1155
+ Guaraná Fantástica   |     1125
+ Chang                |     1057
+ Lakkalikööri         |      981
+</code></pre></div>
+
+<p><strong><code>Côte de Blaye</code> no aparece.</strong> Domina el 52,8% de los euros de su categoría <strong>sin estar entre los cuatro primeros en unidades</strong>: manda porque cuesta 263,50, no porque se venda mucho. Los dos productos que más unidades mueven son justo los dos más baratos de la categoría, a 7,75 y 4,50.</p>
+<p><strong>Son dos riesgos distintos y hay que separarlos:</strong> perder <code>Côte de Blaye</code> es perder facturación; perder <code>Rhönbräu Klosterbier</code> es perder clientes que entran por el producto barato. Un informe de concentración que solo mire euros ve el primero y es ciego al segundo.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">max_cat</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_del_max</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Condiments'</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name |           product_name           | unit_price | max_cat | pct_del_max
+---------------+----------------------------------+------------+---------+-------------
+ Condiments    | Vegie-spread                     |      43.90 |   43.90 |       100.0
+ Condiments    | Northwoods Cranberry Sauce       |      40.00 |   43.90 |        91.1
+ Condiments    | Sirop d'érable                   |      28.50 |   43.90 |        64.9
+ Condiments    | Grandma's Boysenberry Spread     |      25.00 |   43.90 |        56.9
+ Condiments    | Chef Anton's Cajun Seasoning     |      22.00 |   43.90 |        50.1
+ Condiments    | Chef Anton's Gumbo Mix           |      21.35 |   43.90 |        48.6
+ Condiments    | Louisiana Fiery Hot Pepper Sauce |      21.05 |   43.90 |        47.9
+ Condiments    | Gula Malacca                     |      19.45 |   43.90 |        44.3
+ Condiments    | Louisiana Hot Spiced Okra        |      17.00 |   43.90 |        38.7
+ Condiments    | Original Frankfurter grüne Soße  |      13.00 |   43.90 |        29.6
+ Condiments    | Genen Shouyu                     |      13.00 |   43.90 |        29.6
+ Condiments    | Aniseed Syrup                    |      10.00 |   43.90 |        22.8
+</code></pre></div>
+
+<p><strong>El más caro marca 100,0 por construcción.</strong> Es la señal de que la ventana está bien: si ningún producto marcara 100, el <code>PARTITION BY</code> estaría mal escrito.</p>
+<p>Condiments es una categoría <strong>sana</strong>: del máximo al mínimo hay un factor 4,4, y el segundo está al 91% del primero. Compárala con Beverages, donde el segundo producto está al 17,5% del primero.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos_del_cliente</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'SAVEA'</span><span class="p">,</span><span class="s1">'CENTC'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | customer_id | order_date | pedidos_del_cliente
+----------+-------------+------------+---------------------
+    10259 | CENTC       | 1996-07-18 |                   1
+    10324 | SAVEA       | 1996-10-08 |                  31
+    10393 | SAVEA       | 1996-12-25 |                  31
+    10398 | SAVEA       | 1996-12-30 |                  31
+    ...
+</code></pre></div>
+
+<p><strong><code>count(*) OVER (PARTITION BY ...)</code> es la alternativa directa a la subconsulta correlacionada</strong> de <a class="xref" href="../subconsultas-correlacionadas/">subconsultas-correlacionadas</a>, y a la <code>LATERAL</code> de <a class="xref" href="../lateral/">lateral</a>. Mismo resultado, una pasada, sin correlación.</p>
+<p>Y confirma lo de <a class="xref" href="../lateral/">lateral</a>: CENTC tiene <strong>un solo pedido en toda su vida</strong>, de 1996.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total_pais</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">               </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Germany'</span><span class="p">,</span><span class="s1">'Brazil'</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country | anio | facturacion | total_pais | pct
+--------------+------+-------------+------------+------
+ Brazil       | 1996 |    20148.82 |  106925.78 | 18.8
+ Brazil       | 1997 |    41941.19 |  106925.78 | 39.2
+ Brazil       | 1998 |    44835.77 |  106925.78 | 41.9
+ Germany      | 1996 |    35407.15 |  230284.63 | 15.4
+ Germany      | 1997 |   117320.16 |  230284.63 | 50.9
+ Germany      | 1998 |    77557.32 |  230284.63 | 33.7
+</code></pre></div>
+
+<p><strong>Los porcentajes suman 100 dentro de cada país, no entre países.</strong> Esa es la lectura de <code>PARTITION BY</code>: cada partición es un mundo cerrado.</p>
+<p><strong>Y no compares 1998 con 1997 sin acordarte de que 1998 son cuatro meses.</strong> Brazil crece hasta el 41,9% en un tercio del tiempo, lo que es un crecimiento real y fuerte; Germany baja al 33,7%, que con el año incompleto no significa caída. <strong>El mismo año parcial que estropeaba el trimestre en <a class="xref" href="../cte-with/">cte-with</a>.</strong></p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)))</span>
+<span class="w">             </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">acumulado</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes     | facturacion | acumulado
+------------+-------------+-----------
+ 1998-01-01 |    94222.11 |  94222.11
+ 1998-02-01 |    99415.29 | 193637.40
+ 1998-03-01 |   104854.16 | 298491.55
+ 1998-04-01 |   123798.68 | 422290.24
+ 1998-05-01 |    18333.63 | 440623.87
+</code></pre></div>
+
+<p><strong>Cuatro meses en línea recta y luego un desplome.</strong> Mayo son 18 333,63 contra 123 798,68 de abril, pero <strong>mayo solo tiene seis días de datos</strong>: la base termina el 1998-05-06.</p>
+<p><strong>En un gráfico acumulado esto no se ve</strong>, porque la curva sigue subiendo; solo se aplana. Por eso el acumulado es la forma honesta de presentar un periodo en curso, y la comparación mes contra mes la peligrosa. Y los 298 491,55 de marzo son el 1998-Q1 de <a class="xref" href="../cte-with/">cte-with</a>: cuadra.</p>
+<p><strong>5.</strong> Comparten acumulado porque el marco por defecto con <code>ORDER BY</code> es <code>RANGE</code>, que <strong>agrupa por valor</strong>: las cuatro filas de 18,00 son un único punto de la ventana. Fila a fila:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">ROWS</span><span class="w"> </span><span class="n">UNBOUNDED</span><span class="w"> </span><span class="n">PRECEDING</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">acum</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Con <code>ROWS</code> el resultado depende del desempate</strong>, que sin especificar es arbitrario. Si el orden importa, hay que fijarlo: <code>ORDER BY p.unit_price, p.product_id</code>.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../que-es-una-funcion-de-ventana/"><span>Anterior</span><strong>Qué es una función de ventana</strong></a><a class="nav-next" href="../el-marco-rows-vs-range/"><span>Siguiente</span><strong>El marco: ROWS contra RANGE</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-partition-by-partir-la-tabla">2. PARTITION BY: partir la tabla</a>
+<a href="#3-order-by-recorrer-la-ventana">3. ORDER BY: recorrer la ventana</a>
+<a href="#4-el-gotcha-que-hay-que-ver-antes-de-seguir">4. El gotcha que hay que ver antes de seguir</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

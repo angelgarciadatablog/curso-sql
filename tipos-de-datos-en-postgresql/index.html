@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Tipos de datos en PostgreSQL · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Texto, numéricos, fecha, booleano. Por qué nunca float para dinero" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/tipos-de-datos-en-postgresql/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Tipos de datos en PostgreSQL" />
+  <meta property="og:description" content="Texto, numéricos, fecha, booleano. Por qué nunca float para dinero" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/tipos-de-datos-en-postgresql/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(13 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 13 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details open><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="activo">Tipos de datos en PostgreSQL</span></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 3 · Transformar valores</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Tipos de datos en PostgreSQL</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../distinct-y-duplicados/">distinct-y-duplicados</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Cada columna tiene un <strong>tipo</strong>, y el tipo decide tres cosas: qué valores caben, qué operaciones son legales y <strong>cómo se comporta la aritmética</strong>. La tercera es la que produce errores caros.</p>
+<p>Este tema no es una lista para memorizar. Son cuatro decisiones que se toman una vez por columna y se pagan durante años:</p>
+<ol>
+<li><strong>Dinero → <code>numeric</code>. Nunca <code>real</code> ni <code>float</code>.</strong></li>
+<li><strong>Texto → <code>text</code> o <code>varchar</code>, nunca <code>char(n)</code>.</strong></li>
+<li><strong>Fecha → <code>date</code> si no hay hora; <code>timestamptz</code> si la hay.</strong></li>
+<li><strong>Sí/no → <code>boolean</code>.</strong></li>
+</ol>
+<p>El resto del tema es por qué.</p>
+<h2 id="2-los-tipos-que-vas-a-usar">2. Los tipos que vas a usar</h2>
+<h3>2.1 Numéricos</h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Qué guarda</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smallint</code></td>
+<td>Enteros hasta 32.767</td>
+<td>Casi nunca — el ahorro no compensa el riesgo</td>
+</tr>
+<tr>
+<td><code>integer</code></td>
+<td>Enteros hasta ~2.100 millones</td>
+<td><strong>El entero por defecto</strong></td>
+</tr>
+<tr>
+<td><code>bigint</code></td>
+<td>Enteros enormes</td>
+<td>Ids de tablas que van a crecer mucho</td>
+</tr>
+<tr>
+<td><code>numeric(p,s)</code></td>
+<td>Decimal <strong>exacto</strong>, <code>p</code> dígitos con <code>s</code> decimales</td>
+<td><strong>Dinero, porcentajes, cualquier cosa que se sume</strong></td>
+</tr>
+<tr>
+<td><code>real</code> / <code>double precision</code></td>
+<td>Decimal <strong>aproximado</strong> (coma flotante)</td>
+<td>Medidas físicas, coordenadas, cálculos científicos</td>
+</tr>
+</tbody>
+</table>
+<h3>2.2 Texto</h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td>Texto de cualquier longitud. <strong>El valor por defecto en PostgreSQL</strong></td>
+</tr>
+<tr>
+<td><code>varchar(n)</code></td>
+<td>Texto con un tope. Da error si te pasas</td>
+</tr>
+<tr>
+<td><code>char(n)</code></td>
+<td>Texto de longitud fija: <strong>rellena con espacios</strong>. Evítalo</td>
+</tr>
+</tbody>
+</table>
+<p>En PostgreSQL los tres se guardan igual por dentro y rinden igual. <code>varchar(n)</code> solo añade una <strong>restricción</strong>, y como restricción está bien: <code>country varchar(15)</code> documenta una intención. <code>char(n)</code> no: rellena con espacios invisibles que luego rompen comparaciones.</p>
+<h3>2.3 Fecha y hora</h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Qué guarda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>date</code></td>
+<td>Solo el día. <strong>Lo que usa Northwind</strong></td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>Solo la hora</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>Día y hora, <strong>sin zona horaria</strong></td>
+</tr>
+<tr>
+<td><code>timestamptz</code></td>
+<td>Día y hora <strong>con zona horaria</strong>. El que quieres casi siempre</td>
+</tr>
+<tr>
+<td><code>interval</code></td>
+<td>Una duración: <code>3 days</code>, <code>2 hours</code></td>
+</tr>
+</tbody>
+</table>
+<h3>2.4 Otros</h3>
+<p><code>boolean</code> (<code>true</code>/<code>false</code>/<code>NULL</code>), <code>uuid</code>, <code>json</code>/<code>jsonb</code>, arrays. Los tres últimos son de PostgreSQL y no tienen equivalente directo en SQL Server.</p>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Qué tipo tiene cada cosa:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">precio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">stock</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">discontinued</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">baja</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> precio  |  stock   |  baja   |      nombre
+---------+----------+---------+-------------------
+ numeric | smallint | boolean | character varying
+</code></pre></div>
+
+<p><code>pg_typeof()</code> responde <em>"¿de qué tipo es esto?"</em> y sirve también sobre expresiones: es la forma rápida de descubrir por qué una división te dio 3 en vez de 3,5.</p>
+<p>La versión detallada, con precisión y escala:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_precision</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_scale</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'order_details'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> column_name | data_type | numeric_precision | numeric_scale
+-------------+-----------+-------------------+---------------
+ order_id    | integer   |                32 |             0
+ product_id  | integer   |                32 |             0
+ unit_price  | numeric   |                10 |             2
+ quantity    | smallint  |                16 |             0
+ discount    | numeric   |                 4 |             3
+</code></pre></div>
+
+<p><code>numeric(10,2)</code> = hasta 10 dígitos en total, 2 de ellos decimales. <code>discount</code> es <code>numeric(4,3)</code>: tres decimales, porque un descuento del 12,5% se guarda como <code>0.125</code>.</p>
+<h3>3.1 Por qué nunca <code>real</code> para dinero</h3>
+<p>La demostración corta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="nb">real</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">g</span><span class="p">,</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> suma_real  | suma_numeric
+------------+--------------
+ 10.0001335 |        10.00
+</code></pre></div>
+
+<p><strong>Mil céntimos sumados con <code>real</code> dan 10,0001335 euros.</strong> No 10. El error viene de que <code>0.01</code> no existe exactamente en binario, igual que <code>1/3</code> no existe exactamente en decimal. Cada suma arrastra un poco de error y mil sumas lo hacen visible.</p>
+<p>Con los datos reales de Northwind:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">numeric_exacto</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">((</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)::</span><span class="nb">real</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_real</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> numeric_exacto |   con_real
+----------------+---------------
+     1354458.59 | 1.3544585e+06
+</code></pre></div>
+
+<p>Fíjate en la segunda: ni siquiera te enseña los céntimos, te da notación científica. <strong>Un total de facturación que no sabe decirte los céntimos no es un total de facturación.</strong></p>
+<blockquote>
+<p>Esto no es teórico: fue <strong>uno de los defectos que había que arreglar</strong> al preparar esta base. El port original de Northwind a PostgreSQL traía <code>unit_price</code> como <code>real</code>. Está documentado en <code>postgresql-northwind</code>.</p>
+</blockquote>
+<p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
+<h3>3.2 La división entera</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">::</span><span class="nb">numeric</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> entera |      decimal_      |      casteada
+--------+--------------------+--------------------
+      3 | 3.5000000000000000 | 3.5000000000000000
+</code></pre></div>
+
+<p><strong><code>7/2</code> da 3.</strong> No 3,5 y no un error: <code>integer / integer</code> devuelve <code>integer</code>, y trunca. Es la causa número uno de porcentajes que salen 0.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- MAL: siempre 0</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+<span class="c1">-- BIEN</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
+<h3>3.3 Conversión: <code>::</code> y <code>CAST</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'10'</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
+<span class="w">       </span><span class="s1">'3.7'</span><span class="p">::</span><span class="nb">numeric</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">redondea</span><span class="p">,</span>
+<span class="w">       </span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="p">::</span><span class="nb">int</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">medio</span><span class="p">,</span>
+<span class="w">       </span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="p">::</span><span class="nb">int</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">medio2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> texto_a_int | redondea | medio | medio2
+-------------+----------+-------+--------
+          15 |        4 |     4 |      3
+</code></pre></div>
+
+<p>Tres cosas que aprender de esa fila:</p>
+<ul>
+<li><code>'10'::int</code> funciona: PostgreSQL convierte texto a número <strong>si el texto es un número</strong>. <code>'diez'::int</code> da error.</li>
+<li><strong>Convertir a entero redondea, no trunca.</strong> <code>3.7 → 4</code>.</li>
+<li>Y redondea <strong>al alejarse del cero</strong>: <code>2.5 → 3</code>, no <code>2</code>. Otros lenguajes redondean al par más cercano y darían 2. <strong>Si el redondeo importa, escríbelo explícito con <code>round()</code></strong> en vez de confiar en el cast.</li>
+</ul>
+<p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. Usa <code>::</code> en tu código y <code>CAST</code> si tiene que valer también para SQL Server.</p>
+<h3>3.4 El desbordamiento</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">32767</span><span class="p">::</span><span class="nb">smallint</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">32768</span><span class="p">::</span><span class="nb">smallint</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  smallint out of range
+</code></pre></div>
+
+<p>Da error, que es lo correcto: nunca te devuelve un número equivocado en silencio. Pero es la razón de no usar <code>smallint</code> para ahorrar: <strong>el día que la tabla crece, la aplicación deja de insertar.</strong> <code>units_in_stock</code> es <code>smallint</code> en Northwind — con 39 unidades de té va sobrado, con un almacén real no.</p>
+<h3>3.5 Texto: <code>char(n)</code> y por qué no</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="s1">'|'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
+<span class="w">       </span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">'|'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> con_char | con_varchar
+----------+-------------
+ abc|     | abc|
+</code></pre></div>
+
+<p><strong><code>char(5)</code> rellenó con dos espacios invisibles.</strong> Esos espacios rompen comparaciones, concatenaciones y <code>LIKE</code> de formas que cuesta mucho depurar. <code>char(n)</code> existe por compatibilidad histórica; no lo elijas nunca.</p>
+<p>Y el detalle de longitud con acentos:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">length</span><span class="p">(</span><span class="s1">'café'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">caracteres</span><span class="p">,</span><span class="w"> </span><span class="k">octet_length</span><span class="p">(</span><span class="s1">'café'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> caracteres | bytes
+------------+-------
+          4 |     5
+</code></pre></div>
+
+<p><code>length()</code> cuenta <strong>caracteres</strong>, <code>octet_length()</code> cuenta <strong>bytes</strong>. La <code>é</code> ocupa dos bytes en UTF-8. Si alguna vez ves un <code>varchar(50)</code> quedarse corto con 47 caracteres, esta es la razón — aunque en PostgreSQL <code>varchar(n)</code> cuenta caracteres, no bytes, así que aquí no pasa. En otros motores sí.</p>
+<h3>3.6 Fechas</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">fecha</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">current_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">ahora</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> fecha | hoy  |          ahora
+-------+------+--------------------------
+ date  | date | timestamp with time zone
+</code></pre></div>
+
+<p>Restar dos <code>date</code> da un <strong>entero de días</strong>; <code>age()</code> da un <code>interval</code> legible:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'2026-08-20'</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="s1">'2026-01-01'</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span><span class="p">,</span>
+<span class="w">       </span><span class="n">age</span><span class="p">(</span><span class="s1">'2026-08-20'</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span><span class="w"> </span><span class="s1">'1990-05-01'</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">edad</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> dias |          edad
+------+-------------------------
+  231 | 36 years 3 mons 19 days
+</code></pre></div>
+
+<p>Que <code>order_date</code> sea <code>date</code> y no <code>timestamp</code> es lo que hace seguro el <code>BETWEEN</code> de fechas del tema <a class="xref" href="../where-y-operadores/">where-y-operadores</a>. <strong>Con <code>timestamp</code> dejaría de serlo.</strong></p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong><code>real</code>/<code>float</code> para dinero.</strong> El error se acumula y aparece cuando alguien cuadra contra contabilidad.</li>
+<li><strong>División entera.</strong> <code>7/2 = 3</code>. Multiplica por <code>100.0</code> antes de dividir.</li>
+<li><strong>Guardar números o fechas como texto.</strong> Se ordenan alfabéticamente (<code>'10' &lt; '9'</code>), no se pueden sumar y no aprovechan índices bien.</li>
+<li><strong><code>char(n)</code>.</strong> Espacios invisibles.</li>
+<li><strong><code>smallint</code> para ahorrar.</strong> Ahorras 2 bytes y compras un incidente.</li>
+<li><strong><code>timestamp</code> sin zona en un sistema con usuarios en varios países.</strong> Guarda <code>timestamptz</code>.</li>
+<li><strong>Confiar en el redondeo implícito de un cast.</strong> <code>2.5::int</code> es 3, <code>2.5</code> en otros lenguajes es 2. Escribe <code>round()</code>.</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Decimal exacto</td>
+<td><code>numeric(10,2)</code></td>
+<td><code>decimal(10,2)</code> / <code>money</code></td>
+</tr>
+<tr>
+<td>Texto sin tope</td>
+<td><code>text</code></td>
+<td><code>varchar(max)</code></td>
+</tr>
+<tr>
+<td>Sí/no</td>
+<td><code>boolean</code></td>
+<td>❌ No existe → <code>bit</code> (0/1)</td>
+</tr>
+<tr>
+<td>Fecha con zona</td>
+<td><code>timestamptz</code></td>
+<td><code>datetimeoffset</code></td>
+</tr>
+<tr>
+<td>Fecha y hora</td>
+<td><code>timestamp</code></td>
+<td><code>datetime2</code></td>
+</tr>
+<tr>
+<td>Convertir</td>
+<td><code>x::tipo</code> o <code>CAST</code></td>
+<td><code>CAST</code> o <code>CONVERT(tipo, x, estilo)</code></td>
+</tr>
+<tr>
+<td>Autoincremento</td>
+<td><code>GENERATED ... AS IDENTITY</code></td>
+<td><code>IDENTITY(1,1)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Dos avisos:</p>
+<ul>
+<li><strong><code>money</code> de SQL Server no es lo que parece.</strong> Tiene solo 4 decimales fijos y se comporta raro al dividir. La recomendación general, incluso dentro del mundo SQL Server, es usar <code>decimal</code>. En PostgreSQL existe un tipo <code>money</code> y <strong>también hay que evitarlo</strong>: depende de la configuración regional del servidor.</li>
+<li><strong><code>CONVERT</code> con estilos numéricos</strong> (<code>CONVERT(varchar, fecha, 103)</code>) no tiene equivalente. En PostgreSQL se usa <code>to_char(fecha, 'DD/MM/YYYY')</code> — ver <a class="xref" href="../funciones-dentro-del-select/">funciones-dentro-del-select</a>.</li>
+</ul>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Averigua el tipo de todas las columnas de <code>orders</code> sin usar <code>\d</code>.</li>
+<li>Calcula el porcentaje de productos descatalogados. Hazlo primero mal (que dé 0) y luego bien.</li>
+<li>¿Cuántos días pasaron entre el primer y el último pedido de la base?</li>
+<li>Convierte <code>unit_price</code> a entero en <code>products</code> y explica qué pasa con <code>21.35</code>.</li>
+<li>Sin ejecutarla, di qué devuelve y por qué:
+   <code>sql
+   SELECT '100' + 5;</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Vas a diseñar una tabla nueva para registrar los pagos de los clientes: identificador, cliente, fecha y hora del pago, importe, moneda, y si está confirmado. Elige el tipo de cada columna y defiende dos de las elecciones.</em></p>
+</blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">pagos</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">pago_id</span><span class="w">     </span><span class="nb">bigint</span><span class="w">        </span><span class="k">GENERATED</span><span class="w"> </span><span class="n">ALWAYS</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">IDENTITY</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">customer_id</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="p">(</span><span class="n">customer_id</span><span class="p">),</span>
+<span class="w">    </span><span class="n">pagado_en</span><span class="w">   </span><span class="n">timestamptz</span><span class="w">   </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">importe</span><span class="w">     </span><span class="nb">numeric</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">importe</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span>
+<span class="w">    </span><span class="n">moneda</span><span class="w">      </span><span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">       </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">'EUR'</span><span class="p">,</span>
+<span class="w">    </span><span class="n">confirmado</span><span class="w">  </span><span class="nb">boolean</span><span class="w">       </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">false</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p>Las dos defensas que pedía el enunciado — y una confesión:</p>
+<p><strong><code>importe numeric(12,2)</code>, nunca <code>real</code>.</strong> Es un importe que se va a sumar, cuadrar y auditar. <code>numeric</code> guarda el valor exacto; <code>real</code> guarda una aproximación que se degrada con cada suma, como se ve en la sección 3. Los 12 dígitos dan margen hasta diez mil millones; los 2 decimales son la unidad mínima real del dinero.</p>
+<p><strong><code>pagado_en timestamptz</code>, no <code>timestamp</code>.</strong> Un pago ocurre en un instante único del universo. Si lo guardas sin zona, un pago hecho a las 23:30 en Lima y otro a las 06:30 en Madrid pueden ser el mismo momento y parecer días distintos. <code>timestamptz</code> guarda el instante y lo muestra en la zona de quien pregunta. <strong>La única razón para usar <code>timestamp</code> sin zona es que el dato sea una hora local que no representa un instante</strong> — como "la tienda abre a las 9:00".</p>
+<p><strong>Y la confesión:</strong> <code>moneda char(3)</code> contradice lo que dice este mismo tema sobre <code>char(n)</code>. Es el único caso donde se defiende, porque un código ISO 4217 mide <strong>exactamente</strong> tres caracteres siempre, así que no hay relleno posible. Aun así, <code>varchar(3)</code> haría lo mismo sin la excepción mental. Si te lo preguntan en una revisión de código, <strong>la respuesta correcta es cambiarlo a <code>varchar(3)</code></strong> — una regla que hay que explicar cada vez que se rompe es peor regla que una que no se rompe nunca.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="p">,</span><span class="w"> </span><span class="n">is_nullable</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'orders'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ordinal_position</span><span class="p">;</span>
+</code></pre></div>
+
+<p>14 columnas: 3 de tipo <code>date</code>, 3 <code>integer</code>, 1 <code>numeric</code> y 7 <code>character varying</code>.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Mal: integer / integer trunca</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span><span class="w">        </span><span class="c1">-- 0</span>
+<span class="c1">-- Bien</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  pct
+-------
+ 12.99
+</code></pre></div>
+
+<p><strong>12,99% de los productos están descatalogados</strong> (10 de 77). La versión mala devuelve <code>0</code> sin dar ningún error: <code>10 / 77</code> en aritmética entera es 0.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  primero   |   ultimo   | dias
+------------+------------+------
+ 1996-07-04 | 1998-05-06 |  671
+</code></pre></div>
+
+<p><strong>671 días</strong>, algo menos de dos años. Ese dato conviene tenerlo presente todo el curso: cualquier análisis temporal sobre Northwind se mueve entre julio de 1996 y mayo de 1998.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entero</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">21</span><span class="p">.</span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="mi">22</span><span class="p">.</span><span class="mi">00</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name         | unit_price | entero
+------------------------------+------------+--------
+ Chef Anton's Gumbo Mix       |      21.35 |     21
+ Chef Anton's Cajun Seasoning |      22.00 |     22
+</code></pre></div>
+
+<p><code>21.35 → 21</code>: <strong>redondea, no trunca</strong> — lo que pasa es que 21,35 redondea hacia abajo. Con <code>21.60</code> daría 22. Y lo importante: <strong>el céntimo perdido no vuelve.</strong> Un informe que castea precios a entero pierde hasta 0,50 por línea, y con 2.155 líneas eso es dinero de verdad.</p>
+<p><strong>5.</strong> Devuelve <strong>105</strong>. PostgreSQL ve <code>'100'</code> sin tipo definido, encuentra un <code>+</code> con un <code>integer</code> al otro lado y deduce que el texto debe ser un número. <strong>No es una suma de textos</strong>: si intentas <code>'100' + '5'</code> da error, porque no hay nada que le diga de qué tipo son.</p>
+<p>Y el aviso: eso funciona <strong>por casualidad</strong>. <code>SELECT '100abc' + 5</code> da <code>invalid input syntax for type integer</code>. La conversión implícita de PostgreSQL es más estricta que la de otros motores, pero seguir dependiendo de ella es frágil: <strong>escribe el cast.</strong></p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../distinct-y-duplicados/"><span>Anterior</span><strong>DISTINCT y duplicados</strong></a><a class="nav-next" href="../funciones-dentro-del-select/"><span>Siguiente</span><strong>Funciones dentro del SELECT</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-los-tipos-que-vas-a-usar">2. Los tipos que vas a usar</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

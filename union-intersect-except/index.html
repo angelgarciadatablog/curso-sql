@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>UNION, INTERSECT y EXCEPT · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Apilar en vez de unir. UNION vs UNION ALL" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/union-intersect-except/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="UNION, INTERSECT y EXCEPT" />
+  <meta property="og:description" content="Apilar en vez de unir. UNION vs UNION ALL" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/union-intersect-except/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(24 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 24 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details open><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><span class="activo">UNION, INTERSECT y EXCEPT</span></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 5 · Combinar tablas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>UNION, INTERSECT y EXCEPT</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../anti-join-y-semi-join/">anti-join-y-semi-join</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Un <code>JOIN</code> pega tablas <strong>de lado</strong>: añade columnas. Los operadores de conjuntos las pegan <strong>de arriba abajo</strong>: añaden filas.</p>
+<div class="hl"><pre><span></span><code>JOIN:   [A][B]  →  más columnas
+UNION:   [A]
+         [B]    →  más filas
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Operador</th>
+<th>Devuelve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UNION</code></td>
+<td>Filas de A y de B, <strong>sin repetidos</strong></td>
+</tr>
+<tr>
+<td><code>UNION ALL</code></td>
+<td>Filas de A y de B, <strong>tal cual</strong></td>
+</tr>
+<tr>
+<td><code>INTERSECT</code></td>
+<td>Solo las que están en <strong>las dos</strong></td>
+</tr>
+<tr>
+<td><code>EXCEPT</code></td>
+<td>Las de A que <strong>no están</strong> en B</td>
+</tr>
+</tbody>
+</table>
+<p><code>INTERSECT</code> y <code>EXCEPT</code> también eliminan duplicados salvo que añadas <code>ALL</code>.</p>
+<h2 id="2-las-reglas">2. Las reglas</h2>
+<p>Las tres son innegociables y las tres se olvidan:</p>
+<ol>
+<li><strong>Mismo número de columnas</strong> en todas las ramas.</li>
+<li><strong>Tipos compatibles</strong>, columna por columna, en el mismo orden.</li>
+<li><strong>Los nombres los pone la primera rama.</strong> Los alias de las demás se ignoran.</li>
+</ol>
+<p>Y dos de sintaxis:</p>
+<ol>
+<li><strong>El <code>ORDER BY</code> va al final, una sola vez</strong>, y afecta al resultado completo.</li>
+<li><strong>Se evalúan de arriba abajo, con <code>INTERSECT</code> antes que <code>UNION</code> y <code>EXCEPT</code>.</strong> Con tres ramas o más, usa paréntesis.</li>
+</ol>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t1</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t2</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong><code>UNION</code> contra <code>UNION ALL</code> — la diferencia importa:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">UNION</span><span class="w">     </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">  </span><span class="c1">--  25</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 120</span>
+</code></pre></div>
+
+<p><strong>25 contra 120.</strong> <code>UNION ALL</code> apila las 91 filas de clientes y las 29 de proveedores. <code>UNION</code> <strong>deduplica el resultado entero</strong> y deja los 25 países distintos.</p>
+<p>Y hay un detalle que se pasa por alto: <code>UNION</code> no solo quita los duplicados <em>entre</em> ramas, <strong>también los de dentro de cada rama</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">UNION</span><span class="w">     </span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">  </span><span class="c1">--   89</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 1660</span>
+</code></pre></div>
+
+<p><strong>La misma consulta unida consigo misma da 89, no 1.660.</strong> <code>UNION</code> es <code>UNION ALL</code> + <code>DISTINCT</code> sobre todo.</p>
+<p>Eso se ve en el plan:</p>
+<div class="hl"><pre><span></span><code>-- UNION                          -- UNION ALL
+ HashAggregate                     Append
+   Group Key: country                -&gt;  Seq Scan on customers
+   -&gt;  Append                        -&gt;  Seq Scan on suppliers
+         -&gt;  Seq Scan on customers
+         -&gt;  Seq Scan on suppliers
+</code></pre></div>
+
+<p><strong><code>UNION ALL</code> es solo <code>Append</code>: pegar y ya.</strong> <code>UNION</code> añade un <code>HashAggregate</code> encima, que cuesta memoria y tiempo.</p>
+<blockquote>
+<p><strong>Usa <code>UNION ALL</code> por defecto.</strong> <code>UNION</code> solo cuando de verdad puede haber duplicados <strong>y</strong> te molestan. Es al revés de lo que hace todo el mundo: se escribe <code>UNION</code> por costumbre y se paga una deduplicación que nadie pidió.</p>
+</blockquote>
+<h3>3.1 El uso más común: etiquetar el origen</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="s1">'cliente'</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'London'</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="s1">'proveedor'</span><span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'London'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tipo</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>     company_name      |  city  |   tipo
+-----------------------+--------+-----------
+ Around the Horn       | London | cliente
+ B's Beverages         | London | cliente
+ Consolidated Holdings | London | cliente
+ Eastern Connection    | London | cliente
+ North/South           | London | cliente
+ Seven Seas Imports    | London | cliente
+ Exotic Liquids        | London | proveedor
+</code></pre></div>
+
+<p><strong>La columna <code>tipo</code> es literal, inventada en el <code>SELECT</code></strong>, y es lo que hace útil el resultado: sin ella, siete empresas de Londres sin saber cuál es cuál. <strong>Cuando unas dos tablas distintas, etiqueta siempre el origen.</strong></p>
+<p>Fíjate también en que la segunda rama <strong>no lleva alias</strong>: sería inútil. Los nombres de columna los fija la primera.</p>
+<h3>3.2 <code>INTERSECT</code> — lo que está en los dos sitios</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">INTERSECT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 12</span>
+</code></pre></div>
+
+<p><strong>12 países donde hay clientes y proveedores.</strong> Es la misma pregunta que el <code>FULL JOIN</code> de <a class="xref" href="../left-right-y-full-join/">left-right-y-full-join</a>, respondida en dos líneas — porque aquí solo quiero la columna que comparo, no columnas de los dos lados.</p>
+<h3>3.3 <code>EXCEPT</code> — lo que está en uno y no en el otro</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">EXCEPT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   country
+-------------
+ Argentina
+ Austria
+ Belgium
+ Ireland
+ Mexico
+ Poland
+ Portugal
+ Switzerland
+ Venezuela
+</code></pre></div>
+
+<p><strong>9 países donde vendemos y no compramos.</strong> Y al revés:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="k">EXCEPT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> Australia
+ Japan
+ Netherlands
+ Singapore
+</code></pre></div>
+
+<p><strong>4 países donde compramos y no vendemos.</strong> 12 + 9 + 4 = 25. ✓</p>
+<blockquote>
+<p><strong><code>EXCEPT</code> no es simétrico.</strong> <code>A EXCEPT B</code> y <code>B EXCEPT A</code> son preguntas distintas y hay que hacer las dos. Es el error de lectura más común del operador.</p>
+</blockquote>
+<h3>3.4 Los nulos aquí sí son iguales</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">INTERSECT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> region
+--------
+ OR
+ Québec
+</code></pre></div>
+
+<p><strong>Tres filas: <code>OR</code>, <code>Québec</code> y una vacía.</strong> Esa última es <code>NULL</code>, y está ahí porque las dos tablas tienen regiones nulas.</p>
+<p><strong>Los operadores de conjuntos tratan <code>NULL = NULL</code> como cierto</strong>, igual que <code>GROUP BY</code> y <code>DISTINCT</code>, y al revés que <code>=</code> en un <code>WHERE</code> o en un <code>ON</code> (<a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>). Es coherente —para comparar filas, dos ausencias son la misma ausencia— pero hay que saberlo: <strong>un <code>EXCEPT</code> puede eliminar una fila por coincidir en un <code>NULL</code>.</strong></p>
+<h3>3.5 Añadir una fila de total</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">LAST</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | count
+------+-------
+ 1996 |   152
+ 1997 |   408
+ 1998 |   270
+      |   830
+</code></pre></div>
+
+<p>Funciona, y es <strong>exactamente lo que <code>ROLLUP</code> hace mejor</strong> (<a class="xref" href="../agregacion-avanzada/">agregacion-avanzada</a>): aquí la tabla <code>orders</code> se lee <strong>dos veces</strong>; con <code>ROLLUP</code>, una. Cuando veas un <code>UNION ALL</code> con un total pegado abajo, casi siempre es un <code>ROLLUP</code> sin escribir.</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li>
+<p><strong>Distinto número de columnas.</strong>
+   <code>sql
+   SELECT country, city FROM customers UNION SELECT country FROM suppliers;</code>
+   <code>ERROR:  each UNION query must have the same number of columns</code>
+   Este avisa.</p>
+</li>
+<li>
+<p><strong>Columnas en distinto orden — este NO avisa.</strong>
+   <code>sql
+   SELECT country FROM customers UNION SELECT company_name FROM suppliers;</code>
+   <strong>Devuelve 50 filas mezclando países y nombres de empresa bajo el título <code>country</code>.</strong> Los dos son <code>varchar</code>, así que PostgreSQL no tiene nada que objetar. <strong>El motor comprueba los tipos, no el significado.</strong></p>
+</li>
+</ol>
+<p>Cuando los tipos sí chocan, sí avisa:
+   <code>sql
+   SELECT 1 UNION SELECT 'a';</code>
+   <code>ERROR:  invalid input syntax for type integer: "a"</code></p>
+<ol>
+<li>
+<p><strong><code>ORDER BY</code> en una rama intermedia.</strong>
+   <code>sql
+   SELECT country FROM customers ORDER BY country UNION SELECT country FROM suppliers;</code>
+   <code>ERROR:  syntax error at or near "UNION"</code>
+   Va al final, una sola vez.</p>
+</li>
+<li>
+<p><strong><code>UNION</code> por costumbre cuando quieres <code>UNION ALL</code>.</strong> Deduplicación silenciosa: si dos filas legítimas eran idénticas, <strong>pierdes una</strong>. En un <code>UNION</code> de importes de dos sucursales, dos ventas del mismo importe se convierten en una.</p>
+</li>
+<li>
+<p><strong>Esperar que <code>EXCEPT</code> sea simétrico.</strong></p>
+</li>
+<li>
+<p><strong>Ordenar por una columna que no está en el <code>SELECT</code>.</strong> En un <code>UNION</code> no se puede: el <code>ORDER BY</code> solo ve las columnas del resultado.</p>
+</li>
+<li>
+<p><strong>Usar <code>UNION</code> para lo que es un <code>JOIN</code>.</strong> Si necesitas columnas de las dos tablas en la misma fila, es un <code>JOIN</code>. <code>UNION</code> apila; no cruza.</p>
+</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UNION</code> / <code>UNION ALL</code></td>
+<td>✅</td>
+<td>✅ <strong>Idéntico</strong></td>
+</tr>
+<tr>
+<td><code>INTERSECT</code> / <code>EXCEPT</code></td>
+<td>✅</td>
+<td>✅ <strong>Idéntico</strong></td>
+</tr>
+<tr>
+<td><code>INTERSECT ALL</code> / <code>EXCEPT ALL</code></td>
+<td>✅</td>
+<td>❌ <strong>No existen</strong></td>
+</tr>
+<tr>
+<td><code>MINUS</code> (nombre alternativo de <code>EXCEPT</code>)</td>
+<td>❌</td>
+<td>❌ (es de Oracle)</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>INTERSECT ALL</code> y <code>EXCEPT ALL</code> son la única diferencia</strong>, y conservan las repeticiones contando ocurrencias: si A tiene un valor 3 veces y B 1, <code>EXCEPT ALL</code> lo devuelve 2 veces. Se usan poco; si el código tiene que valer para los dos motores, evítalos.</p>
+<p>Si te encuentras <code>MINUS</code>, es Oracle: se traduce a <code>EXCEPT</code> tal cual.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Una lista única de todas las ciudades donde hay clientes o proveedores.</li>
+<li>Un directorio de contactos: nombre de contacto, empresa, teléfono y tipo (<code>cliente</code> / <code>proveedor</code>), ordenado por empresa.</li>
+<li>Las ciudades que tienen clientes pero ningún proveedor.</li>
+<li>Los ids de producto que aparecen en <code>products</code> pero nunca en <code>order_details</code>, resuelto con un operador de conjuntos, y luego con <code>NOT EXISTS</code>. ¿Cuál prefieres?</li>
+<li>Explica por qué esta consulta devuelve menos filas de las esperadas y cómo lo arreglarías:
+   <code>sql
+   SELECT freight FROM orders WHERE ship_country = 'Brazil'
+   UNION
+   SELECT freight FROM orders WHERE ship_country = 'France';</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Administración quiere un único listado de "todas las empresas con las que trabajamos" —clientes y proveedores— con nombre, contacto, teléfono, ciudad, país y de qué tipo es cada una. Y avisan de que hay empresas que podrían ser las dos cosas.</em></p>
+</blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">todas</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">contact_name</span><span class="p">,</span><span class="w"> </span><span class="n">phone</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="s1">'cliente'</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="w">    </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">contact_name</span><span class="p">,</span><span class="w"> </span><span class="n">phone</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="s1">'proveedor'</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">string_agg</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">tipo</span><span class="p">,</span><span class="w"> </span><span class="s1">' + '</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tipo</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tipos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">min</span><span class="p">(</span><span class="n">contact_name</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">contacto</span><span class="p">,</span>
+<span class="w">       </span><span class="k">min</span><span class="p">(</span><span class="n">phone</span><span class="p">)</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">telefono</span><span class="p">,</span>
+<span class="w">       </span><span class="k">min</span><span class="p">(</span><span class="n">city</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">ciudad</span><span class="p">,</span>
+<span class="w">       </span><span class="k">min</span><span class="p">(</span><span class="n">country</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">todas</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>120 filas</strong>, todas con <code>tipos</code> = un solo valor: <strong>ninguna empresa es cliente y proveedor a la vez.</strong></p>
+<p><strong>Y ahí está lo que había que entregar, que no es la tabla:</strong></p>
+<ol>
+<li><strong><code>UNION ALL</code>, no <code>UNION</code>.</strong> Con <code>UNION</code>, una empresa que fuera las dos cosas produciría dos filas distintas (<code>tipo</code> es distinto), así que ni siquiera deduplicaría — pero <strong>sí borraría</strong> dos contactos homónimos legítimos. <code>UNION ALL</code> no toca nada y el agrupado posterior decide.</li>
+<li><strong>El <code>GROUP BY company_name</code> con <code>string_agg</code> es lo que responde al aviso.</strong> Si una empresa apareciera en las dos tablas, saldría <strong>una fila</strong> con <code>cliente + proveedor</code>. Es la única forma de que el listado conteste a la pregunta que hicieron en lugar de dejársela al lector.</li>
+<li><strong>Comparar por <code>company_name</code> es frágil, y hay que decirlo.</strong> <code>Exotic Liquids</code> y <code>Exotic Liquids Ltd.</code> son la misma empresa y este listado las da por distintas. <strong>La igualdad de texto no es identidad de empresa</strong> (<a class="xref" href="../cross-join-y-self-join/">cross-join-y-self-join</a> sección 8). Si Administración va a usar esto para consolidar proveedores, hace falta revisión manual o comparación por similitud.</li>
+<li><strong>Los <code>min()</code> son un parche consciente.</strong> Si una empresa saliera en las dos tablas con teléfonos distintos, <code>min()</code> elige uno arbitrariamente. Como aquí ninguna se repite, no afecta a ninguna fila — <strong>pero es una bomba dormida</strong> si mañana entra una empresa que sea las dos cosas. Lo honesto es decirlo al entregar, no descubrirlo entonces.</li>
+</ol></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">UNION</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>93 ciudades distintas.</strong> Aquí <code>UNION</code> (sin <code>ALL</code>) es lo correcto: la pregunta pide una lista <strong>única</strong>.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">contact_name</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">phone</span><span class="p">,</span><span class="w"> </span><span class="s1">'cliente'</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">contact_name</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">phone</span><span class="p">,</span><span class="w"> </span><span class="s1">'proveedor'</span><span class="w">      </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>120 filas</strong> = 91 + 29. <code>UNION ALL</code> a propósito: si dos personas distintas se llaman igual, <strong>quiero las dos</strong>. Un <code>UNION</code> habría borrado una en silencio.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">EXCEPT</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>64 ciudades</strong> con clientes y sin proveedores.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Con EXCEPT</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">EXCEPT</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+
+<span class="c1">-- Con NOT EXISTS</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Las dos devuelven <strong>0 filas</strong>: todos los productos se han vendido.</p>
+<p><strong>Prefiero <code>NOT EXISTS</code></strong>, por una razón concreta: <code>EXCEPT</code> solo puede devolver <strong>la columna que compara</strong>. En cuanto quieras también el nombre del producto, <code>EXCEPT</code> deja de servir y hay que envolverlo en otra consulta. <code>NOT EXISTS</code> filtra sin limitar lo que seleccionas.</p>
+<p><strong><code>EXCEPT</code> gana</strong> cuando comparas <strong>filas completas</strong> — por ejemplo, comprobar que dos tablas tras una migración son idénticas: <code>SELECT * FROM origen EXCEPT SELECT * FROM destino</code>. Eso con <code>NOT EXISTS</code> sería columna por columna, con los nulos dando guerra.</p>
+<p><strong>5.</strong> Porque <code>UNION</code> <strong>deduplica</strong>, y <code>freight</code> es un número que se repite muchísimo entre pedidos. Dos pedidos —uno de Brasil y otro de Francia— con el mismo flete se convierten en <strong>una sola fila</strong>.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="s1">'France'</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 160</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="o">=</span><span class="s1">'Brazil'</span>
+<span class="w">                      </span><span class="k">UNION</span>
+<span class="w">                      </span><span class="k">SELECT</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="o">=</span><span class="s1">'France'</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 158</span>
+</code></pre></div>
+
+<p><strong>160 contra 158: dos filas desaparecidas.</strong> Y ese es justo el tamaño de error que hace daño — no faltan 50 filas que alguien notaría, faltan <strong>dos</strong>. Si esos fletes se van a sumar, el total sale corto y nadie lo revisa.</p>
+<p><strong>El arreglo es <code>UNION ALL</code>.</strong> Aunque lo correcto de verdad es no usar operadores de conjuntos para esto:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">freight</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="w"> </span><span class="s1">'France'</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>Una sola pasada por la tabla en vez de dos.</strong> Cuando las dos ramas de un <code>UNION</code> leen la misma tabla y solo cambian en el <code>WHERE</code>, casi siempre es un <code>OR</code> o un <code>IN</code> escrito de la forma larga.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../anti-join-y-semi-join/"><span>Anterior</span><strong>Anti-join y semi-join</strong></a><a class="nav-next" href="../joins-multiples-y-granularidad/"><span>Siguiente</span><strong>Joins múltiples y granularidad</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-las-reglas">2. Las reglas</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

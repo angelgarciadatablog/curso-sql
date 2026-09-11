@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Funciones dentro del SELECT · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tema agrupado: texto, fecha, numéricas, conversión y nulos. Material de consulta" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/funciones-dentro-del-select/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Funciones dentro del SELECT" />
+  <meta property="og:description" content="Tema agrupado: texto, fecha, numéricas, conversión y nulos. Material de consulta" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/funciones-dentro-del-select/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(14 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 14 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details open><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><span class="activo">Funciones dentro del SELECT</span></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 3 · Transformar valores</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Funciones dentro del SELECT</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../tipos-de-datos-en-postgresql/">tipos-de-datos-en-postgresql</a></div>
+    
+    <div class="post-body"><blockquote>
+<p><strong>Este tema es material de consulta, no de lectura lineal.</strong> Es el único del curso que agrupa lo que otras guías reparten en cuatro capítulos y veinte lecciones. Léelo una vez para saber <strong>qué existe</strong>, y vuelve a él cuando necesites algo concreto. Nadie memoriza esta lista; se memoriza dónde está.</p>
+</blockquote>
+<h2 id="1-qu-es">1. Qué es</h2>
+<p>Una <strong>función escalar</strong> recibe uno o varios valores y devuelve <strong>un valor por fila</strong>. No colapsa filas —eso lo hacen las agregaciones, <a class="xref" href="../funciones-de-agregacion/">funciones-de-agregacion</a>— ni mira otras filas —eso lo hacen las ventanas, <a class="xref" href="../que-es-una-funcion-de-ventana/">que-es-una-funcion-de-ventana</a>.</p>
+<p>Se usan sobre todo en el <code>SELECT</code>, pero valen en cualquier sitio donde quepa una expresión: <code>WHERE</code>, <code>ORDER BY</code>, <code>GROUP BY</code>, <code>CHECK</code>.</p>
+<p>Cuatro familias:</p>
+<table>
+<thead>
+<tr>
+<th>Familia</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Texto</strong></td>
+<td>Limpiar, cortar, formatear, buscar dentro</td>
+</tr>
+<tr>
+<td><strong>Fecha</strong></td>
+<td>Extraer partes, truncar, sumar tiempo, formatear</td>
+</tr>
+<tr>
+<td><strong>Numéricas</strong></td>
+<td>Redondear, valor absoluto, potencias</td>
+</tr>
+<tr>
+<td><strong>Nulos y condicionales</strong></td>
+<td>Sustituir ausencias, comparar</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-texto">2. Texto</h2>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Qué hace</th>
+<th>Ejemplo → resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>upper(t)</code> / <code>lower(t)</code></td>
+<td>Mayúsculas / minúsculas</td>
+<td><code>upper('chai')</code> → <code>CHAI</code></td>
+</tr>
+<tr>
+<td><code>initcap(t)</code></td>
+<td>Primera letra de cada palabra</td>
+<td><code>initcap('chai tea')</code> → <code>Chai Tea</code></td>
+</tr>
+<tr>
+<td><code>length(t)</code></td>
+<td>Número de caracteres</td>
+<td><code>length('Chai')</code> → <code>4</code></td>
+</tr>
+<tr>
+<td><code>left(t,n)</code> / <code>right(t,n)</code></td>
+<td>Primeros / últimos n</td>
+<td><code>left('Chocolade',5)</code> → <code>Choco</code></td>
+</tr>
+<tr>
+<td><code>substring(t FROM p FOR n)</code></td>
+<td>Trozo desde la posición p</td>
+<td><code>substring('Chocolade' FROM 4 FOR 3)</code> → <code>col</code></td>
+</tr>
+<tr>
+<td><code>position(sub IN t)</code></td>
+<td>Dónde empieza (0 si no está)</td>
+<td><code>position('ola' IN 'Chocolade')</code> → <code>5</code></td>
+</tr>
+<tr>
+<td><code>trim(t)</code> / <code>ltrim</code> / <code>rtrim</code></td>
+<td>Quita espacios</td>
+<td><code>trim('  hola  ')</code> → <code>hola</code></td>
+</tr>
+<tr>
+<td><code>btrim(t, chars)</code></td>
+<td>Quita los caracteres indicados</td>
+<td><code>btrim('xxholaxx','x')</code> → <code>hola</code></td>
+</tr>
+<tr>
+<td><code>replace(t, de, a)</code></td>
+<td>Sustituye un texto</td>
+<td><code>replace('Chef Anton''s','Anton','Angel')</code> → <code>Chef Angel's</code></td>
+</tr>
+<tr>
+<td><code>translate(t, de, a)</code></td>
+<td>Sustituye <strong>carácter a carácter</strong></td>
+<td><code>translate('abc','abc','xyz')</code> → <code>xyz</code></td>
+</tr>
+<tr>
+<td><code>lpad(t,n,c)</code> / <code>rpad</code></td>
+<td>Rellena hasta n</td>
+<td><code>lpad('7',3,'0')</code> → <code>007</code></td>
+</tr>
+<tr>
+<td><code>repeat(t,n)</code></td>
+<td>Repite</td>
+<td><code>repeat('ab',3)</code> → <code>ababab</code></td>
+</tr>
+<tr>
+<td><code>reverse(t)</code></td>
+<td>Del revés</td>
+<td><code>reverse('chai')</code> → <code>iahc</code></td>
+</tr>
+<tr>
+<td><code>split_part(t, sep, n)</code></td>
+<td>La parte n al partir por sep</td>
+<td><code>split_part('Sales Representative',' ',2)</code> → <code>Representative</code></td>
+</tr>
+<tr>
+<td><code>concat(a,b,...)</code></td>
+<td>Concatena <strong>ignorando nulos</strong></td>
+<td><code>concat('a',NULL,'b')</code> → <code>ab</code></td>
+</tr>
+<tr>
+<td><code>concat_ws(sep,...)</code></td>
+<td>Concatena con separador</td>
+<td><code>concat_ws('-','2026','08','20')</code> → <code>2026-08-20</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>La diferencia que importa</strong> — <code>||</code> contra <code>concat()</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">'b'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">concat_fn</span><span class="p">,</span><span class="w"> </span><span class="s1">'a'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">'b'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">operador</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> concat_fn | operador
+-----------+----------
+ ab        |
+</code></pre></div>
+
+<p><strong><code>||</code> se contagia del <code>NULL</code> y anula la cadena entera. <code>concat()</code> lo ignora.</strong> Cuando construyas una dirección o un nombre con partes que pueden faltar, usa <code>concat_ws()</code>.</p>
+<p><code>substring</code> tiene tres detalles que confunden:
+- <strong>Las posiciones empiezan en 1</strong>, no en 0.
+- <code>substring(t FROM p)</code> sin <code>FOR</code> va hasta el final.
+- <code>substr(t, p, n)</code> es la forma corta y hace lo mismo.</p>
+<h2 id="3-fecha">3. Fecha</h2>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Qué hace</th>
+<th>Ejemplo → resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>current_date</code> / <code>now()</code></td>
+<td>Hoy / ahora con zona</td>
+<td><code>date</code> / <code>timestamptz</code></td>
+</tr>
+<tr>
+<td><code>extract(parte FROM f)</code></td>
+<td>Un número: año, mes, día, dow…</td>
+<td><code>extract(year FROM order_date)</code> → <code>1996</code></td>
+</tr>
+<tr>
+<td><code>date_trunc('unidad', f)</code></td>
+<td>Corta al principio del periodo</td>
+<td><code>date_trunc('month','1997-05-17')</code> → <code>1997-05-01 00:00:00</code></td>
+</tr>
+<tr>
+<td><code>to_char(f, formato)</code></td>
+<td>Fecha → texto con el formato que quieras</td>
+<td><code>to_char(f,'DD/MM/YYYY')</code> → <code>17/05/1997</code></td>
+</tr>
+<tr>
+<td><code>f + INTERVAL '1 month'</code></td>
+<td>Suma tiempo</td>
+<td><code>1997-06-17</code></td>
+</tr>
+<tr>
+<td><code>f + 30</code></td>
+<td>Suma <strong>días</strong> a un <code>date</code></td>
+<td><code>1997-06-16</code></td>
+</tr>
+<tr>
+<td><code>f1 - f2</code></td>
+<td>Días entre dos <code>date</code></td>
+<td><code>671</code></td>
+</tr>
+<tr>
+<td><code>age(f1, f2)</code></td>
+<td>Diferencia legible</td>
+<td><code>1 year 10 mons 2 days</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>extract</code></strong> acepta <code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>, <code>quarter</code>, <code>week</code>, <code>doy</code> (día del año) y <code>dow</code> (día de la semana, <strong>0 = domingo</strong>).</p>
+<p><strong><code>date_trunc</code> es la función más útil de las cuatro familias.</strong> Es la que convierte pedidos sueltos en una serie mensual:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="s1">'YYYY-MM'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                       </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   mes   | pedidos |  flete
+---------+---------+---------
+ 1996-07 |      22 | 1288.18
+ 1996-08 |      25 | 1397.17
+ 1996-09 |      23 | 1123.48
+ 1996-10 |      26 | 1520.59
+ 1996-11 |      25 | 2151.86
+</code></pre></div>
+
+<p>Aquí he usado <code>to_char</code> porque produce un texto ordenable (<code>1996-07</code> &lt; <code>1996-08</code>). <strong><code>date_trunc</code> es mejor cuando el resultado va a seguir siendo una fecha</strong>: mantiene el tipo y permite restar periodos después.</p>
+<blockquote>
+<p><strong>Gotcha:</strong> <code>date_trunc()</code> sobre un <code>date</code> <strong>devuelve un <code>timestamptz</code></strong>, no un <code>date</code>. Si esperabas una fecha limpia, castea: <code>date_trunc('month', order_date)::date</code>.</p>
+</blockquote>
+<p>El último día del mes, que no tiene función propia:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'month'</span><span class="p">,</span><span class="w"> </span><span class="s1">'1997-05-17'</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'1 month - 1 day'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> 1997-05-31 00:00:00-05
+</code></pre></div>
+
+<p><strong>Formatos de <code>to_char</code> que se usan de verdad:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Da</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'YYYY-MM-DD'</code></td>
+<td><code>1997-05-17</code></td>
+</tr>
+<tr>
+<td><code>'DD/MM/YYYY'</code></td>
+<td><code>17/05/1997</code></td>
+</tr>
+<tr>
+<td><code>'YYYY-MM'</code></td>
+<td><code>1997-05</code></td>
+</tr>
+<tr>
+<td><code>'YYYY-"Q"Q'</code></td>
+<td><code>1997-Q2</code></td>
+</tr>
+<tr>
+<td><code>'TMMonth'</code></td>
+<td>Nombre del mes <strong>en el idioma del servidor</strong></td>
+</tr>
+<tr>
+<td><code>'Day'</code></td>
+<td>Nombre del día</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-num-ricas">4. Numéricas</h2>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Qué hace</th>
+<th>Ejemplo → resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>round(n, d)</code></td>
+<td>Redondea a d decimales</td>
+<td><code>round(21.355, 2)</code> → <code>21.36</code></td>
+</tr>
+<tr>
+<td><code>ceil(n)</code> / <code>floor(n)</code></td>
+<td>Hacia arriba / abajo</td>
+<td><code>ceil(21.35)</code> → <code>22</code>, <code>floor(21.35)</code> → <code>21</code></td>
+</tr>
+<tr>
+<td><code>trunc(n, d)</code></td>
+<td><strong>Corta</strong> sin redondear</td>
+<td><code>trunc(21.99, 1)</code> → <code>21.9</code></td>
+</tr>
+<tr>
+<td><code>abs(n)</code></td>
+<td>Valor absoluto</td>
+<td><code>abs(-5)</code> → <code>5</code></td>
+</tr>
+<tr>
+<td><code>mod(a, b)</code></td>
+<td>Resto</td>
+<td><code>mod(7,2)</code> → <code>1</code></td>
+</tr>
+<tr>
+<td><code>power(a, b)</code></td>
+<td>Potencia</td>
+<td><code>power(2,10)</code> → <code>1024</code></td>
+</tr>
+<tr>
+<td><code>sqrt(n)</code></td>
+<td>Raíz cuadrada</td>
+<td><code>sqrt(16)</code> → <code>4</code></td>
+</tr>
+<tr>
+<td><code>greatest(...)</code> / <code>least(...)</code></td>
+<td>Mayor / menor de la lista</td>
+<td><code>greatest(10,20,5)</code> → <code>20</code></td>
+</tr>
+<tr>
+<td><code>to_char(n, formato)</code></td>
+<td>Número → texto formateado</td>
+<td><code>to_char(1354458.59,'FM999,999,999.00')</code> → <code>1,354,458.59</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>round</code> con dos argumentos solo existe para <code>numeric</code>.</strong> <code>round(x::double precision, 2)</code> da error de función inexistente. Una razón más para que el dinero sea <code>numeric</code> (<a class="xref" href="../tipos-de-datos-en-postgresql/">tipos-de-datos-en-postgresql</a>).</p>
+<p><strong><code>greatest</code>/<code>least</code> no son agregaciones.</strong> Comparan valores <strong>de la misma fila</strong>, no de filas distintas. El equivalente entre filas es <code>max()</code>/<code>min()</code>.</p>
+<h2 id="5-nulos-y-condicionales">5. Nulos y condicionales</h2>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coalesce(a, b, c)</code></td>
+<td>El primero que no sea <code>NULL</code></td>
+</tr>
+<tr>
+<td><code>nullif(a, b)</code></td>
+<td><code>NULL</code> si <code>a = b</code>; si no, <code>a</code></td>
+</tr>
+<tr>
+<td><code>CASE WHEN ... THEN ... END</code></td>
+<td>El condicional completo → <a class="xref" href="../case-condicionales-en-sql/">case-condicionales-en-sql</a></td>
+</tr>
+</tbody>
+</table>
+<p>Están explicadas en <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>. Se repiten aquí porque es donde las vas a buscar.</p>
+<p>El uso que hay que recordar de <code>nullif</code>:</p>
+<div class="hl"><pre><span></span><code><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">nullif</span><span class="p">(</span><span class="n">cantidad</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">     </span><span class="c1">-- NULL en vez de "division by zero"</span>
+</code></pre></div>
+
+<h2 id="6-ejemplos-sobre-northwind">6. Ejemplos sobre Northwind</h2>
+<p><strong>Formatear un nombre y calcular antigüedad:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">left</span><span class="p">(</span><span class="n">first_name</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">'. '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">last_name</span><span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="k">upper</span><span class="p">(</span><span class="n">country</span><span class="p">)</span><span class="w">                                     </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">       </span><span class="n">hire_date</span><span class="p">,</span>
+<span class="w">       </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">age</span><span class="p">(</span><span class="k">current_date</span><span class="p">,</span><span class="w"> </span><span class="n">hire_date</span><span class="p">))::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anios</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">hire_date</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   empleado   | pais | hire_date  | anios
+--------------+------+------------+-------
+ J. Leverling | USA  | 1992-04-01 |    34
+ N. Davolio   | USA  | 1992-05-01 |    34
+ A. Fuller    | USA  | 1992-08-14 |    34
+ M. Peacock   | USA  | 1993-05-03 |    33
+</code></pre></div>
+
+<p>34 años de antigüedad porque los datos son de 1992 y hoy es 2026. <strong>Es el recordatorio de que Northwind vive en 1996-1998</strong>: cualquier cálculo contra <code>current_date</code> da cifras absurdas. Para análisis conviene anclar la fecha "de hoy" al máximo de la base:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 1998-05-06</span>
+</code></pre></div>
+
+<p><strong>Extraer un número que está enterrado en un texto:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">quantity_per_unit</span><span class="p">,</span>
+<span class="w">       </span><span class="n">split_part</span><span class="p">(</span><span class="n">quantity_per_unit</span><span class="p">,</span><span class="w"> </span><span class="s1">' '</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cantidad</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name         |  quantity_per_unit  | cantidad
+------------------------------+---------------------+----------
+ Chai                         | 10 boxes x 30 bags  | 10
+ Chang                        | 24 - 12 oz bottles  | 24
+ Aniseed Syrup                | 12 - 550 ml bottles | 12
+</code></pre></div>
+
+<p>Funciona <strong>para estas cinco filas</strong>. <code>quantity_per_unit</code> es texto libre con al menos tres formatos distintos, y <code>split_part</code> solo acierta cuando el número va primero y separado por un espacio. <strong>Esta consulta es un ejemplo de función, no una solución</strong>: extraer datos de un campo de texto libre siempre es frágil, y la respuesta profesional es pedir que ese dato sea una columna numérica.</p>
+<p><strong>Limpiar un teléfono:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">phone</span><span class="p">,</span>
+<span class="w">       </span><span class="k">replace</span><span class="p">(</span><span class="k">replace</span><span class="p">(</span><span class="n">phone</span><span class="p">,</span><span class="w"> </span><span class="s1">'('</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">),</span><span class="w"> </span><span class="s1">')'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">limpio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">phone</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'(%'</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            |     phone      |    limpio
+------------------------------------+----------------+--------------
+ Ana Trujillo Emparedados y helados | (5) 555-4729   | 5 555-4729
+ Antonio Moreno Taquería            | (5) 555-3932   | 5 555-3932
+ Around the Horn                    | (171) 555-7788 | 171 555-7788
+</code></pre></div>
+
+<p>Dos <code>replace</code> anidados para dos caracteres. Con más de dos, <strong><code>translate</code> lo hace de una vez</strong>: <code>translate(phone, '()- ', '')</code> los quita todos.</p>
+<h2 id="7-errores-comunes">7. Errores comunes</h2>
+<ol>
+<li><strong><code>||</code> con una parte nula.</strong> Anula la cadena. Usa <code>concat_ws()</code>.</li>
+<li><strong>Creer que <code>substring</code> empieza en 0.</strong> Empieza en 1.</li>
+<li><strong><code>date_trunc</code> devolviendo <code>timestamptz</code> cuando esperabas <code>date</code>.</strong> Castea.</li>
+<li><strong><code>round(x, 2)</code> sobre un <code>double precision</code>.</strong> No existe esa función; hay que castear a <code>numeric</code>.</li>
+<li><strong>Aplicar una función a una columna dentro del <code>WHERE</code>.</strong> <code>WHERE extract(year FROM order_date) = 1997</code> <strong>impide usar un índice</strong> sobre <code>order_date</code>. La versión que sí lo usa es <code>WHERE order_date &gt;= '1997-01-01' AND order_date &lt; '1998-01-01'</code>. Ver <span class="xref-pend" title="Aún no publicado">indices</span>.</li>
+<li><strong><code>to_char</code> con <code>'Month'</code> esperando español.</strong> Da el idioma del servidor. Con <code>TM</code> delante respeta la configuración regional; sin ella es inglés.</li>
+<li><strong>Extraer datos de texto libre y darlo por bueno.</strong> Ver <code>quantity_per_unit</code>.</li>
+</ol>
+<h2 id="8-diferencias-con-sql-server">8. Diferencias con SQL Server</h2>
+<p>Esta es la sección que hay que llevarse a una entrevista. Es la tabla de traducción completa.</p>
+<h3>8.1 Texto</h3>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>SQL Server</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Longitud</td>
+<td><code>LEN(t)</code></td>
+<td><code>length(t)</code></td>
+</tr>
+<tr>
+<td>Buscar dentro</td>
+<td><code>CHARINDEX(sub, t)</code></td>
+<td><code>position(sub IN t)</code> o <code>strpos(t, sub)</code></td>
+</tr>
+<tr>
+<td>Buscar con patrón</td>
+<td><code>PATINDEX('%x%', t)</code></td>
+<td><code>t ~ 'x'</code> (regex)</td>
+</tr>
+<tr>
+<td>Trozo</td>
+<td><code>SUBSTRING(t, p, n)</code></td>
+<td><code>substring(t FROM p FOR n)</code></td>
+</tr>
+<tr>
+<td>Concatenar</td>
+<td><code>+</code> o <code>CONCAT</code></td>
+<td><code>||</code> o <code>concat()</code></td>
+</tr>
+<tr>
+<td>Insertar/reemplazar por posición</td>
+<td><code>STUFF(...)</code></td>
+<td>❌ No existe → <code>overlay(t PLACING s FROM p FOR n)</code></td>
+</tr>
+<tr>
+<td>Partir por separador</td>
+<td><code>STRING_SPLIT(t, sep)</code></td>
+<td><code>string_to_array(t, sep)</code> o <code>split_part(t, sep, n)</code></td>
+</tr>
+<tr>
+<td>Juntar filas en texto</td>
+<td><code>STRING_AGG(col, sep)</code></td>
+<td><code>string_agg(col, sep)</code> — <strong>igual</strong></td>
+</tr>
+<tr>
+<td>Repetir</td>
+<td><code>REPLICATE(t, n)</code></td>
+<td><code>repeat(t, n)</code></td>
+</tr>
+</tbody>
+</table>
+<h3>8.2 Fecha</h3>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>SQL Server</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ahora</td>
+<td><code>GETDATE()</code></td>
+<td><code>now()</code> / <code>current_date</code></td>
+</tr>
+<tr>
+<td>Extraer parte</td>
+<td><code>DATEPART(year, f)</code></td>
+<td><code>extract(year FROM f)</code></td>
+</tr>
+<tr>
+<td>Nombre de la parte</td>
+<td><code>DATENAME(month, f)</code></td>
+<td><code>to_char(f, 'TMMonth')</code></td>
+</tr>
+<tr>
+<td>Sumar tiempo</td>
+<td><code>DATEADD(month, 1, f)</code></td>
+<td><code>f + INTERVAL '1 month'</code></td>
+</tr>
+<tr>
+<td>Diferencia</td>
+<td><code>DATEDIFF(day, f1, f2)</code></td>
+<td><code>f2 - f1</code> (para <code>date</code>) o <code>age(f2, f1)</code></td>
+</tr>
+<tr>
+<td>Fin de mes</td>
+<td><code>EOMONTH(f)</code></td>
+<td>❌ → <code>date_trunc('month',f) + INTERVAL '1 month - 1 day'</code></td>
+</tr>
+<tr>
+<td>Truncar</td>
+<td><code>DATETRUNC(month, f)</code> (2022+)</td>
+<td><code>date_trunc('month', f)</code></td>
+</tr>
+</tbody>
+</table>
+<h3>8.3 Números y conversión</h3>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>SQL Server</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Convertir</td>
+<td><code>CAST(x AS t)</code> / <code>CONVERT(t, x)</code></td>
+<td><code>x::t</code> / <code>CAST(x AS t)</code></td>
+</tr>
+<tr>
+<td>Formatear fecha</td>
+<td><code>CONVERT(varchar, f, 103)</code></td>
+<td><code>to_char(f, 'DD/MM/YYYY')</code></td>
+</tr>
+<tr>
+<td>Primer no nulo</td>
+<td><code>ISNULL(a,b)</code> o <code>COALESCE</code></td>
+<td><code>coalesce(a,b)</code></td>
+</tr>
+<tr>
+<td>Redondear</td>
+<td><code>ROUND(n, d)</code></td>
+<td><code>round(n, d)</code> — solo <code>numeric</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Los dos que más duelen al migrar</strong> son <code>DATEDIFF</code> y <code>CONVERT</code> con estilos numéricos. <code>DATEDIFF(month, a, b)</code> cuenta <strong>fronteras de mes cruzadas</strong>, no meses completos: no hay una traducción de una línea, hay que decidir qué querías contar. Y los estilos numéricos de <code>CONVERT</code> (<code>103</code>, <code>112</code>, <code>120</code>…) son códigos que solo existen en SQL Server; se traducen a un formato de <code>to_char</code>, uno por uno.</p>
+<h2 id="9-ejercicios">9. Ejercicios</h2>
+<ol>
+<li>Devuelve el nombre de cada producto en mayúsculas, su longitud, y sus 10 primeros caracteres.</li>
+<li>Los pedidos agrupados por trimestre (<code>1996-Q3</code>, <code>1996-Q4</code>…) con su número de pedidos.</li>
+<li>La dirección completa de cada cliente en una sola columna: calle, ciudad, región y país separados por coma, <strong>sin que desaparezca la fila cuando falta la región</strong>.</li>
+<li>Los empleados con su edad en años en el momento de su contratación.</li>
+<li>El precio de cada producto formateado como texto con separador de miles y dos decimales, y el descuento medio de <code>order_details</code> como porcentaje con un decimal.</li>
+</ol>
+<h2 id="10-pregunta-de-negocio">10. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Marketing quiere un archivo con "una línea por cliente, lista para pegar en la herramienta de envíos": nombre de contacto, empresa, y dirección postal completa en un solo campo. Insisten en que no puede faltar ninguno de los 91 clientes.</em></p>
+</blockquote>
+<p>La última frase es la trampa. Y ya la has visto antes en este tema.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">contact_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">concat_ws</span><span class="p">(</span><span class="s1">', '</span><span class="p">,</span>
+<span class="w">                 </span><span class="k">nullif</span><span class="p">(</span><span class="k">trim</span><span class="p">(</span><span class="n">address</span><span class="p">),</span><span class="w"> </span><span class="s1">''</span><span class="p">),</span>
+<span class="w">                 </span><span class="k">nullif</span><span class="p">(</span><span class="k">trim</span><span class="p">(</span><span class="n">postal_code</span><span class="p">),</span><span class="w"> </span><span class="s1">''</span><span class="p">),</span>
+<span class="w">                 </span><span class="k">nullif</span><span class="p">(</span><span class="k">trim</span><span class="p">(</span><span class="n">city</span><span class="p">),</span><span class="w"> </span><span class="s1">''</span><span class="p">),</span>
+<span class="w">                 </span><span class="k">nullif</span><span class="p">(</span><span class="k">trim</span><span class="p">(</span><span class="n">region</span><span class="p">),</span><span class="w"> </span><span class="s1">''</span><span class="p">),</span>
+<span class="w">                 </span><span class="k">nullif</span><span class="p">(</span><span class="k">trim</span><span class="p">(</span><span class="n">country</span><span class="p">),</span><span class="w"> </span><span class="s1">''</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">direccion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve los <strong>91 clientes</strong>, y esa es la parte que había que acertar:</p>
+<ol>
+<li><strong><code>concat_ws</code> en vez de <code>||</code>.</strong> Con <code>||</code>, los 60 clientes sin región habrían salido con la dirección <strong>entera en <code>NULL</code></strong> — no con la región vacía, con todo vacío. Marketing habría recibido 91 filas y 60 sin dirección, y probablemente no lo habría mirado.</li>
+<li><strong><code>nullif(trim(x), '')</code> en cada parte.</strong> <code>concat_ws</code> salta los <code>NULL</code>, pero <strong>no salta las cadenas vacías</strong>: un <code>city = ''</code> produciría una coma suelta. Convertir el vacío en <code>NULL</code> primero cierra ese agujero.</li>
+<li><strong>El código postal antes de la ciudad</strong>, que es el orden postal real en Europa. Detalle tonto que decide si la herramienta de envíos parsea bien o no.</li>
+</ol>
+<p><strong>Y lo que hay que decir al entregarlo:</strong> un cliente tiene el código postal en <code>NULL</code> y 60 no tienen región. Las 91 filas salen completas en el sentido de que no falta ninguna, <strong>pero 61 direcciones están incompletas en origen</strong>. Eso no lo arregla ninguna función: es un problema del dato, y hay que decirlo antes de que vuelvan 61 cartas.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">upper</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">nombre</span><span class="p">,</span>
+<span class="w">       </span><span class="k">length</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">largo</span><span class="p">,</span>
+<span class="w">       </span><span class="k">left</span><span class="p">(</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">corto</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">largo</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>              nombre              | largo |   corto
+----------------------------------+-------+------------
+ LOUISIANA FIERY HOT PEPPER SAUCE |    32 | Louisiana
+ JACK'S NEW ENGLAND CLAM CHOWDER  |    31 | Jack's New
+ UNCLE BOB'S ORGANIC DRIED PEARS  |    31 | Uncle Bob'
+</code></pre></div>
+
+<p>Y un caso que merece mirarse aparte, porque enseña que <code>upper()</code> no es tan simple como parece:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="k">upper</span><span class="p">(</span><span class="n">product_name</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Soße%'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>          product_name           |               upper
+---------------------------------+---------------------------------
+ Original Frankfurter grüne Soße | ORIGINAL FRANKFURTER GRÜNE SOßE
+</code></pre></div>
+
+<p>La <code>ü</code> sube a <code>Ü</code>, pero la <strong><code>ß</code> se queda en minúscula</strong>: su mayúscula tradicional son dos caracteres (<code>SS</code>) y PostgreSQL no cambia la longitud del texto. <strong><code>upper()</code> no es reversible en todos los idiomas</strong>, y comparar <code>upper(a) = upper(b)</code> no es un sustituto fiable de <code>ILIKE</code>.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="s1">'YYYY-"Q"Q'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">trimestre</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> trimestre | pedidos
+-----------+---------
+ 1996-Q3   |      70
+ 1996-Q4   |      82
+ 1997-Q1   |      92
+ 1997-Q2   |      93
+ 1997-Q3   |     103
+ 1997-Q4   |     120
+ 1998-Q1   |     182
+ 1998-Q2   |      88
+</code></pre></div>
+
+<p>El negocio crece trimestre a trimestre hasta 1998-Q1. <strong>1998-Q2 no cae: está incompleto</strong> — la base termina el 6 de mayo. Es el error más común al graficar una serie: el último periodo siempre parece un desplome.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">concat_ws</span><span class="p">(</span><span class="s1">', '</span><span class="p">,</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">direccion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            |                     direccion
+------------------------------------+----------------------------------------------------
+ Alfreds Futterkiste                | Obere Str. 57, Berlin, Germany
+ Ana Trujillo Emparedados y helados | Avda. de la Constitución 2222, México D.F., Mexico
+ Antonio Moreno Taquería            | Mataderos  2312, México D.F., Mexico
+</code></pre></div>
+
+<p><strong><code>concat_ws</code> salta los nulos y no deja doble coma.</strong> Con <code>||</code> habrían salido 60 direcciones vacías.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="n">birth_date</span><span class="p">,</span><span class="w"> </span><span class="n">hire_date</span><span class="p">,</span>
+<span class="w">       </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">age</span><span class="p">(</span><span class="n">hire_date</span><span class="p">,</span><span class="w"> </span><span class="n">birth_date</span><span class="p">))::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">edad_al_entrar</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">edad_al_entrar</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    empleado     | birth_date | hire_date  | edad_al_entrar
+-----------------+------------+------------+----------------
+ Anne Dodsworth  | 1966-01-27 | 1994-11-15 |             28
+ Janet Leverling | 1963-08-30 | 1992-04-01 |             28
+ Michael Suyama  | 1963-07-02 | 1993-10-17 |             30
+</code></pre></div>
+
+<p>Aquí <code>age()</code> está bien usada: compara <strong>dos fechas de la base</strong>, no contra <code>current_date</code>. Ese es el patrón correcto con datos históricos.</p>
+<p><strong>5.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="s1">'FM999,990.00'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name       |  precio
+-------------------------+----------
+ Côte de Blaye           | 263.50
+ Thüringer Rostbratwurst | 123.79
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">discount</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="s1">'FM990.0'</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">'%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">descuento_medio</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> descuento_medio
+-----------------
+ 5.6%
+</code></pre></div>
+
+<p>El <code>FM</code> quita los espacios de relleno que <code>to_char</code> añade por defecto; sin él el resultado sale alineado con espacios delante. Y el <code>0</code> en <code>990.00</code> fuerza a que se muestre el cero: con <code>999.99</code>, un precio de <code>0.50</code> saldría como <code>.50</code>.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../tipos-de-datos-en-postgresql/"><span>Anterior</span><strong>Tipos de datos en PostgreSQL</strong></a><a class="nav-next" href="../case-condicionales-en-sql/"><span>Siguiente</span><strong>CASE: condicionales en SQL</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-texto">2. Texto</a>
+<a href="#3-fecha">3. Fecha</a>
+<a href="#4-num-ricas">4. Numéricas</a>
+<a href="#5-nulos-y-condicionales">5. Nulos y condicionales</a>
+<a href="#6-ejemplos-sobre-northwind">6. Ejemplos sobre Northwind</a>
+<a href="#7-errores-comunes">7. Errores comunes</a>
+<a href="#8-diferencias-con-sql-server">8. Diferencias con SQL Server</a>
+<a href="#9-ejercicios">9. Ejercicios</a>
+<a href="#10-pregunta-de-negocio">10. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

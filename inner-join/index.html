@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>INNER JOIN · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="La unión básica. ON vs USING. Alias de tabla" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/inner-join/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="INNER JOIN" />
+  <meta property="og:description" content="La unión básica. ON vs USING. Alias de tabla" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/inner-join/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(20 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 20 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details open><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><span class="activo">INNER JOIN</span></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 5 · Combinar tablas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>INNER JOIN</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../agregacion-avanzada/">agregacion-avanzada</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Hasta aquí todas las consultas leían <strong>una tabla</strong>. Y por eso los resultados salían con <code>category_id = 4</code> en vez de <code>Dairy Products</code>, y con <code>employee_id = 3</code> en vez de <code>Janet Leverling</code>.</p>
+<p>Eso no es un defecto del diseño: es el diseño. Una base relacional <strong>no repite el nombre de la categoría en cada producto</strong>, guarda un id que apunta a ella (<a class="xref" href="../que-es-una-base-de-datos-relacional/">que-es-una-base-de-datos-relacional</a>). El precio de esa decisión es que hay que volver a juntar las piezas al consultar. Eso es un <code>JOIN</code>.</p>
+<p><strong>Un <code>INNER JOIN</code> empareja filas de dos tablas según una condición, y devuelve solo las que encuentran pareja.</strong> Lo que no empareja, desaparece — y esa es la parte que hay que vigilar.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">tabla_a</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">tabla_b</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">columna</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">columna</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li><code>JOIN</code> a secas significa <code>INNER JOIN</code>. Las dos formas son idénticas; <code>INNER</code> es documentación.</li>
+<li><strong><code>ON</code> es la condición de emparejamiento.</strong> No es un filtro de filas: dice <em>qué fila de A va con qué fila de B</em>.</li>
+<li>Se pueden encadenar tantos <code>JOIN</code> como haga falta.</li>
+<li><strong>Los alias de tabla dejan de ser opcionales</strong> en cuanto hay dos tablas.</li>
+</ul>
+<p>Tres formas de escribir el mismo emparejamiento:</p>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JOIN categories c ON c.category_id = p.category_id</code></td>
+<td><strong>Siempre.</strong> Explícita y funciona con nombres distintos</td>
+</tr>
+<tr>
+<td><code>JOIN categories USING (category_id)</code></td>
+<td>Si la columna se llama igual en las dos. Devuelve <strong>una sola</strong> columna <code>category_id</code></td>
+</tr>
+<tr>
+<td><code>NATURAL JOIN categories</code></td>
+<td>❌ <strong>Nunca</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>NATURAL JOIN</code> empareja por <em>todas</em> las columnas que se llamen igual, sin que tú las escribas.</strong> Hoy funciona; el día que alguien añada una columna <code>descripcion</code> a las dos tablas, la consulta cambia de significado en silencio. Es de las pocas cosas en SQL que se pueden descartar sin matices.</p>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>El caso básico — poner nombre a un id:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name         | category_name
+------------------------------+---------------
+ Chai                         | Beverages
+ Chang                        | Beverages
+ Aniseed Syrup                | Condiments
+ Chef Anton's Cajun Seasoning | Condiments
+ Chef Anton's Gumbo Mix       | Condiments
+</code></pre></div>
+
+<p><strong>77 filas</strong>, las mismas que tiene <code>products</code>. Cada producto encontró exactamente una categoría: el <code>JOIN</code> <strong>no multiplicó ni perdió nada</strong>. Eso pasa porque <code>category_id</code> es la clave primaria de <code>categories</code>, así que la pareja es única.</p>
+<blockquote>
+<p><strong>Comprueba siempre el conteo antes y después de un <code>JOIN</code>.</strong> Si <code>products</code> tenía 77 y el resultado tiene 77, todo bien. Si tiene más, el <code>JOIN</code> multiplica. Si tiene menos, está perdiendo filas. Las dos cosas son bugs con aspecto de resultado.</p>
+</blockquote>
+<p><strong>Ahora sí: el informe que en el tema 15 salía con ids</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                 </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_medio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">precio_medio</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  | productos | precio_medio
+----------------+-----------+--------------
+ Meat/Poultry   |         6 |        54.01
+ Beverages      |        12 |        37.98
+ Produce        |         5 |        32.37
+ Dairy Products |        10 |        28.73
+ Confections    |        13 |        25.16
+ Condiments     |        12 |        22.85
+ Seafood        |        12 |        20.68
+ Grains/Cereals |         7 |        20.25
+</code></pre></div>
+
+<p>Es exactamente el mismo <code>GROUP BY</code> de <a class="xref" href="../group-by/">group-by</a>, <strong>pero ahora se puede leer sin diccionario.</strong> Esa es toda la diferencia que aporta un <code>JOIN</code>, y es enorme.</p>
+<p><strong>Encadenar tres tablas:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">empleado</span><span class="p">,</span>
+<span class="w">       </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id |       company_name        |     empleado     | order_date
+----------+---------------------------+------------------+------------
+    10248 | Vins et alcools Chevalier | Steven Buchanan  | 1996-07-04
+    10249 | Toms Spezialitäten        | Michael Suyama   | 1996-07-05
+    10250 | Hanari Carnes             | Margaret Peacock | 1996-07-08
+    10251 | Victuailles en stock      | Janet Leverling  | 1996-07-08
+</code></pre></div>
+
+<p><strong>830 filas, las mismas que <code>orders</code>.</strong> Cada <code>JOIN</code> añade columnas, no filas — mientras el lado al que unes tenga como mucho una fila por pareja.</p>
+<h3>3.1 Lo que el <code>INNER JOIN</code> se lleva por delante</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                   </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span><span class="w">                          </span><span class="c1">-- 91</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">           </span><span class="c1">-- 89</span>
+</code></pre></div>
+
+<p><strong>Dos clientes desaparecen.</strong> No están mal: simplemente no han hecho ningún pedido, así que no encuentran pareja en <code>orders</code> y el <code>INNER JOIN</code> los descarta.</p>
+<p>Y aquí está el peligro real: si te piden <em>"la lista de clientes con su número de pedidos"</em> y usas <code>INNER JOIN</code>, <strong>entregas 89 y faltan justo los dos que más te interesarían</strong> — los que no compran nunca. Sin error, sin aviso, sin fila vacía.</p>
+<blockquote>
+<p><strong>Un <code>INNER JOIN</code> es un filtro disfrazado.</strong> Filtra las filas que no tienen correspondencia. Cuando lo que quieres es conservarlas, necesitas un <code>LEFT JOIN</code> (<a class="xref" href="../left-right-y-full-join/">left-right-y-full-join</a>).</p>
+</blockquote>
+<h3>3.2 Columnas ambiguas</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  column reference "category_id" is ambiguous
+</code></pre></div>
+
+<p>Las dos tablas tienen una columna con ese nombre y PostgreSQL no adivina. Se resuelve con el prefijo: <code>p.category_id</code>.</p>
+<p>El caso donde más muerde:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  column reference "company_name" is ambiguous
+</code></pre></div>
+
+<p><strong><code>customers</code> y <code>suppliers</code> tienen las dos <code>company_name</code>.</strong> Aquí el error es una suerte: te obliga a decidir de cuál hablas. Cuando el nombre coincide pero el significado no, un <code>SELECT *</code> te devuelve dos columnas llamadas igual y ningún error.</p>
+<blockquote>
+<p><strong>Regla: prefija siempre.</strong> <code>o.order_id</code>, <code>c.company_name</code>. Cuesta dos caracteres y hace la consulta legible cuando tenga cuatro tablas.</p>
+</blockquote>
+<h3>3.3 <code>ON</code> con más de una condición</h3>
+<p><code>ON</code> no está limitado a una igualdad:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">                </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+   830
+</code></pre></div>
+
+<p><strong>830 de 830</strong>: en Northwind, todos los pedidos se envían al país del cliente. Es un hecho comprobado de estos datos, <strong>no una garantía del modelo</strong> — la dirección de envío existe precisamente para poder ser distinta.</p>
+<p>Y también hay <code>JOIN</code> sin igualdad (por rangos, por ejemplo <code>ON f.fecha BETWEEN t.desde AND t.hasta</code>). Son legítimos y caros; se ven en <a class="xref" href="../cross-join-y-self-join/">cross-join-y-self-join</a>.</p>
+<p><strong>Una tabla puente:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">territory_description</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">region_description</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="w"> </span><span class="n">t</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">region_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">region_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">territory_id</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> territory_description | region_description
+-----------------------+--------------------
+ Westboro              | Eastern
+ Bedford               | Eastern
+ Georgetow             | Eastern
+ Boston                | Eastern
+</code></pre></div>
+
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong>Olvidar el <code>ON</code>.</strong> En PostgreSQL da error de sintaxis. Con la sintaxis antigua de coma (<code>FROM a, b</code>) <strong>no da error</strong>: hace un producto cartesiano. <code>products, categories</code> devuelve <strong>616 filas</strong> (77 × 8) en vez de 77.</li>
+<li><strong>Usar <code>INNER JOIN</code> cuando querías conservar las filas sin pareja.</strong> Los 2 clientes perdidos.</li>
+<li><strong>No prefijar las columnas.</strong> Error de ambigüedad, o peor: dos columnas iguales en un <code>SELECT *</code>.</li>
+<li><strong>Unir por la columna equivocada.</strong> <code>ON c.category_id = p.supplier_id</code> no da error: da un resultado. Solo el conteo de filas te avisa.</li>
+<li><strong><code>NATURAL JOIN</code>.</strong> Ver la sección 2.</li>
+<li><strong>No comprobar el conteo antes y después.</strong></li>
+<li><strong>Unir por texto en vez de por la clave.</strong> <code>ON c.company_name = x.nombre</code> falla con un espacio de más, un acento o una mayúscula. <strong>Une por ids.</strong></li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<p><code>INNER JOIN</code> es <strong>idéntico</strong> en los dos motores: misma sintaxis, mismo <code>ON</code>, mismo <code>USING</code>... salvo un detalle:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JOIN ... ON</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>USING (col)</code></td>
+<td>✅</td>
+<td>❌ No existe</td>
+</tr>
+<tr>
+<td><code>NATURAL JOIN</code></td>
+<td>✅ (no lo uses)</td>
+<td>❌ No existe</td>
+</tr>
+<tr>
+<td>Coma en el <code>FROM</code></td>
+<td>✅ (no lo uses)</td>
+<td>✅ (no lo uses)</td>
+</tr>
+<tr>
+<td>Alias con <code>AS</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>USING</code> es la única incompatibilidad práctica</strong>, y es fácil de evitar: escribe siempre el <code>ON</code> completo.</p>
+<p>La sintaxis antigua con coma —<code>FROM a, b WHERE a.id = b.id</code>— funciona en ambos y <strong>hay que dejar de escribirla</strong>: mezcla la condición de emparejamiento con los filtros en el mismo <code>WHERE</code>, y el día que necesitas un <code>LEFT JOIN</code> no hay forma de expresarlo.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Cada producto con el nombre de su proveedor y el país del proveedor.</li>
+<li>Los 10 pedidos más caros por flete, con el nombre del cliente y su país.</li>
+<li>Facturación por categoría de producto, de mayor a menor. (Necesita tres tablas.)</li>
+<li>Los territorios de la región <code>Western</code>, ordenados alfabéticamente.</li>
+<li>Comprueba si algún producto tiene un <code>supplier_id</code> que no exista en <code>suppliers</code>. ¿Cómo lo sabes sin mirar las dos tablas a mano?</li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Ventas quiere el ranking de comerciales de 1997: nombre, pedidos y facturación. Es el mismo informe que ya hiciste en el tema de <code>GROUP BY</code>, pero ahora con nombres. Entrégalo — y comprueba que el número de pedidos sigue siendo el mismo que antes.</em></p>
+</blockquote>
+<p>La comprobación es el ejercicio.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w">                             </span><span class="k">AS</span><span class="w"> </span><span class="n">comercial</span><span class="p">,</span>
+<span class="w">       </span><span class="n">e</span><span class="p">.</span><span class="n">title</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w">                                     </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">employees</span><span class="w">     </span><span class="n">e</span><span class="w">  </span><span class="k">ON</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">first_name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">title</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id |    comercial     |         title         | pedidos | facturacion
+-------------+------------------+-----------------------+---------+-------------
+           4 | Margaret Peacock | Sales Representative  |      81 |   128809.79
+           3 | Janet Leverling  | Sales Representative  |      71 |   108026.16
+           1 | Nancy Davolio    | Sales Representative  |      55 |    93148.08
+           2 | Andrew Fuller    | Vice President, Sales |      41 |    70444.14
+           7 | Robert King      | Sales Representative  |      36 |    60471.20
+</code></pre></div>
+
+<p><strong>La comprobación era el ejercicio,</strong> y sale bien: en <a class="xref" href="../group-by/">group-by</a>, el mismo <code>WHERE</code> de 1997 sin <code>JOIN</code> daba <strong>81, 71 y 55</strong> pedidos para los empleados 4, 3 y 1. Aquí salen los mismos números.</p>
+<p><strong>Y salen los mismos por una razón concreta: el <code>count(DISTINCT o.order_id)</code>.</strong> Al unir con <code>order_details</code>, cada pedido se repite una vez por línea. Con <code>count(*)</code> en su lugar, Margaret Peacock pasaría de 81 pedidos a más de 200 y la facturación seguiría siendo correcta — <strong>una columna inflada al lado de otra buena</strong>, que es la forma más difícil de detectar un error. El tema <a class="xref" href="../joins-multiples-y-granularidad/">joins-multiples-y-granularidad</a> va entero sobre esto.</p>
+<p>Dos detalles más del <code>GROUP BY</code>: hay que listar <code>first_name</code>, <code>last_name</code> y <code>title</code> junto a <code>employee_id</code>. PostgreSQL permitiría agrupar solo por la clave primaria (<a class="xref" href="../group-by/">group-by</a> sección 5), pero <strong>escribirlas todas es lo que hace que la consulta también funcione en SQL Server.</strong></p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">company_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedor</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">country</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">supplier_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">supplier_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>77 filas</strong>: ningún producto se pierde, porque todos tienen proveedor. Ese conteo es la comprobación del ejercicio 5, hecha sin querer.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">freight</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id |        company_name        | country | freight
+----------+----------------------------+---------+---------
+    10540 | QUICK-Stop                 | Germany | 1007.64
+    10372 | Queen Cozinha              | Brazil  |  890.78
+    11030 | Save-a-lot Markets         | USA     |  830.75
+</code></pre></div>
+
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">cat</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w">   </span><span class="n">p</span><span class="w">   </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="n">cat</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">cat</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cat</span><span class="p">.</span><span class="n">category_name</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  | facturacion
+----------------+-------------
+ Beverages      |   267868.18
+ Dairy Products |   234507.29
+ Confections    |   167357.23
+ Meat/Poultry   |   163022.36
+ Seafood        |   131261.74
+ Condiments     |   106047.09
+ Produce        |    99984.58
+ Grains/Cereals |    95744.59
+</code></pre></div>
+
+<p><strong>Comparación que merece la pena:</strong> en precio medio, <code>Meat/Poultry</code> era la categoría más cara (54,01). En facturación es la <strong>cuarta</strong>. <code>Beverages</code> es la primera pese a tener un precio medio de 37,98. <strong>Caro no es rentable</strong>; para saberlo hay que unir con las ventas.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">territory_description</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">territories</span><span class="w"> </span><span class="n">t</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">region_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">region_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">region_description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Western'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">territory_description</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <strong>15 territorios</strong>. Fíjate en que el <code>WHERE</code> filtra por una columna de la tabla <strong>unida</strong>: eso es legal y normal. <code>ON</code> decide con quién se empareja; <code>WHERE</code> decide qué filas del resultado se conservan.</p>
+<p><strong>5.</strong> Sin mirar nada a mano — <strong>comparando conteos</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span><span class="w">                                                    </span><span class="c1">-- 77</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">supplier_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">supplier_id</span><span class="p">;</span><span class="w"> </span><span class="c1">-- 77</span>
+</code></pre></div>
+
+<p>Coinciden: <strong>ningún producto se queda sin proveedor</strong>. Si el <code>JOIN</code> hubiera devuelto menos, la diferencia serían los huérfanos.</p>
+<p>La forma directa de verlos, cuando los hay, es un anti-join (<a class="xref" href="../anti-join-y-semi-join/">anti-join-y-semi-join</a>):</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">supplier_id</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">supplier_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">supplier_id</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Devuelve <strong>0 filas</strong>. Y no es casualidad: hay una clave foránea que lo impide (<span class="xref-pend" title="Aún no publicado">restricciones</span>). <strong>En una base con claves foráneas bien puestas, este problema no puede existir</strong> — que es exactamente para lo que están.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../agregacion-avanzada/"><span>Anterior</span><strong>Agregación avanzada</strong></a><a class="nav-next" href="../left-right-y-full-join/"><span>Siguiente</span><strong>LEFT, RIGHT y FULL JOIN</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

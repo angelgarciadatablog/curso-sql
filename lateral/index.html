@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>LATERAL · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Correlación en el FROM. El "top N por grupo" elegante" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/lateral/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="LATERAL" />
+  <meta property="og:description" content="Correlación en el FROM. El "top N por grupo" elegante" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/lateral/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(31 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 31 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details open><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><span class="activo">LATERAL</span></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 6 · Consultas dentro de consultas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>LATERAL</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../cte-recursivas/">cte-recursivas</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p><code>LATERAL</code> permite que una subconsulta del <code>FROM</code> <strong>vea las columnas de las tablas que están a su izquierda</strong>.</p>
+<p>Suena pequeño. Es lo que hace posible una consulta que llevamos prometiendo desde el tema <a class="xref" href="../cross-join-y-self-join/">cross-join-y-self-join</a> y que hasta ahora no sabíamos escribir: <strong>los N mejores de cada grupo.</strong></p>
+<p>Sin <code>LATERAL</code>, una subconsulta del <code>FROM</code> es una isla. Se calcula una vez, sin saber nada del resto de la consulta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">product_name</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="p">,</span>
+<span class="w">     </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="w">      </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  invalid reference to FROM-clause entry for table "c"
+DETALLE:  There is an entry for table "c", but it cannot be referenced from this part of the query.
+SUGERENCIA:  To reference that table, you must mark this subquery with LATERAL.
+</code></pre></div>
+
+<p><strong>PostgreSQL te dice literalmente lo que falta.</strong> Añade <code>LATERAL</code> y la subconsulta pasa de ejecutarse una vez a <strong>ejecutarse una vez por cada fila de la izquierda</strong>, con <code>c.category_id</code> valiendo algo distinto en cada pasada.</p>
+<p><strong>Es una subconsulta correlacionada, pero en el <code>FROM</code>.</strong> Y ahí está la diferencia que lo cambia todo: una subconsulta correlacionada del <code>SELECT</code> (<a class="xref" href="../subconsultas-correlacionadas/">subconsultas-correlacionadas</a>) devuelve <strong>un valor</strong>. Una <code>LATERAL</code> devuelve <strong>una tabla</strong>: varias filas, varias columnas, con <code>ORDER BY</code> y <code>LIMIT</code> propios.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">tabla_izquierda</span><span class="w"> </span><span class="n">x</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">otra</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">otra</span><span class="p">.</span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">col</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="n">n</span>
+<span class="p">)</span><span class="w"> </span><span class="k">alias</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Dos formas, y elegir mal es el error número uno del tema:</p>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Si la subconsulta no devuelve filas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CROSS JOIN LATERAL (...) alias</code></td>
+<td><strong>la fila de la izquierda desaparece</strong></td>
+</tr>
+<tr>
+<td><code>LEFT JOIN LATERAL (...) alias ON true</code></td>
+<td>la fila se conserva, con <code>NULL</code> en las columnas</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El <code>ON true</code> no es adorno.</strong> <code>LEFT JOIN</code> exige sintácticamente una condición, pero la condición real ya está dentro de la subconsulta (<code>WHERE otra.col = x.col</code>). <code>ON true</code> es la forma de decir "ya está emparejado, únelo".</p>
+<p>También vale la forma con coma —<code>FROM categories c, LATERAL (...) t</code>— que equivale a <code>CROSS JOIN LATERAL</code>. Se ve mucho en código antiguo.</p>
+<p><strong>Regla de lectura:</strong> <code>LATERAL</code> solo mira a la <strong>izquierda</strong>. <code>FROM a, LATERAL (…b…), LATERAL (…c…)</code>: el segundo bloque ve <code>a</code> y el primero; el primero no ve el segundo. El orden en el <code>FROM</code>, que casi siempre da igual, aquí importa.</p>
+<h2 id="3-el-caso-que-justifica-el-tema-los-n-mejores-de-cada-grupo">3. El caso que justifica el tema: los N mejores de cada grupo</h2>
+<p><strong>El producto más vendido de cada categoría no se puede sacar con <code>GROUP BY</code>.</strong> <code>GROUP BY</code> colapsa el grupo a una fila de agregados; no sabe devolverte <em>las tres filas de detalle</em> que están arriba de cada grupo.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w">        </span><span class="c1">-- ← esto es lo que LATERAL habilita</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="w">    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span>
+<span class="w">    </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span>
+<span class="p">)</span><span class="w"> </span><span class="n">t</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  |           product_name           | facturacion
+----------------+----------------------------------+-------------
+ Beverages      | Côte de Blaye                    |   141396.74
+ Beverages      | Ipoh Coffee                      |    23526.70
+ Beverages      | Chang                            |    16355.96
+ Condiments     | Vegie-spread                     |    16701.10
+ Condiments     | Sirop d'érable                   |    14352.60
+ Condiments     | Louisiana Fiery Hot Pepper Sauce |    13869.89
+ Confections    | Tarte au sucre                   |    47234.97
+ Confections    | Sir Rodney's Marmalade           |    22563.36
+ Confections    | Gumbär Gummibärchen              |    19849.14
+ Dairy Products | Raclette Courdavault             |    71155.70
+ Dairy Products | Camembert Pierrot                |    46825.48
+ Dairy Products | Mozzarella di Giovanni           |    24900.13
+ Grains/Cereals | Gnocchi di nonna Alice           |    42593.06
+ Grains/Cereals | Wimmers gute Semmelknödel        |    21957.97
+ Grains/Cereals | Singaporean Hokkien Fried Mee    |     8575.00
+ Meat/Poultry   | Thüringer Rostbratwurst          |    80368.67
+ Meat/Poultry   | Alice Mutton                     |    32698.38
+ Meat/Poultry   | Perth Pasties                    |    20574.17
+ Produce        | Manjimup Dried Apples            |    41819.65
+ Produce        | Rössle Sauerkraut                |    25696.64
+ Produce        | Uncle Bob's Organic Dried Pears  |    22044.30
+ Seafood        | Carnarvon Tigers                 |    29171.88
+ Seafood        | Ikura                            |    20867.34
+ Seafood        | Boston Crab Meat                 |    17910.63
+</code></pre></div>
+
+<p><strong>24 filas: 3 por cada una de las 8 categorías.</strong> Y <code>Côte de Blaye</code> —que ya lleva cuatro temas apareciendo como el valor atípico— aquí muestra por qué merece la pena mirar el detalle: <strong>141 396,74 frente a 23 526,70 del segundo. Seis veces el siguiente.</strong> El "top 3 de Beverages" es en realidad "Côte de Blaye y dos productos cualesquiera". Un <code>GROUP BY category_id</code> habría dado un único número por categoría y esa desproporción no se vería.</p>
+<p><strong>El <code>ORDER BY</code> y el <code>LIMIT</code> de dentro son los de cada grupo, no los de la consulta.</strong> Ese es el mecanismo entero: <code>LIMIT 3</code> se aplica ocho veces, una por categoría.</p>
+<h2 id="4-otros-usos">4. Otros usos</h2>
+<h3>4.1 Varias métricas de una sola pasada</h3>
+<p>En el tema de subconsultas correlacionadas escribíamos una subconsulta por métrica. Cada una recorría <code>orders</code> otra vez. <code>LATERAL</code> las junta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">ticket</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">ultimo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">coalesce</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">           </span><span class="k">coalesce</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">                    </span><span class="o">/</span><span class="w"> </span><span class="k">nullif</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket</span><span class="p">,</span>
+<span class="w">           </span><span class="k">max</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="p">)</span><span class="w"> </span><span class="n">m</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | pedidos |   total   | ticket  |   ultimo
+-------------+---------+-----------+---------+------------
+ QUICK       |      28 | 110277.31 | 3938.48 | 1998-04-14
+ ERNSH       |      30 | 104874.98 | 3495.83 | 1998-05-05
+ SAVEA       |      31 | 104361.95 | 3366.51 | 1998-05-01
+ RATTC       |      18 |  51097.80 | 2838.77 | 1998-05-06
+ HUNGO       |      19 |  49979.91 | 2630.52 | 1998-04-30
+</code></pre></div>
+
+<p><strong>Cuatro métricas, un solo recorrido de <code>orders</code> por cliente.</strong> El <code>nullif</code> del ticket medio evita la división por cero de quien no tiene pedidos (<a class="xref" href="../funciones-dentro-del-select/">funciones-dentro-del-select</a>).</p>
+<h3>4.2 <code>CROSS</code> contra <code>LEFT</code>: dónde se pierden filas</h3>
+<p>Northwind tiene <strong>91 clientes</strong>, y dos de ellos —<code>FISSA</code> y <code>PARIS</code>— <strong>nunca han comprado</strong>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">                    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">                    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">u</span><span class="p">;</span>
+<span class="c1">-- 89</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">                   </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">                   </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+<span class="c1">-- 91</span>
+</code></pre></div>
+
+<p><strong><code>CROSS JOIN LATERAL</code> se come a los dos clientes sin pedidos, en silencio.</strong> Es exactamente el problema del tema <a class="xref" href="../left-right-y-full-join/">left-right-y-full-join</a> con otra sintaxis: si el informe es <em>"clientes y su última compra"</em>, los dos que faltan son precisamente los que Comercial necesita ver.</p>
+<p><strong>Hay un matiz que engaña, y conviene tenerlo claro:</strong></p>
+<table>
+<thead>
+<tr>
+<th>La subconsulta lateral…</th>
+<th>¿puede devolver 0 filas?</th>
+<th>¿importa <code>CROSS</code> vs <code>LEFT</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>solo agrega (<code>count</code>, <code>max</code>, <code>sum</code>, sin <code>GROUP BY</code>)</td>
+<td><strong>no</strong> — devuelve 1 fila con <code>NULL</code>/<code>0</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td>tiene <code>GROUP BY</code>, <code>LIMIT</code> o filtra detalle</td>
+<td><strong>sí</strong></td>
+<td><strong>sí</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Un <code>SELECT max(order_date) FROM orders WHERE customer_id = c.customer_id</code> <strong>siempre</strong> devuelve una fila, aunque no haya pedidos: una fila con <code>NULL</code>. Un <code>SELECT ... GROUP BY producto ORDER BY ... LIMIT 1</code> devuelve <strong>cero filas</strong> si no hay nada que agrupar. <strong>Por eso la costumbre sana es usar <code>LEFT JOIN LATERAL ... ON true</code> siempre</strong>, salvo que quieras deliberadamente descartar las filas sin coincidencia.</p>
+<h3>4.3 <code>LATERAL</code> con funciones que devuelven conjuntos</h3>
+<p><code>LATERAL</code> no solo acepta subconsultas: también funciones. Generar tres vencimientos mensuales por pedido:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">n</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">n</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">' month'</span><span class="p">)::</span><span class="nb">interval</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">vencimiento</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10248</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | order_date | n | vencimiento
+----------+------------+---+-------------
+    10248 | 1996-07-04 | 1 | 1996-08-04
+    10248 | 1996-07-04 | 2 | 1996-09-04
+    10248 | 1996-07-04 | 3 | 1996-10-04
+</code></pre></div>
+
+<p><strong>Una fila de entrada, tres de salida.</strong> Es la forma limpia de expandir una fila en varias — vencimientos, cuotas, desglose de un texto con <code>unnest</code>.</p>
+<p>Con funciones, <code>LATERAL</code> es opcional: <code>FROM orders o, generate_series(1,3)</code> funciona igual. PostgreSQL lo asume. Escribirlo explícito hace más evidente qué está pasando.</p>
+<h2 id="5-lateral-contra-las-alternativas">5. LATERAL contra las alternativas</h2>
+<h3>5.1 Contra subconsultas correlacionadas repetidas</h3>
+<p>Tres métricas, tres subconsultas correlacionadas:</p>
+<div class="hl"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="p">(</span><span class="k">ANALYZE</span><span class="p">,</span><span class="w"> </span><span class="n">COSTS</span><span class="w"> </span><span class="k">OFF</span><span class="p">,</span><span class="w"> </span><span class="n">TIMING</span><span class="w"> </span><span class="k">OFF</span><span class="p">,</span><span class="w"> </span><span class="n">SUMMARY</span><span class="w"> </span><span class="k">OFF</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">  </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">          </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">  </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span>
+<span class="w">  </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> Seq Scan on customers c (actual rows=91 loops=1)
+   SubPlan 1
+     -&gt;  Aggregate (actual rows=1 loops=91)
+           -&gt;  Bitmap Heap Scan on orders o (actual rows=9 loops=91)
+   SubPlan 3
+     -&gt;  Result (actual rows=1 loops=91)
+           InitPlan 2
+             -&gt;  Limit (actual rows=1 loops=91)
+                   -&gt;  Index Scan using idx_orders_order_date on orders o_1 (actual rows=1 loops=91)
+                         Rows Removed by Filter: 129
+   SubPlan 5
+     -&gt;  Result (actual rows=1 loops=91)
+           InitPlan 4
+             -&gt;  Limit (actual rows=1 loops=91)
+                   -&gt;  Index Scan Backward using idx_orders_order_date on orders o_2 (actual rows=1 loops=91)
+                         Rows Removed by Filter: 122
+</code></pre></div>
+
+<p><strong>Tres <code>SubPlan</code>, cada uno con <code>loops=91</code>: 273 recorridos de <code>orders</code>.</strong> Y fíjate en <code>Rows Removed by Filter: 129</code> — para encontrar el primer pedido de un cliente, PostgreSQL recorre el índice de fechas descartando 129 filas ajenas antes de acertar. Por cliente.</p>
+<p>Lo mismo con <code>LATERAL</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="p">(</span><span class="k">ANALYZE</span><span class="p">,</span><span class="w"> </span><span class="n">COSTS</span><span class="w"> </span><span class="k">OFF</span><span class="p">,</span><span class="w"> </span><span class="n">TIMING</span><span class="w"> </span><span class="k">OFF</span><span class="p">,</span><span class="w"> </span><span class="n">SUMMARY</span><span class="w"> </span><span class="k">OFF</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">primero</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">ultimo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span>
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="p">)</span><span class="w"> </span><span class="n">m</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> Nested Loop (actual rows=91 loops=1)
+   -&gt;  Seq Scan on customers c (actual rows=91 loops=1)
+   -&gt;  Aggregate (actual rows=1 loops=91)
+         -&gt;  Bitmap Heap Scan on orders o (actual rows=9 loops=91)
+               Index Cond: ((customer_id)::text = (c.customer_id)::text)
+</code></pre></div>
+
+<p><strong>Un solo <code>loops=91</code> y ocho líneas de plan en lugar de veintidós.</strong> Las tres métricas salen del mismo recorrido, y se usa el índice por cliente en vez del de fechas.</p>
+<p><strong>La regla:</strong> en cuanto haya <strong>más de una subconsulta correlacionada contra la misma tabla y con el mismo <code>WHERE</code></strong>, es una <code>LATERAL</code>.</p>
+<h3>5.2 Contra <code>DISTINCT ON</code></h3>
+<p>Para el <strong>top 1</strong> de cada grupo, PostgreSQL tiene un atajo más corto (<a class="xref" href="../distinct-y-duplicados/">distinct-y-duplicados</a>):</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">)</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  |      product_name       | unit_price
+----------------+-------------------------+------------
+ Beverages      | Côte de Blaye           |     263.50
+ Condiments     | Vegie-spread            |      43.90
+ Confections    | Sir Rodney's Marmalade  |      81.00
+ Dairy Products | Raclette Courdavault    |      55.00
+ Grains/Cereals | Gnocchi di nonna Alice  |      38.00
+ Meat/Poultry   | Thüringer Rostbratwurst |     123.79
+ Produce        | Manjimup Dried Apples   |      53.00
+ Seafood        | Carnarvon Tigers        |      62.50
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>DISTINCT ON</code></th>
+<th><code>LATERAL</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top <strong>1</strong> por grupo</td>
+<td>más corto, elígelo</td>
+<td>funciona, sobra</td>
+</tr>
+<tr>
+<td>Top <strong>N</strong> por grupo</td>
+<td><strong>no puede</strong></td>
+<td>la herramienta</td>
+</tr>
+<tr>
+<td>Grupos sin filas</td>
+<td>desaparecen</td>
+<td>se conservan con <code>LEFT ... ON true</code></td>
+</tr>
+<tr>
+<td>Métricas distintas por grupo</td>
+<td>no</td>
+<td>sí</td>
+</tr>
+<tr>
+<td>Portable</td>
+<td><strong>no</strong>, solo PostgreSQL</td>
+<td>sí, es estándar</td>
+</tr>
+</tbody>
+</table>
+<h3>5.3 Contra funciones de ventana</h3>
+<p><code>row_number() OVER (PARTITION BY categoria ORDER BY ventas DESC)</code> y filtrar <code>&lt;= 3</code> resuelve el mismo top-N. Es el bloque 7 (<a class="xref" href="../ranking-row-number-rank-ntile/">ranking-row-number-rank-ntile</a>) y muchas veces será más rápido, porque hace <strong>una sola pasada</strong> en vez de una por grupo.</p>
+<p><strong><code>LATERAL</code> gana cuando la subconsulta no es solo un ranking</strong>: cuando cada grupo necesita su propia lógica, su propio <code>JOIN</code>, o cuando quieres parar en 3 filas sin calcular las 77.</p>
+<h2 id="6-errores-comunes">6. Errores comunes</h2>
+<ol>
+<li>
+<p><strong>Olvidar <code>LATERAL</code> y no entender el error.</strong> <code>invalid reference to FROM-clause entry</code> no dice "falta LATERAL" en la primera línea, pero sí en la <code>SUGERENCIA</code>. Léela: PostgreSQL da la solución exacta.</p>
+</li>
+<li>
+<p><strong>Usar <code>CROSS JOIN LATERAL</code> en un informe que debe listarlo todo.</strong> Pierdes las filas sin coincidencia sin ningún aviso. Con Northwind son dos clientes de 91; en producción es "faltan clientes en el informe y nadie sabe por qué".</p>
+</li>
+<li>
+<p><strong>Olvidar el <code>ON true</code>.</strong>
+   <code>ERROR:  syntax error at or near ")"</code>
+   <code>LEFT JOIN</code> necesita una condición aunque la correlación ya esté dentro.</p>
+</li>
+<li>
+<p><strong>Referenciar hacia la derecha.</strong> <code>FROM (LATERAL ...) a, tabla b</code> con la lateral usando <code>b.col</code> falla: solo se ve lo que está a la izquierda. Se arregla reordenando el <code>FROM</code>.</p>
+</li>
+<li>
+<p><strong>Poner el <code>LIMIT</code> fuera.</strong> <code>LIMIT 3</code> en la consulta principal devuelve <strong>3 filas en total</strong>, no 3 por grupo. El <code>LIMIT</code> que corta por grupo es el de dentro del paréntesis. Es la diferencia entre 3 filas y 24.</p>
+</li>
+<li>
+<p><strong>Suponer que es gratis.</strong> Se ejecuta una vez por fila de la izquierda. Con 91 clientes no se nota; con 5 millones y sin índice sobre la columna de correlación, es una consulta que no termina. <strong>El índice sobre la columna del <code>WHERE</code> interno es lo que hace viable una <code>LATERAL</code>.</strong></p>
+</li>
+</ol>
+<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CROSS JOIN LATERAL (...) t</code></td>
+<td><code>CROSS APPLY (...) t</code></td>
+</tr>
+<tr>
+<td><code>LEFT JOIN LATERAL (...) t ON true</code></td>
+<td><code>OUTER APPLY (...) t</code></td>
+</tr>
+<tr>
+<td><code>FROM a, LATERAL (...) t</code></td>
+<td>no existe la forma con coma</td>
+</tr>
+<tr>
+<td><code>LATERAL</code> opcional ante funciones</td>
+<td><code>CROSS APPLY</code> siempre explícito</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>APPLY</code> es lo mismo con otro nombre</strong>, y es más antiguo: SQL Server lo tiene desde 2005, PostgreSQL añadió <code>LATERAL</code> en la 9.3 (2013). <strong><code>LATERAL</code> es el nombre del estándar SQL; <code>APPLY</code> es el propietario.</strong></p>
+<p>La traducción es mecánica: <code>CROSS APPLY</code> → <code>CROSS JOIN LATERAL</code>, <code>OUTER APPLY</code> → <code>LEFT JOIN LATERAL ... ON true</code>. <strong>Lo único que se olvida al portar es el <code>ON true</code></strong>, y el error de sintaxis que sale no lo insinúa.</p>
+<h2 id="8-ejercicios">8. Ejercicios</h2>
+<ol>
+<li>Los <strong>2 pedidos más caros</strong> de cada empleado, con su importe.</li>
+<li>Para cada categoría, el producto <strong>más caro y el más barato</strong> en la misma fila.</li>
+<li>Los <strong>2 clientes que más facturan</strong> de cada uno de estos países: Germany, USA, France, Brazil, UK.</li>
+<li>Reescribe con una sola <code>LATERAL</code> esta consulta, y compara los planes:
+   <code>sql
+   SELECT c.customer_id,
+     (SELECT count(*)          FROM orders o WHERE o.customer_id = c.customer_id),
+     (SELECT min(o.order_date) FROM orders o WHERE o.customer_id = c.customer_id),
+     (SELECT max(o.order_date) FROM orders o WHERE o.customer_id = c.customer_id)
+   FROM customers c;</code></li>
+<li>¿Qué clientes exactamente pierde <code>CROSS JOIN LATERAL</code> frente a <code>LEFT JOIN LATERAL</code> sobre <code>customers</code>? Encuéntralos sin usar <code>LATERAL</code>.</li>
+</ol>
+<h2 id="9-pregunta-de-negocio">9. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Comercial quiere una ficha por cliente para preparar la campaña de recuperación: cuándo compró por última vez, cuánto tiempo lleva sin comprar, cuántos pedidos y cuánto ha gastado, y cuál es su producto estrella. Ordenada por quien más tiempo lleva sin comprar.</em></p>
+</blockquote>
+<p>El producto estrella no es un agregado del cliente: es <strong>una fila de detalle elegida dentro de cada cliente</strong>. Ahí es donde <code>GROUP BY</code> no llega.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>Tres <code>LATERAL</code>, porque son tres preguntas distintas sobre el mismo cliente:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span>
+<span class="w">       </span><span class="n">u</span><span class="p">.</span><span class="n">ultimo_pedido</span><span class="p">,</span>
+<span class="w">       </span><span class="p">(</span><span class="nb">DATE</span><span class="w"> </span><span class="s1">'1998-05-06'</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">ultimo_pedido</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias_sin_comprar</span><span class="p">,</span>
+<span class="w">       </span><span class="k">g</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">g</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gastado</span><span class="p">,</span>
+<span class="w">       </span><span class="n">e</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">producto_estrella</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">gasto</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gasto_estrella</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo_pedido</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="p">)</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">true</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="p">)</span><span class="w"> </span><span class="k">g</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">true</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">gasto</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="w">    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">gasto</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">true</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">dias_sin_comprar</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="n">NULLS</span><span class="w"> </span><span class="k">FIRST</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">12</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id |             company_name             |  country  | ultimo_pedido | dias_sin_comprar | pedidos | gastado  |        producto_estrella        | gasto_estrella
+-------------+--------------------------------------+-----------+---------------+------------------+---------+----------+---------------------------------+----------------
+ PARIS       | Paris spécialités                    | France    |               |                  |       0 |          |                                 |
+ FISSA       | FISSA Fabrica Inter. Salchichas S.A. | Spain     |               |                  |       0 |          |                                 |
+ CENTC       | Centro comercial Moctezuma           | Mexico    | 1996-07-18    |              657 |       1 |   100.80 | Sir Rodney's Scones             |          80.00
+ LAZYK       | Lazy K Kountry Store                 | USA       | 1997-05-22    |              349 |       2 |   357.00 | Queso Cabrales                  |         210.00
+ HUNGC       | Hungry Coyote Import Store           | USA       | 1997-09-08    |              240 |       5 |  3063.20 | Sir Rodney's Marmalade          |        1701.00
+ MEREP       | Mère Paillarde                       | Canada    | 1997-10-30    |              188 |      13 | 28872.19 | Côte de Blaye                   |        8263.36
+ FAMIA       | Familia Arquibaldo                   | Brazil    | 1997-10-31    |              187 |       7 |  4107.55 | Perth Pasties                   |         779.00
+ VINET       | Vins et alcools Chevalier            | France    | 1997-11-12    |              175 |       5 |  1480.00 | Mozzarella di Giovanni          |         368.60
+ GROSR       | GROSELLA-Restaurante                 | Venezuela | 1997-12-18    |              139 |       2 |  1488.70 | Thüringer Rostbratwurst         |         990.00
+ FOLIG       | Folies gourmandes                    | France    | 1997-12-22    |              135 |       5 | 11666.90 | Carnarvon Tigers                |        5000.00
+ LAUGB       | Laughing Bacchus Wine Cellars        | Canada    | 1998-01-01    |              125 |       3 |   522.50 | Jack's New England Clam Chowder |         154.00
+ TRAIH       | Trail's Head Gourmet Provisioners    | USA       | 1998-01-08    |              118 |       3 |  1571.20 | Tarte au sucre                  |         640.90
+</code></pre></div>
+
+<p><strong>Cinco decisiones, y una que solo se ve ejecutándola:</strong></p>
+<ol>
+<li><strong>La fecha de referencia es <code>1998-05-06</code>, no <code>current_date</code>.</strong> Es el último día con datos. Usar <code>current_date</code> daría "10 500 días sin comprar" para todo el mundo y la ficha no serviría para nada. <strong>Cuando la base es histórica, "hoy" es el último día de la base.</strong></li>
+<li><strong>Tres <code>LATERAL</code> y no una.</strong> La última compra y los totales son agregados del cliente; el producto estrella es <strong>una fila de detalle elegida dentro del cliente</strong>, con su propio <code>GROUP BY</code> y su <code>LIMIT 1</code>. No caben en la misma subconsulta porque no tienen el mismo grano — es la lección de <a class="xref" href="../joins-multiples-y-granularidad/">joins-multiples-y-granularidad</a>.</li>
+<li><strong><code>LEFT JOIN LATERAL ... ON true</code> en las tres.</strong> Con <code>CROSS JOIN</code> desaparecerían <code>PARIS</code> y <code>FISSA</code>, y son <strong>los dos primeros de la lista de recuperación</strong>: no es que lleven mucho sin comprar, es que <strong>no han comprado nunca</strong>. El informe que los pierde pierde justo el caso extremo.</li>
+<li><strong><code>ORDER BY ... DESC NULLS FIRST</code> los pone arriba a propósito.</strong> Su <code>dias_sin_comprar</code> es <code>NULL</code> porque no hay desde cuándo contar. <code>NULLS FIRST</code> convierte ese <code>NULL</code> en la señal de máxima prioridad, en vez de mandarlo al final de la lista.</li>
+<li><strong>Mira la fila de <code>PARIS</code>: <code>pedidos = 0</code> pero <code>gastado</code> vacío.</strong> No es una inconsistencia, y explica el matiz de la sección 4: la <code>LATERAL</code> de totales <strong>sí devuelve una fila</strong> —<code>count(*)</code> de nada es <code>0</code>— mientras que <code>sum()</code> de nada es <code>NULL</code>. La del producto estrella, que lleva <code>GROUP BY</code> y <code>LIMIT</code>, <strong>devuelve cero filas</strong> y por eso sale toda vacía. <strong>Dos laterales, mismo cliente sin datos, comportamiento distinto.</strong> Ese es el motivo real de poner <code>LEFT</code> siempre.</li>
+</ol>
+<p><strong>Lo que se entrega con esto:</strong> <code>MEREP</code> es el nombre que hay que llamar primero de los que sí compraron — 13 pedidos, 28 872,19 gastados, y seis meses de silencio. <code>CENTC</code> lleva 657 días fuera pero solo gastó 100,80 en toda su vida: <strong>no es un cliente perdido, es un cliente que nunca llegó a serlo.</strong> Ordenar solo por antigüedad pondría a los dos en el mismo grupo, y son dos acciones comerciales opuestas. La columna <code>gastado</code> es la que separa la campaña de recuperación de la de captación.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">)</span><span class="w"> </span><span class="n">t</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | last_name | order_id |  total
+-------------+-----------+----------+----------
+           1 | Davolio   |    10981 | 15810.00
+           1 | Davolio   |    10776 |  6635.28
+           2 | Fuller    |    10865 | 16387.50
+           2 | Fuller    |    10691 | 10164.80
+           3 | Leverling |    10817 | 10952.85
+           3 | Leverling |    10897 | 10835.24
+           4 | Peacock   |    10417 | 11188.40
+           4 | Peacock   |    10816 |  8446.45
+           5 | Buchanan  |    10372 |  9210.90
+           5 | Buchanan  |    10607 |  6475.40
+           6 | Suyama    |    10510 |  4707.54
+           6 | Suyama    |    10757 |  3082.00
+           7 | King      |    11030 | 12615.05
+           7 | King      |    10424 |  9194.56
+           8 | Callahan  |    10694 |  4825.00
+           8 | Callahan  |    10979 |  4813.50
+           9 | Dodsworth |    10889 | 11380.00
+           9 | Dodsworth |    11017 |  6750.00
+</code></pre></div>
+
+<p><strong>18 filas: 2 por empleado.</strong> Y comparado con el ranking de venta propia del tema <a class="xref" href="../cte-recursivas/">cte-recursivas</a> —Peacock 232 890,85, Leverling 202 812,84, Davolio 192 107,60— aparece algo que el total escondía.</p>
+<p>Los cuatro pedidos más grandes de la empresa son de <strong>Fuller (16 387,50), Davolio (15 810,00), King (12 615,05) y Dodsworth (11 380,00)</strong>. <strong>Peacock, la número uno en venta total, no está en ninguno</strong>: su mayor pedido es 11 188,40, el quinto. Su cifra viene de <strong>volumen</strong>, no de operaciones grandes. King es el caso opuesto: sexto en total, pero con el tercer pedido más grande de la casa.</p>
+<p><strong>Son dos perfiles comerciales distintos, y el total por empleado no los distingue.</strong></p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">caro</span><span class="p">.</span><span class="n">product_name</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">mas_caro</span><span class="p">,</span><span class="w">   </span><span class="n">caro</span><span class="p">.</span><span class="n">unit_price</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_caro</span><span class="p">,</span>
+<span class="w">       </span><span class="n">barato</span><span class="p">.</span><span class="n">product_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mas_barato</span><span class="p">,</span><span class="w"> </span><span class="n">barato</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_barato</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="w">                    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">                    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">caro</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span>
+<span class="w">                    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">                    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">ASC</span><span class="w">  </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">barato</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  |        mas_caro         | precio_caro |         mas_barato         | precio_barato
+----------------+-------------------------+-------------+----------------------------+---------------
+ Beverages      | Côte de Blaye           |      263.50 | Guaraná Fantástica         |          4.50
+ Condiments     | Vegie-spread            |       43.90 | Aniseed Syrup              |         10.00
+ Confections    | Sir Rodney's Marmalade  |       81.00 | Teatime Chocolate Biscuits |          9.20
+ Dairy Products | Raclette Courdavault    |       55.00 | Geitost                    |          2.50
+ Grains/Cereals | Gnocchi di nonna Alice  |       38.00 | Filo Mix                   |          7.00
+ Meat/Poultry   | Thüringer Rostbratwurst |      123.79 | Tourtière                  |          7.45
+ Produce        | Manjimup Dried Apples   |       53.00 | Longlife Tofu              |         10.00
+ Seafood        | Carnarvon Tigers        |       62.50 | Konbu                      |          6.00
+</code></pre></div>
+
+<p><strong>Dos <code>LATERAL</code> en el mismo <code>FROM</code>, cada una con su <code>ORDER BY</code>.</strong> <code>max()</code> y <code>min()</code> habrían dado los precios, pero no los <strong>nombres</strong>. Ese es el límite del <code>GROUP BY</code> que <code>LATERAL</code> cruza.</p>
+<p>Beverages va de 4,50 a 263,50: <strong>casi 60 veces, dentro de la misma categoría.</strong> Su precio medio —46,03 entre los productos activos, la única categoría por encima de 30 en <a class="xref" href="../having-vs-where/">having-vs-where</a>— no describe a ninguno de los dos extremos.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">paises</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">)</span><span class="w"> </span><span class="n">paises</span>
+<span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paises</span><span class="p">.</span><span class="n">country</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">)</span><span class="w"> </span><span class="n">t</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">paises</span><span class="p">.</span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'Germany'</span><span class="p">,</span><span class="s1">'USA'</span><span class="p">,</span><span class="s1">'France'</span><span class="p">,</span><span class="s1">'Brazil'</span><span class="p">,</span><span class="s1">'UK'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">paises</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> country | customer_id | facturacion
+---------+-------------+-------------
+ Brazil  | HANAR       |    32841.37
+ Brazil  | QUEEN       |    25717.50
+ France  | BONAP       |    21963.25
+ France  | BLONP       |    18534.08
+ Germany | QUICK       |   110277.31
+ Germany | KOENE       |    30908.38
+ USA     | SAVEA       |   104361.95
+ USA     | RATTC       |    51097.80
+ UK      | SEVES       |    16215.33
+ UK      | EASTC       |    14761.04
+</code></pre></div>
+
+<p><strong>La tabla de la izquierda no tiene por qué ser una tabla.</strong> Aquí es <code>SELECT DISTINCT country FROM customers</code>, una tabla derivada, y <code>LATERAL</code> la ve igual.</p>
+<p>Alemania: QUICK factura 110 277,31 y el segundo, 30 908,38. <strong>Casi cuatro veces.</strong> El mismo patrón que Côte de Blaye en productos, ahora en clientes: <strong>cada vez que se abre un grupo, dentro hay un dominante.</strong> Esa es la razón de mirar el detalle en lugar de quedarse en el total por país.</p>
+<p><strong>4.</strong> La <code>LATERAL</code> está en la sección 5. Los planes:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>correlacionadas</th>
+<th><code>LATERAL</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nodos con <code>loops=91</code></td>
+<td><strong>3</strong> (<code>SubPlan 1</code>, <code>3</code>, <code>5</code>)</td>
+<td><strong>1</strong> (<code>Aggregate</code>)</td>
+</tr>
+<tr>
+<td>Índice usado</td>
+<td><code>idx_orders_order_date</code> en dos de tres</td>
+<td><code>idx_orders_customer_id</code> en el único</td>
+</tr>
+<tr>
+<td><code>Rows Removed by Filter</code></td>
+<td>129 y 122 por cliente</td>
+<td>ninguno</td>
+</tr>
+<tr>
+<td>Líneas de plan</td>
+<td>22</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Las tres subconsultas piden lo mismo —los pedidos de un cliente— y PostgreSQL no las fusiona.</strong> Con <code>LATERAL</code> el recorrido es uno y las tres métricas salen de él.</p>
+<p><strong>5.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id |             company_name
+-------------+--------------------------------------
+ FISSA       | FISSA Fabrica Inter. Salchichas S.A.
+ PARIS       | Paris spécialités
+</code></pre></div>
+
+<p>Los dos clientes sin pedidos. <strong>El <code>WHERE customer_id IS NOT NULL</code> de dentro no es opcional</strong>: es la trampa del <code>NOT IN</code> con <code>NULL</code> del tema <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>. Aquí <code>orders.customer_id</code> no tiene nulos y funcionaría igual, pero escribirlo sin la protección es depender de un dato que puede cambiar mañana. La alternativa robusta es <code>NOT EXISTS</code> (<a class="xref" href="../anti-join-y-semi-join/">anti-join-y-semi-join</a>).</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../cte-recursivas/"><span>Anterior</span><strong>CTE recursivas</strong></a><a class="nav-next" href="../que-es-una-funcion-de-ventana/"><span>Siguiente</span><strong>Qué es una función de ventana</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-el-caso-que-justifica-el-tema-los-n-mejores-de-cada-grupo">3. El caso que justifica el tema: los N mejores de cada grupo</a>
+<a href="#4-otros-usos">4. Otros usos</a>
+<a href="#5-lateral-contra-las-alternativas">5. LATERAL contra las alternativas</a>
+<a href="#6-errores-comunes">6. Errores comunes</a>
+<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
+<a href="#8-ejercicios">8. Ejercicios</a>
+<a href="#9-pregunta-de-negocio">9. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

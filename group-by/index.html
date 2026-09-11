@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>GROUP BY · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Agrupar. Por qué toda columna del SELECT debe estar agrupada o agregada" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/group-by/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="GROUP BY" />
+  <meta property="og:description" content="Agrupar. Por qué toda columna del SELECT debe estar agrupada o agregada" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/group-by/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(17 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 17 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details open><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><span class="activo">GROUP BY</span></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 4 · Agregar</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>GROUP BY</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../funciones-de-agregacion/">funciones-de-agregacion</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p><code>GROUP BY</code> <strong>parte las filas en montones</strong> y hace que las agregaciones se calculen una vez por montón, en vez de una vez para toda la tabla.</p>
+<div class="hl"><pre><span></span><code>830 pedidos  →  GROUP BY ship_country  →  21 grupos  →  21 filas de resultado
+</code></pre></div>
+
+<p>Es el paso 3 del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>, y de ahí sale la regla que gobierna todo el tema:</p>
+<blockquote>
+<p><strong>Después del <code>GROUP BY</code>, la fila individual ya no existe.</strong> Solo existen los grupos. Por eso el <code>SELECT</code> únicamente puede pedir dos cosas: <strong>columnas por las que agrupaste</strong>, o <strong>agregaciones</strong>. Nada más.</p>
+</blockquote>
+<p>Entender eso quita de golpe el error más frecuente de SQL.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">columna_agrupada</span><span class="p">,</span><span class="w"> </span><span class="n">agregación</span><span class="p">(...)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span>
+<span class="k">WHERE</span><span class="w">   </span><span class="n">filtro_de_filas</span><span class="w">       </span><span class="c1">-- antes de agrupar</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">columna_agrupada</span>
+<span class="k">HAVING</span><span class="w">  </span><span class="n">filtro_de_grupos</span><span class="w">      </span><span class="c1">-- después de agrupar</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">...;</span>
+</code></pre></div>
+
+<p>Reglas:</p>
+<ul>
+<li>Se puede agrupar por <strong>una o varias columnas</strong>, por una <strong>expresión</strong>, por el <strong>alias</strong> o por el <strong>número de posición</strong>.</li>
+<li><strong>El número de filas del resultado = el número de combinaciones distintas</strong> de las columnas agrupadas.</li>
+<li><strong>Los <code>NULL</code> forman su propio grupo.</strong> Uno solo, aunque <code>NULL &lt;&gt; NULL</code>.</li>
+<li>Sin <code>GROUP BY</code> pero con agregaciones, toda la tabla es un grupo y sale <strong>una</strong> fila.</li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Lo básico:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country | pedidos |  flete
+--------------+---------+----------
+ Germany      |     122 | 11283.28
+ USA          |     122 | 13771.29
+ Brazil       |      83 |  4880.19
+ France       |      77 |  4237.84
+ UK           |      56 |  2954.27
+</code></pre></div>
+
+<p>Alemania y Estados Unidos empatan a 122 pedidos, <strong>pero el flete de EE. UU. es 2.500 mayor.</strong> Ese contraste solo aparece porque pediste dos agregaciones a la vez; con <code>count(*)</code> solo, los dos países parecerían iguales.</p>
+<h3>3.1 El error que todo el mundo comete</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  column "orders.order_id" must appear in the GROUP BY clause
+        or be used in an aggregate function
+</code></pre></div>
+
+<p><strong>El mensaje es literalmente la regla.</strong> Y la pregunta que hay detrás es razonable: si Alemania tiene 122 pedidos, <strong>¿cuál de los 122 <code>order_id</code> debería enseñarte?</strong> No hay respuesta, así que SQL se niega en vez de inventar.</p>
+<p>Las tres salidas, según lo que querías de verdad:</p>
+<table>
+<thead>
+<tr>
+<th>Lo que querías</th>
+<th>Qué escribir</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Un pedido cualquiera del grupo</td>
+<td><code>min(order_id)</code> o <code>max(order_id)</code></td>
+</tr>
+<tr>
+<td>Todos los pedidos del grupo</td>
+<td><code>string_agg(order_id::text, ', ')</code></td>
+</tr>
+<tr>
+<td>Un desglose más fino</td>
+<td>Añadir <code>order_id</code> al <code>GROUP BY</code> — pero entonces cada grupo es una fila y el <code>count(*)</code> vale 1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MySQL en modo permisivo acepta esa consulta</strong> y devuelve un <code>order_id</code> arbitrario sin avisar. Es una de las razones por las que informes migrados desde MySQL traen números que nadie sabe explicar.</p>
+<h3>3.2 Agrupar por varias columnas</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="n">ship_city</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="n">ship_city</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ship_country |   ship_city    | count
+--------------+----------------+-------
+ Brazil       | Rio de Janeiro |    34
+ UK           | London         |    33
+ Brazil       | Sao Paulo      |    31
+ USA          | Boise          |    31
+</code></pre></div>
+
+<p><strong>70 grupos</strong>, uno por pareja país-ciudad. Cuantas más columnas agrupas, <strong>más grupos y menos filas por grupo</strong> — hasta el extremo de agrupar por la clave primaria, donde cada grupo es una fila y agrupar deja de servir de nada.</p>
+<h3>3.3 Agrupar por una expresión</h3>
+<p>No hace falta que la columna exista:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> anio | count
+------+-------
+ 1996 |   152
+ 1997 |   408
+ 1998 |   270
+</code></pre></div>
+
+<p>Tres formas equivalentes de escribir ese <code>GROUP BY</code>: <code>GROUP BY 1</code> (posición), <code>GROUP BY anio</code> (alias), o repetir <code>extract(...)</code> entero. <strong>Las tres funcionan</strong> — es la comodidad que <code>GROUP BY</code> concede y <code>HAVING</code> no, y el porqué está en la sección 4 de este mismo tema.</p>
+<p>Y el mismo patrón, por mes:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">order_date</span><span class="p">,</span><span class="w"> </span><span class="s1">'YYYY-MM'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1997-04-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   mes   | count
+---------+-------
+ 1997-01 |    33
+ 1997-02 |    29
+ 1997-03 |    30
+</code></pre></div>
+
+<p><strong>Fíjate en el orden <code>WHERE</code> → <code>GROUP BY</code>:</strong> el filtro se aplica a las filas <em>antes</em> de agrupar, así que los meses de 1996 ni siquiera llegan a formar grupo.</p>
+<h3>3.4 Los <code>NULL</code> forman un grupo</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">region</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> region | count
+--------+-------
+        |    60
+ SP     |     6
+ OR     |     4
+</code></pre></div>
+
+<p><strong>La primera fila, con la región vacía, es el grupo de los 60 <code>NULL</code>.</strong> <code>GROUP BY</code> los junta todos en uno, aunque <code>NULL = NULL</code> no sea cierto (<a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>). Es una excepción deliberada del estándar: para agrupar, los nulos se consideran "el mismo desconocido".</p>
+<p>En un informe conviene etiquetarlos, porque una fila con la primera celda vacía parece un error:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="s1">'(sin región)'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>3.5 Lo que <code>GROUP BY</code> no puede hacer: inventar grupos vacíos</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_id | count
+-------------+-------
+           1 |    12
+           2 |    12
+           3 |    13
+           4 |    10
+           5 |     7
+           6 |     6
+           7 |     5
+           8 |    12
+</code></pre></div>
+
+<p>Ocho categorías, todas presentes. <strong>Pero solo porque todas tienen productos.</strong> Si mañana se crea la categoría 9 sin productos, <strong>no aparecerá en este resultado</strong>: <code>GROUP BY</code> agrupa las filas que hay, no las que podría haber.</p>
+<p>Es el mismo problema que con los meses sin pedidos: una serie mensual construida con <code>GROUP BY</code> <strong>se salta los meses vacíos</strong> y el gráfico pinta una línea continua donde había un agujero. La solución es generar el eje aparte y hacer <code>LEFT JOIN</code> — <span class="xref-pend" title="Aún no publicado">fechas-sin-actividad</span>.</p>
+<h3>3.6 Dos niveles a la vez</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">extract</span><span class="p">(</span><span class="k">year</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_date</span><span class="p">)::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">anio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">anio</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">anio</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | anio | count
+-------------+------+-------
+           1 | 1996 |    26
+           1 | 1997 |    55
+           1 | 1998 |    42
+           2 | 1996 |    16
+           2 | 1997 |    41
+</code></pre></div>
+
+<p>Esta forma —una fila por combinación— es la <strong>larga</strong>. La misma información en formato ancho, con los años como columnas, es el pivote con <code>CASE</code> de <a class="xref" href="../case-condicionales-en-sql/">case-condicionales-en-sql</a>. <strong>La larga es la que se puede seguir procesando; la ancha es la que se enseña.</strong></p>
+<h2 id="4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</h2>
+<p><code>GROUP BY</code> es el <strong>paso 3</strong> del <a class="xref" href="../orden-logico-de-ejecucion/">orden-logico-de-ejecucion</a>: después de filtrar filas (<code>WHERE</code>, paso 2) y antes de que se ejecute el <code>SELECT</code> (paso 5). Tres consecuencias.</p>
+<h3>4.1 El <code>WHERE</code> filtra antes de agrupar; no hay forma de que sea al revés</h3>
+<p>Todo lo que descartes en el paso 2 no llega a formar grupos. Por eso filtrar en el <code>WHERE</code> es más barato que filtrar después: el <code>GROUP BY</code> trabaja con menos filas.</p>
+<h3>4.2 Después del paso 3, la fila individual ya no existe</h3>
+<p>Es la regla de la sección 1, ahora con su porqué: el <code>SELECT</code> se ejecuta en el paso 5, cuando lo único que queda son grupos. No puede pedir una columna suelta porque, sencillamente, ya no hay ninguna que pedir — hay 21 montones, no 830 filas.</p>
+<h3>4.3 <code>GROUP BY</code> sí acepta un nombre puesto con <code>AS</code>, aunque el orden diga que no debería</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pais</span><span class="p">;</span><span class="w">          </span><span class="c1">-- ✅ funciona</span>
+</code></pre></div>
+
+<p>Si el orden lógico manda, el paso 3 no debería ver un nombre que nace en el paso 5. Y en teoría no lo ve: <strong>es una comodidad que el estándar SQL concede solo a <code>GROUP BY</code> y a <code>ORDER BY</code></strong>, no a <code>WHERE</code> ni a <code>HAVING</code>. La regla práctica, que conviene memorizar tal cual:</p>
+<blockquote>
+<p>En <code>GROUP BY</code> y <code>ORDER BY</code> puedes usar el nombre del alias. En <code>WHERE</code> y <code>HAVING</code>, nunca.</p>
+</blockquote>
+<h2 id="5-errores-comunes">5. Errores comunes</h2>
+<ol>
+<li><strong>Poner en el <code>SELECT</code> una columna que no está agrupada ni agregada.</strong> Da error, y el error tiene razón.</li>
+<li><strong>Agrupar por demasiadas columnas.</strong> Si añades la clave primaria al <code>GROUP BY</code>, cada grupo es una fila y todos los <code>count(*)</code> valen 1. Suele pasar al añadir columnas "para verlas".</li>
+<li><strong>Esperar que aparezcan los grupos vacíos.</strong> No aparecen.</li>
+<li><strong>Olvidar que los <code>NULL</code> hacen grupo.</strong> Aparece una fila con la celda en blanco que parece un fallo.</li>
+<li><strong>Filtrar en <code>HAVING</code> lo que debería ir en <code>WHERE</code>.</strong> Funciona pero es más lento y más confuso (<a class="xref" href="../having-vs-where/">having-vs-where</a>).</li>
+<li><strong>Agrupar por una columna descriptiva en vez de por su id.</strong> Si dos categorías se llaman igual, se fusionan en un grupo. Agrupa por la clave, muestra el nombre.</li>
+<li><strong>Creer que <code>GROUP BY</code> ordena.</strong> No lo garantiza. Si quieres orden, <code>ORDER BY</code>.</li>
+</ol>
+<h2 id="6-diferencias-con-sql-server">6. Diferencias con SQL Server</h2>
+<p><code>GROUP BY</code> es igual en ambos: mismas reglas, mismo error cuando falta una columna. Las diferencias son de alrededor:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agrupar por alias</td>
+<td>✅ <code>GROUP BY anio</code></td>
+<td>❌ Hay que repetir la expresión</td>
+</tr>
+<tr>
+<td>Agrupar por posición</td>
+<td>✅ <code>GROUP BY 1</code></td>
+<td>❌ No se permite</td>
+</tr>
+<tr>
+<td>Columnas dependientes de la PK</td>
+<td>✅ Si agrupas por la PK, puedes seleccionar el resto sin agregarlos</td>
+<td>❌ Hay que listarlas todas</td>
+</tr>
+<tr>
+<td><code>GROUPING SETS</code> / <code>ROLLUP</code> / <code>CUBE</code></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>La tercera es la más cómoda de PostgreSQL</strong> y conviene conocerla:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">;</span><span class="w">      </span><span class="c1">-- funciona: customer_id es la PK de customers</span>
+</code></pre></div>
+
+<p>PostgreSQL sabe que si agrupaste por la clave primaria, <code>company_name</code> y <code>country</code> <strong>están funcionalmente determinados</strong> y no pueden ser ambiguos. SQL Server exige listar las tres. Es más cómodo, y <strong>menos portable</strong>: si el material tiene que valer para los dos motores, lista las columnas.</p>
+<h2 id="7-ejercicios">7. Ejercicios</h2>
+<ol>
+<li>Cuántos productos hay por categoría, de la categoría con más a la que menos.</li>
+<li>Los 5 clientes con más pedidos.</li>
+<li>Unidades vendidas por producto, y los 3 más vendidos. ¿Cuántos productos distintos se han vendido alguna vez?</li>
+<li>Pedidos por empleado y por año, solo de 1997.</li>
+<li>Explica por qué esta consulta devuelve 830 filas y no 21:
+   <code>sql
+   SELECT ship_country, order_id, count(*) FROM orders GROUP BY ship_country, order_id;</code></li>
+</ol>
+<h2 id="8-pregunta-de-negocio">8. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Ventas quiere saber "qué comercial vende más". Te dan libertad para elegir la métrica. Entrega la respuesta y explica por qué elegiste esa métrica y no otra.</em></p>
+</blockquote>
+<p>Con lo que sabes hasta aquí puedes hacerlo sin <code>JOIN</code>, aunque salgan ids en vez de nombres.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p>La métrica honesta es <strong>facturación neta</strong>, no número de pedidos:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w">                                   </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span>
+<span class="w">             </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                        </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | pedidos | facturacion | ticket_medio
+-------------+---------+-------------+--------------
+           4 |     156 |   232890.85 |      1492.89
+           3 |     127 |   202812.84 |      1596.95
+           1 |     123 |   192107.60 |      1561.85
+           2 |      96 |   166537.76 |      1734.77
+           8 |     104 |   126862.28 |      1219.83
+           7 |      72 |   124568.24 |      1730.11
+           9 |      43 |    77308.07 |      1797.86
+           6 |      67 |    73913.13 |      1103.18
+           5 |      42 |    68792.28 |      1637.91
+</code></pre></div>
+
+<p><strong>Por qué esa métrica y no otra</strong>, que era la mitad del encargo:</p>
+<ol>
+<li><strong><code>count(*)</code> de pedidos premia el volumen, no el valor.</strong> El empleado 4 gana en las dos, pero mirar solo el volumen esconde el resto de la tabla: el <strong>9 hace 43 pedidos —los menos de todos— y tiene el mejor ticket medio, 1.797,86</strong>. Y el <strong>8 hace 104 pedidos con el peor ticket después del 6</strong>. Ordenar por número de pedidos pondría al 8 por delante del 7, que factura casi lo mismo con 32 pedidos menos. Son perfiles de comercial distintos y las dos lecturas son legítimas — pero hay que elegir una y decirlo.</li>
+<li><strong>Neto, no bruto.</strong> Un comercial que cierra ventas regalando descuento factura menos de lo que parece. Usar <code>sum(unit_price * quantity)</code> sin el <code>(1 - discount)</code> premia exactamente el comportamiento que la empresa no quiere.</li>
+<li><strong><code>count(DISTINCT o.order_id)</code>, no <code>count(*)</code>.</strong> Al unir con <code>order_details</code> cada pedido se multiplica por sus líneas (<a class="xref" href="../distinct-y-duplicados/">distinct-y-duplicados</a>). Sin el <code>DISTINCT</code>, "pedidos" contaría líneas y el ticket medio saldría dividido entre 2,6.</li>
+</ol>
+<p><strong>Y lo que hay que decir al entregar:</strong> esto mide facturación atribuida al empleado que registró el pedido, que no es necesariamente quien lo vendió. Antes de usarlo para calcular comisiones, hay que confirmar que <code>orders.employee_id</code> significa lo que Ventas cree que significa.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_id | productos
+-------------+-----------
+           3 |        13
+           1 |        12
+           8 |        12
+           2 |        12
+           4 |        10
+           5 |         7
+           6 |         6
+           7 |         5
+</code></pre></div>
+
+<p>77 productos repartidos entre 8 categorías, bastante equilibrados. Dos cosas:</p>
+<ul>
+<li><strong>Comprueba siempre que los grupos suman el total</strong>: <code>13+12+12+12+10+7+6+5 = 77</code>. Si no suman, o hay nulos formando grupo o el <code>WHERE</code> se comió filas.</li>
+<li><strong>Las categorías 1, 8 y 2 empatan a 12 y salen en un orden arbitrario.</strong> Es el empate de <a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>: si esta lista se compara entre ejecuciones, hace falta desempatar con <code>ORDER BY productos DESC, category_id</code>.</li>
+</ul>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | pedidos
+-------------+---------
+ SAVEA       |      31
+ ERNSH       |      30
+ QUICK       |      28
+</code></pre></div>
+
+<p><strong>89 grupos, no 91.</strong> <code>GROUP BY</code> solo ve los clientes que aparecen en <code>orders</code>; los dos que no han comprado nunca no existen para esta consulta. Es el mismo hueco de los grupos vacíos, y se resuelve con <code>LEFT JOIN</code> (<a class="xref" href="../left-right-y-full-join/">left-right-y-full-join</a>).</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">unidades</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">product_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unidades</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> product_id | lineas | unidades
+------------+--------+----------
+         60 |     51 |     1577
+         59 |     54 |     1496
+         31 |     51 |     1397
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">product_id</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 77</span>
+</code></pre></div>
+
+<p><strong>Los 77 productos se han vendido alguna vez</strong>, ninguno se ha quedado sin salir. Y fíjate en el detalle: el producto 59 aparece en <strong>más líneas</strong> (54) que el 60 (51), pero vende <strong>menos unidades</strong>. "Más vendido" significa cosas distintas según cuentes pedidos o unidades — y una tercera si cuentas dinero.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1998-01-01'</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">employee_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> employee_id | pedidos
+-------------+---------
+           4 |      81
+           3 |      71
+           1 |      55
+</code></pre></div>
+
+<p>Como el año ya está fijado por el <code>WHERE</code>, <strong>no hace falta agruparlo</strong>. Agrupar por una columna que el <code>WHERE</code> dejó en un solo valor añade una columna constante y ningún grupo nuevo.</p>
+<p><strong>5.</strong> Porque <code>order_id</code> es la <strong>clave primaria</strong> de <code>orders</code>: cada valor es único, así que cada combinación <code>(ship_country, order_id)</code> aparece exactamente una vez. <strong>830 grupos de una fila cada uno</strong>, y todos los <code>count(*)</code> valen 1.</p>
+<p>Es el error del punto 2 de la sección 4 en estado puro: <strong>agrupar por la clave primaria destruye la agrupación</strong> sin dar ningún error. La consulta devuelve lo mismo que un <code>SELECT</code> sin <code>GROUP BY</code>, con un <code>1</code> inútil al lado.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../funciones-de-agregacion/"><span>Anterior</span><strong>Funciones de agregación</strong></a><a class="nav-next" href="../having-vs-where/"><span>Siguiente</span><strong>HAVING vs WHERE</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-d-nde-encaja-en-el-orden-de-ejecuci-n">4. Dónde encaja en el orden de ejecución</a>
+<a href="#5-errores-comunes">5. Errores comunes</a>
+<a href="#6-diferencias-con-sql-server">6. Diferencias con SQL Server</a>
+<a href="#7-ejercicios">7. Ejercicios</a>
+<a href="#8-pregunta-de-negocio">8. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

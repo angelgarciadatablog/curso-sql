@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ROW_NUMBER, RANK, DENSE_RANK, NTILE. Determinismo" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/ranking-row-number-rank-ntile/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE" />
+  <meta property="og:description" content="ROW_NUMBER, RANK, DENSE_RANK, NTILE. Determinismo" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/ranking-row-number-rank-ntile/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(35 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 35 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details open><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><span class="activo">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</span></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 7 · Funciones de ventana</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../el-marco-rows-vs-range/">el-marco-rows-vs-range</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Cuatro funciones que <strong>numeran filas</strong> en vez de agregarlas. No calculan una suma ni una media: dan una posición.</p>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Qué da</th>
+<th>Con empates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>row_number()</code></td>
+<td>1, 2, 3, 4…</td>
+<td><strong>los rompe</strong>: números consecutivos siempre</td>
+</tr>
+<tr>
+<td><code>rank()</code></td>
+<td>posición de clasificación</td>
+<td>mismo número, y <strong>deja hueco</strong> después</td>
+</tr>
+<tr>
+<td><code>dense_rank()</code></td>
+<td>posición sin huecos</td>
+<td>mismo número, <strong>sin hueco</strong></td>
+</tr>
+<tr>
+<td><code>ntile(n)</code></td>
+<td>en qué grupo de n cae</td>
+<td>reparte por tamaño, no por valor</td>
+</tr>
+</tbody>
+</table>
+<p>Ninguna lleva argumento salvo <code>ntile</code>. Todas necesitan <code>ORDER BY</code> dentro de <code>OVER</code> — sin un orden no hay posición.</p>
+<h2 id="2-las-tres-primeras-lado-a-lado">2. Las tres primeras, lado a lado</h2>
+<p>La única forma de entenderlas es verlas sobre datos con empates. Beverages los tiene: cuatro productos a 18,00 y dos a 14,00.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">       </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">rn</span><span class="p">,</span>
+<span class="w">       </span><span class="n">rank</span><span class="p">()</span><span class="w">       </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">rnk</span><span class="p">,</span>
+<span class="w">       </span><span class="n">dense_rank</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">drnk</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       product_name        | unit_price | rn | rnk | drnk
+---------------------------+------------+----+-----+------
+ Côte de Blaye             |     263.50 |  1 |   1 |    1
+ Ipoh Coffee               |      46.00 |  2 |   2 |    2
+ Chang                     |      19.00 |  3 |   3 |    3
+ Lakkalikööri              |      18.00 |  4 |   4 |    4
+ Steeleye Stout            |      18.00 |  5 |   4 |    4
+ Chartreuse verte          |      18.00 |  6 |   4 |    4
+ Chai                      |      18.00 |  7 |   4 |    4
+ Outback Lager             |      15.00 |  8 |   8 |    5
+ Laughing Lumberjack Lager |      14.00 |  9 |   9 |    6
+ Sasquatch Ale             |      14.00 | 10 |   9 |    6
+ Rhönbräu Klosterbier      |       7.75 | 11 |  11 |    7
+ Guaraná Fantástica        |       4.50 | 12 |  12 |    8
+</code></pre></div>
+
+<p><strong>Lee la fila de <code>Outback Lager</code>, que es donde se separan las tres:</strong></p>
+<ul>
+<li><code>rn = 8</code> — es la octava fila, sin más.</li>
+<li><code>rnk = 8</code> — es el octavo mejor precio, <strong>porque los cuatro empatados a 18,00 consumieron las posiciones 4, 5, 6 y 7</strong>. <code>rank()</code> salta de 4 a 8.</li>
+<li><code>drnk = 5</code> — es el <strong>quinto precio distinto</strong> de la lista: 263,50 / 46,00 / 19,00 / 18,00 / 15,00.</li>
+</ul>
+<p><strong>La forma corta de recordarlo:</strong></p>
+<ul>
+<li><code>row_number()</code> cuenta <strong>filas</strong>.</li>
+<li><code>rank()</code> cuenta <strong>cuántos van por delante</strong>, más uno.</li>
+<li><code>dense_rank()</code> cuenta <strong>valores distintos</strong>.</li>
+</ul>
+<p>De ahí sale una identidad útil para comprobar consultas: <strong>el <code>dense_rank()</code> máximo es siempre el número de valores distintos.</strong> Aquí 8, y <code>count(DISTINCT unit_price)</code> sobre Beverages da 8. Si no cuadra, el <code>ORDER BY</code> de la ventana no es el que crees.</p>
+<h2 id="3-cu-l-usar">3. Cuál usar</h2>
+<p><strong><code>row_number()</code> — cuando necesitas un identificador único por fila.</strong> Paginación, "el más reciente de cada cliente", numerar un informe. Si hay empates, alguien tiene que ser el primero.</p>
+<p><strong><code>rank()</code> — cuando publicas una clasificación.</strong> Es lo que hace un ranking deportivo: dos segundos y ningún tercero. Si dos comerciales venden lo mismo, no hay motivo para decidir a cara o cruz cuál es mejor.</p>
+<p><strong><code>dense_rank()</code> — cuando cuentas niveles, no puestos.</strong> "Los 3 precios más altos" es <code>dense_rank() &lt;= 3</code>. Con <code>rank()</code> te llevarías menos productos de los que crees si hay empates arriba.</p>
+<p><strong><code>ntile(n)</code> — cuando quieres n grupos del mismo tamaño</strong>, no del mismo valor. Cuartiles, deciles, segmentación ABC.</p>
+<h3>3.1 El top N por grupo, otra vez</h3>
+<p>En <a class="xref" href="../lateral/">lateral</a> resolvimos los 3 productos más vendidos de cada categoría con <code>CROSS JOIN LATERAL</code>. Con ventanas es el otro camino:</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">f</span><span class="p">,</span>
+<span class="w">           </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">                              </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pos</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w">   </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_name</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> category_name  | pos |           product_name           | facturacion
+----------------+-----+----------------------------------+-------------
+ Beverages      |   1 | Côte de Blaye                    |   141396.74
+ Beverages      |   2 | Ipoh Coffee                      |    23526.70
+ Beverages      |   3 | Chang                            |    16355.96
+ Condiments     |   1 | Vegie-spread                     |    16701.10
+ ...
+ Seafood        |   3 | Boston Crab Meat                 |    17910.63
+</code></pre></div>
+
+<p><strong>Las mismas 24 filas que dio la <code>LATERAL</code>.</strong> Dos herramientas, un resultado. Cuándo usar cada una:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>row_number()</code> + filtro</th>
+<th><code>CROSS JOIN LATERAL</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pasadas sobre los datos</td>
+<td><strong>una</strong></td>
+<td>una por grupo</td>
+</tr>
+<tr>
+<td>El filtro <code>pos &lt;= 3</code></td>
+<td>necesita un CTE fuera</td>
+<td>va dentro, como <code>LIMIT</code></td>
+</tr>
+<tr>
+<td>Grupos con lógica distinta</td>
+<td>no</td>
+<td><strong>sí</strong></td>
+</tr>
+<tr>
+<td>Con muchos grupos</td>
+<td>suele ganar</td>
+<td>suele perder</td>
+</tr>
+<tr>
+<td>Con pocos grupos y un índice</td>
+<td>pierde</td>
+<td><strong>suele ganar</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>La regla honesta: para un top N por grupo con la misma lógica en todos, <code>row_number()</code>. Para cuando cada grupo necesita su propia consulta, <code>LATERAL</code>.</strong> Aquí las dos valen; con 8 categorías la diferencia es irrelevante.</p>
+<p><strong>Y el <code>&lt;= 3</code> va fuera del CTE porque una ventana no puede ir en el <code>WHERE</code>.</strong> Es la regla del tema 32, y es lo que obliga al CTE.</p>
+<h2 id="4-ntile-repartir-en-grupos-iguales">4. ntile: repartir en grupos iguales</h2>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">q</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="n">ntile</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cuartil</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">cuartil</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">min</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">min_cliente</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">max</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">max_cliente</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cuartil</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cuartil</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> cuartil | clientes | facturacion | pct  | min_cliente | max_cliente
+---------+----------+-------------+------+-------------+-------------
+       1 |       23 |   852661.76 | 67.4 |    16817.10 |   110277.31
+       2 |       22 |   266726.91 | 21.1 |     7048.24 |    16476.57
+       3 |       22 |   108152.81 |  8.5 |     3239.80 |     7023.98
+       4 |       22 |    38251.56 |  3.0 |      100.80 |     3172.16
+</code></pre></div>
+
+<p><strong>23 clientes de 89 —el primer cuartil— son el 67,4% de la facturación.</strong> El último cuartil, con prácticamente los mismos clientes, aporta el 3,0%. <strong>Un cliente del primer cuartil vale, de media, 21 veces uno del cuarto</strong> — 37 072,25 contra 1 738,71.</p>
+<p><strong>Los grupos no salen exactamente iguales porque 89 no es divisible entre 4.</strong> <code>ntile</code> reparte 23/22/22/22: <strong>el resto va a los primeros grupos</strong>, nunca a los últimos. Con <code>ntile(6)</code> sobre los mismos 89 salen cinco grupos de 15 y uno de 14.</p>
+<h3>4.1 El gotcha de <code>ntile</code>: parte los empates</h3>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">ntile</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">quintil</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">quintil</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">quintil</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   product_name   | unit_price | quintil
+------------------+------------+---------
+ Chartreuse verte |      18.00 |       2
+ Steeleye Stout   |      18.00 |       2
+ Chai             |      18.00 |       3
+ Lakkalikööri     |      18.00 |       3
+</code></pre></div>
+
+<p><strong>Cuatro productos al mismo precio exacto, repartidos entre dos quintiles distintos.</strong> Y no es un caso aislado: en los 77 productos hay <strong>tres precios partidos entre dos grupos</strong> — 12,50 entre el 1 y el 2, 18,00 entre el 2 y el 3, y 38,00 entre el 4 y el 5.</p>
+<p><strong><code>ntile</code> garantiza tamaños iguales, y para lograrlo tiene que cortar por donde le toque, aunque sea en medio de un empate.</strong> Cuál de los cuatro cae en el quintil 2 es arbitrario.</p>
+<p><strong>Esto importa cuando el grupo tiene consecuencias.</strong> Si el quintil decide un descuento, una tarifa o a qué comercial se asigna un cliente, tienes dos casos idénticos tratados distinto y no sabrás explicar por qué. Cuando el corte tiene que respetar el valor, <code>ntile</code> no es la herramienta: lo son los percentiles de <a class="xref" href="../distribucion-y-percentiles/">distribucion-y-percentiles</a>, o un <code>CASE</code> con umbrales fijos.</p>
+<h2 id="5-el-problema-de-los-empates-en-row-number">5. El problema de los empates en row_number()</h2>
+<p><code>row_number()</code> tiene que decidir un orden entre filas empatadas. <strong>Si no le dices cómo, decide él, y no promete ser consistente.</strong></p>
+<p>Los cuatro productos a 18,00, rankeados dentro de Beverages:</p>
+<div class="hl"><pre><span></span><code> Lakkalikööri     |  4
+ Steeleye Stout   |  5
+ Chartreuse verte |  6
+ Chai             |  7
+</code></pre></div>
+
+<p>Los mismos cuatro, con la misma cláusula <code>OVER (ORDER BY unit_price DESC)</code>, pero rankeados sobre los 77 productos:</p>
+<div class="hl"><pre><span></span><code> Chai             | 44
+ Steeleye Stout   | 45
+ Chartreuse verte | 46
+ Lakkalikööri     | 47
+</code></pre></div>
+
+<p><strong>El orden se ha invertido.</strong> <code>Lakkalikööri</code> era el mejor de los cuatro y ahora es el peor; <code>Chai</code> era el peor y ahora es el mejor. Misma tabla, mismos datos, misma especificación de ventana — <strong>solo cambió el alcance de la consulta.</strong></p>
+<p>No es un fallo: <strong>el estándar no define qué pasa con los empates</strong>, así que el motor usa el orden que le resulte más barato, y ese orden depende del plan. Un cambio de índice, un <code>VACUUM</code> o una lectura en paralelo pueden alterarlo mañana.</p>
+<p><strong>La solución es una línea:</strong></p>
+<div class="hl"><pre><span></span><code><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span><span class="w"> </span><span class="n">product_id</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Regla sin excepción: todo <code>row_number()</code> lleva un desempate único al final del <code>ORDER BY</code>.</strong> Normalmente la clave primaria. Cuesta cuatro palabras y convierte un resultado arbitrario en uno reproducible.</p>
+<p>Es la misma lección de <a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a> —un <code>ORDER BY</code> ambiguo con <code>LIMIT</code> da resultados distintos— y de <a class="xref" href="../el-marco-rows-vs-range/">el-marco-rows-vs-range</a>. <strong>Los empates son el enemigo recurrente de este bloque.</strong></p>
+<h2 id="6-errores-comunes">6. Errores comunes</h2>
+<ol>
+<li>
+<p><strong><code>row_number()</code> sin desempate.</strong> La sección 5. El error más caro del tema porque parece funcionar.</p>
+</li>
+<li>
+<p><strong>Usar <code>rank()</code> para paginar.</strong> Con empates, <code>rank() BETWEEN 11 AND 20</code> puede devolver 7 filas o 15. Para paginar, <code>row_number()</code>.</p>
+</li>
+<li>
+<p><strong>Esperar que <code>rank()</code> llegue hasta el número de filas.</strong> Sobre Beverages el <code>rank()</code> máximo es 12 y el <code>dense_rank()</code> máximo es 8. Si el informe dice "hay 12 niveles de precio", está mal: hay 8.</p>
+</li>
+<li>
+<p><strong>Poner la función de ranking en el <code>WHERE</code>.</strong>
+   <code>ERROR:  window functions are not allowed in WHERE</code>
+   Siempre CTE o subconsulta, y el filtro fuera.</p>
+</li>
+<li>
+<p><strong>Creer que <code>ntile(4)</code> corta por percentiles.</strong> No: corta por <strong>número de filas</strong>. El corte del primer cuartil cae donde caiga el cliente número 23, valga lo que valga.</p>
+</li>
+<li>
+<p><strong>Olvidar <code>PARTITION BY</code> en un top N por grupo.</strong> Sin él, <code>row_number()</code> numera del 1 al 77 de corrido y <code>pos &lt;= 3</code> devuelve <strong>3 filas en total</strong>, no 3 por categoría. Es el mismo error que el <code>LIMIT</code> fuera de la <code>LATERAL</code>.</p>
+</li>
+</ol>
+<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Las cuatro funciones</td>
+<td>idénticas</td>
+<td>idénticas</td>
+</tr>
+<tr>
+<td><code>ORDER BY</code> obligatorio dentro de <code>OVER</code></td>
+<td>sí</td>
+<td>sí</td>
+</tr>
+<tr>
+<td><code>TOP n WITH TIES</code></td>
+<td><strong>no existe</strong></td>
+<td>sí</td>
+</tr>
+<tr>
+<td>Equivalente de <code>WITH TIES</code></td>
+<td><code>rank() &lt;= n</code> en un CTE</td>
+<td><code>TOP n WITH TIES</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Portan al pie de la letra.</strong> La única diferencia práctica es <code>WITH TIES</code>: en SQL Server <code>SELECT TOP 3 WITH TIES ... ORDER BY precio DESC</code> devuelve más de 3 filas si hay empate en la tercera posición. En PostgreSQL se escribe con <code>rank() &lt;= 3</code> filtrado fuera de un CTE, que es más largo pero también más explícito.</p>
+<h2 id="8-ejercicios">8. Ejercicios</h2>
+<ol>
+<li>Ranking de empleados por facturación <strong>y</strong> por número de pedidos, en la misma tabla. ¿Coinciden?</li>
+<li>Los 2 pedidos más caros de cada cliente, con <code>row_number()</code>. Compruébalo con <code>QUICK</code>, <code>ERNSH</code> y <code>CENTC</code>.</li>
+<li>¿Cuántos precios distintos hay entre los 77 productos, y cuántos productos están involucrados en algún empate?</li>
+<li>Clasifica los 77 productos en 5 quintiles de precio y muestra el rango de cada uno.</li>
+<li>Demuestra que el <code>dense_rank()</code> máximo es igual a <code>count(DISTINCT ...)</code>. ¿Por qué tiene que serlo?</li>
+</ol>
+<h2 id="9-pregunta-de-negocio">9. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Comercial tiene tiempo para atender bien a un cuarto de la cartera. Quiere saber a cuáles, y cuánto negocio hay en juego en cada tramo.</em></p>
+</blockquote>
+<p>"Un cuarto de la cartera" es una instrucción sobre el <strong>número de clientes</strong>, no sobre el dinero. Eso decide la función.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">por_cliente</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">q</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="n">ntile</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cuartil</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">por_cliente</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">cuartil</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">))</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">min</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">desde</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">max</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hasta</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cliente_medio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cuartil</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">cuartil</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> cuartil | clientes | facturacion | pct  |  desde   |   hasta   | cliente_medio
+---------+----------+-------------+------+----------+-----------+---------------
+       1 |       23 |   852661.76 | 67.4 | 16817.10 | 110277.31 |      37072.25
+       2 |       22 |   266726.91 | 21.1 |  7048.24 |  16476.57 |      12123.95
+       3 |       22 |   108152.81 |  8.5 |  3239.80 |   7023.98 |       4916.04
+       4 |       22 |    38251.56 |  3.0 |   100.80 |   3172.16 |       1738.71
+</code></pre></div>
+
+<p><strong>La respuesta es concreta: los 23 clientes que facturan más de 16 817,10, y en ellos está el 67,4% del negocio.</strong></p>
+<p><strong>Tres cosas que hay que decir al entregarlo:</strong></p>
+<ol>
+<li><strong><code>ntile(4)</code> es la función correcta aquí precisamente porque la restricción es de capacidad.</strong> Comercial no preguntó "qué clientes valen más de X": preguntó a cuántos puede atender. La pregunta es sobre <strong>número de personas</strong>, y <code>ntile</code> reparte por número. Si la pregunta hubiera sido "los clientes que suman el 80% del negocio", la herramienta sería un acumulado, no <code>ntile</code>.</li>
+<li><strong>El corte cae en 16 817,10 por dónde quedó el cliente número 23</strong>, no por ningún criterio de negocio. Mira quiénes están a cada lado de esa raya:</li>
+</ol>
+<p><code>rn | customer_id | facturacion
+   ----+-------------+-------------
+    22 | GREAL       |    18507.45
+    23 | SIMOB       |    16817.10   ← último del cuartil 1
+    24 | LINOD       |    16476.57   ← primero del cuartil 2
+    25 | SEVES       |    16215.33</code></p>
+<p><strong>Entre <code>SIMOB</code> y <code>LINOD</code> hay 340,53 euros sobre 16 000: un 2%.</strong> Uno entra en la lista de atención preferente y el otro no, y la diferencia entre ambos es ruido. <strong>La raya del cuartil no es una frontera de negocio, es dónde cayó el corte.</strong> Si la lista tiene consecuencias reales, conviene revisar a mano las dos o tres posiciones de cada lado.
+3. <strong>Y lo que la tabla no muestra: faltan dos clientes.</strong> Son 89 filas, pero <code>customers</code> tiene <strong>91</strong>. <code>FISSA</code> y <code>PARIS</code> no han comprado nunca, así que el <code>JOIN</code> con <code>orders</code> los elimina y <strong>no aparecen en ningún cuartil</strong>.</p>
+<p>No es que estén mal clasificados: <strong>son invisibles para la segmentación</strong>. Y en una decisión sobre a quién dedicar tiempo comercial, un cliente que nunca ha comprado no es lo mismo que uno que no existe. Si el objetivo incluyera captación, la consulta tendría que arrancar de <code>customers</code> con <code>LEFT JOIN</code>, como en <a class="xref" href="../lateral/">lateral</a>.</p>
+<p><strong>La lección general: toda segmentación construida sobre una tabla de hechos pierde a quien no tiene hechos.</strong> Es el problema del <code>INNER JOIN</code> de <a class="xref" href="../left-right-y-full-join/">left-right-y-full-join</a>, disfrazado de cuartil.</p>
+<p><strong>Y la conclusión que va antes que la tabla:</strong> la cartera está muy concentrada. Un cuartil se lleva dos tercios del negocio y el último cuartil aporta el 3%. <strong>Atender bien al primer cuartil no es una opción táctica, es lo que sostiene la empresa</strong> — y la contrapartida es que perder tres o cuatro de esos 23 clientes tiene un efecto que 22 clientes del último cuartil no compensan.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">rank_facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">rank</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">rank_pedidos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="n">e</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w">         </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">employee_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">employee_id</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">last_name</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">rank_facturacion</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> last_name | facturacion | rank_facturacion | pedidos | rank_pedidos
+-----------+-------------+------------------+---------+--------------
+ Peacock   |   232890.85 |                1 |     156 |            1
+ Leverling |   202812.84 |                2 |     127 |            2
+ Davolio   |   192107.60 |                3 |     123 |            3
+ Fuller    |   166537.76 |                4 |      96 |            5
+ Callahan  |   126862.28 |                5 |     104 |            4
+ King      |   124568.24 |                6 |      72 |            6
+ Dodsworth |    77308.07 |                7 |      43 |            8
+ Suyama    |    73913.13 |                8 |      67 |            7
+ Buchanan  |    68792.28 |                9 |      42 |            9
+</code></pre></div>
+
+<p><strong>No coinciden, y las dos inversiones dicen algo.</strong> Fuller es 4º en dinero con solo 96 pedidos (5º en volumen): <strong>vende menos veces y más caro</strong>. Callahan es lo contrario — 104 pedidos, 4ª en volumen, pero 5ª en dinero.</p>
+<p>Lo mismo abajo: Dodsworth hace 43 pedidos y factura más que Suyama con 67. <strong>Dos formas distintas de vender, y ningún ranking por sí solo las distingue.</strong> Con las dos columnas al lado, la diferencia salta.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">           </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span>
+<span class="w">                              </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="o">*</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">DESC</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pos</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">customer_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'QUICK'</span><span class="p">,</span><span class="s1">'ERNSH'</span><span class="p">,</span><span class="s1">'CENTC'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | pos | order_id |  round
+-------------+-----+----------+----------
+ CENTC       |   1 |    10259 |   100.80
+ ERNSH       |   1 |    10514 |  8623.45
+ ERNSH       |   2 |    11017 |  6750.00
+ QUICK       |   1 |    10865 | 16387.50
+ QUICK       |   2 |    10540 | 10191.70
+</code></pre></div>
+
+<p><strong><code>CENTC</code> devuelve una fila y no dos, sin necesidad de ningún cuidado especial.</strong> <code>WHERE pos &lt;= 2</code> no exige que existan dos: si el cliente tiene un pedido, hay un <code>pos = 1</code> y nada más. Es una ventaja sobre otras formas de hacerlo.</p>
+<p>El <code>, o.order_id</code> del <code>ORDER BY</code> es el desempate obligatorio de la sección 5.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precios_distintos</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+<span class="c1">-- 61 precios distintos, 77 productos</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precios_con_empate</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos_empatados</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="c1">-- 11 precios con empate, 27 productos empatados</span>
+</code></pre></div>
+
+<p><strong>27 de 77 productos —el 35%— comparten precio con otro.</strong> No es un caso raro: en más de un tercio de la tabla, un <code>row_number()</code> sin desempate está decidiendo arbitrariamente. Por eso la regla de la sección 5 no es paranoia.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">ntile</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">quintil</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">quintil</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">min</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">max</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">quintil</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">quintil</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> quintil | productos |  min  |  max
+---------+-----------+-------+--------
+       1 |        16 |  2.50 |  12.50
+       2 |        16 | 12.50 |  18.00
+       3 |        15 | 18.00 |  23.25
+       4 |        15 | 24.00 |  38.00
+       5 |        15 | 38.00 | 263.50
+</code></pre></div>
+
+<p><strong>Los quintiles 1 y 2 tienen 16 productos y el resto 15</strong>: 77 entre 5 da 15 con resto 2, y los dos sobrantes van a los primeros grupos.</p>
+<p><strong>Y mira los bordes: 12,50 es el máximo del quintil 1 y el mínimo del 2. 18,00 y 38,00 hacen lo mismo.</strong> Es el gotcha de la sección 4 a la vista: tres precios partidos entre dos grupos.</p>
+<p><strong>El quintil 5 va de 38,00 a 263,50</strong> — un rango 25 veces más ancho que el del quintil 1 (2,50 a 12,50). <code>ntile</code> iguala el número de productos, no el rango de precio. Si lo que quieres son tramos de precio comparables, esto no sirve.</p>
+<p><strong>5.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">rank</span><span class="p">()</span><span class="w">       </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="n">r</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">dense_rank</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span><span class="w"> </span><span class="n">d</span>
+<span class="w">           </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">max_rank</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">max_dense</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precios_distintos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> max_rank | max_dense | filas | precios_distintos
+----------+-----------+-------+-------------------
+       12 |         8 |    12 |                 8
+</code></pre></div>
+
+<p><strong><code>max(rank()) = count(*)</code> y <code>max(dense_rank()) = count(DISTINCT ...)</code>.</strong> Tiene que ser así por definición: <code>dense_rank</code> <strong>avanza exactamente una vez por cada valor nuevo</strong> que aparece en el <code>ORDER BY</code>, así que al llegar al final ha avanzado tantas veces como valores distintos haya. <code>rank</code>, en cambio, avanza tantas posiciones como filas haya consumido.</p>
+<p><strong>Es una comprobación gratis</strong> para cualquier consulta con ranking: si <code>max(dense_rank())</code> no coincide con los valores distintos que esperas, el <code>ORDER BY</code> de la ventana no es el que creías.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../el-marco-rows-vs-range/"><span>Anterior</span><strong>El marco: ROWS contra RANGE</strong></a><a class="nav-next" href="../lag-lead-first-last-value/"><span>Siguiente</span><strong>LAG, LEAD, FIRST_VALUE y LAST_VALUE</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-las-tres-primeras-lado-a-lado">2. Las tres primeras, lado a lado</a>
+<a href="#3-cu-l-usar">3. Cuál usar</a>
+<a href="#4-ntile-repartir-en-grupos-iguales">4. ntile: repartir en grupos iguales</a>
+<a href="#5-el-problema-de-los-empates-en-row-number">5. El problema de los empates en row_number()</a>
+<a href="#6-errores-comunes">6. Errores comunes</a>
+<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
+<a href="#8-ejercicios">8. Ejercicios</a>
+<a href="#9-pregunta-de-negocio">9. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

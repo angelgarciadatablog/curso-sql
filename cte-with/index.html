@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>CTE: la cláusula WITH · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="WITH. Legibilidad y reutilización" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/cte-with/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="CTE: la cláusula WITH" />
+  <meta property="og:description" content="WITH. Legibilidad y reutilización" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/cte-with/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(29 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 29 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details open><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><span class="activo">CTE: la cláusula WITH</span></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 6 · Consultas dentro de consultas</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>CTE: la cláusula WITH</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../tablas-derivadas/">tablas-derivadas</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Un <strong>CTE</strong> (<em>Common Table Expression</em>) es una tabla derivada <strong>con nombre</strong>, declarada antes de la consulta que la usa.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">nombre</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">nombre</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Hace exactamente lo mismo que una tabla derivada. <strong>La diferencia entera es el orden de lectura</strong>, y no es un detalle menor:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Tabla derivada: se lee de dentro hacia fuera</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">pais</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">pais</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="n">t1</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="n">t2</span><span class="p">;</span>
+
+<span class="c1">-- CTE: se lee de arriba abajo, como se piensa</span>
+<span class="k">WITH</span><span class="w"> </span><span class="n">paso1</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="p">...),</span>
+<span class="w">     </span><span class="n">paso2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">paso1</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="p">...)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pais</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">paso2</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Un CTE convierte una consulta anidada en una secuencia de pasos con nombre.</strong> Ese nombre es documentación: <code>ventas_por_cliente</code> dice lo que es; <code>t2</code> no dice nada.</p>
+<h2 id="2-sintaxis">2. Sintaxis</h2>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">nombre1</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">consulta1</span>
+<span class="p">),</span>
+<span class="n">nombre2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">consulta2</span><span class="w">          </span><span class="c1">-- puede usar nombre1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">nombre1</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">nombre2</span><span class="w"> </span><span class="p">...;</span>
+</code></pre></div>
+
+<p>Reglas:</p>
+<ul>
+<li><strong><code>WITH</code> va antes del <code>SELECT</code> principal</strong>, y solo una vez aunque haya varios CTE.</li>
+<li>Los CTE se separan por <strong>coma</strong>, y <code>AS</code> va antes del paréntesis.</li>
+<li><strong>Un CTE puede usar los anteriores, no los posteriores</strong> (salvo con <code>RECURSIVE</code>, <a class="xref" href="../cte-recursivas/">cte-recursivas</a>).</li>
+<li><strong>Viven solo durante esa consulta.</strong> No es una vista ni una tabla temporal: al terminar, desaparece.</li>
+<li>Se pueden usar tantas veces como quieras dentro de la consulta.</li>
+</ul>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>El caso simple:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">por_pais</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pais</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">flete</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">por_pais</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pedidos</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  pais   | pedidos |  flete
+---------+---------+----------
+ USA     |     122 | 13771.29
+ Germany |     122 | 11283.28
+ Brazil  |      83 |  4880.19
+ France  |      77 |  4237.84
+ UK      |      56 |  2954.27
+</code></pre></div>
+
+<p>Con una sola transformación la ganancia es pequeña. <strong>Aparece cuando hay dos o más.</strong></p>
+<h3>3.1 Encadenar pasos</h3>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">ventas</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">media</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_cliente</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">ventas</span><span class="w">      </span><span class="c1">-- usa el CTE anterior</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">por_encima</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">ventas</span><span class="p">,</span><span class="w"> </span><span class="n">media</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">ventas</span><span class="p">.</span><span class="n">total</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">media</span><span class="p">.</span><span class="n">media_cliente</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> por_encima
+------------
+         30
+</code></pre></div>
+
+<p><strong>30 clientes de 89 facturan por encima de la media.</strong> Léelo de arriba abajo: <em>calcula las ventas por cliente → calcula su media → cuenta cuántos la superan</em>. Es la secuencia mental, escrita tal cual.</p>
+<p>El <code>FROM ventas, media</code> sin <code>ON</code> es un <code>CROSS JOIN</code> deliberado: <strong><code>media</code> tiene una sola fila</strong>, así que multiplicar por ella no multiplica nada. Es el uso legítimo del producto cartesiano de <a class="xref" href="../cross-join-y-self-join/">cross-join-y-self-join</a>.</p>
+<h3>3.2 El ejemplo que justifica el tema: segmentación</h3>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">ventas_cliente</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">clasificado</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">           </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">50000</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'A'</span>
+<span class="w">                </span><span class="k">WHEN</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">20000</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'B'</span>
+<span class="w">                </span><span class="k">ELSE</span><span class="w">                     </span><span class="s1">'C'</span>
+<span class="w">           </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">segmento</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">ventas_cliente</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">segmento</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                  </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">ventas_cliente</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">clasificado</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">segmento</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">segmento</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> segmento | clientes | facturacion | pct
+----------+----------+-------------+------
+ A        |        4 |   370612.03 | 29.3
+ B        |       14 |   389585.91 | 30.8
+ C        |       71 |   505595.10 | 39.9
+</code></pre></div>
+
+<p><strong>4 + 14 + 71 = 89 clientes; 29,3 + 30,8 + 39,9 = 100%.</strong> ✓</p>
+<p>Tres cosas que enseña:</p>
+<ol>
+<li><strong><code>ventas_cliente</code> se usa dos veces</strong> — desde <code>clasificado</code> y desde la subconsulta del <code>pct</code>. Con tablas derivadas habría que escribirla dos veces enteras.</li>
+<li><strong>Cada CTE es un paso con nombre</strong>: agregar → clasificar → resumir. Escrito con anidamiento serían tres niveles de paréntesis.</li>
+<li><strong>El resultado dice algo:</strong> <strong>4 clientes aportan el 29,3% del negocio.</strong> Los 71 del grupo C, ocho de cada diez clientes, aportan el 39,9%.</li>
+</ol>
+<h2 id="4-rendimiento-inline-contra-materializado">4. Rendimiento: inline contra materializado</h2>
+<p>Esto es lo que más ha cambiado y lo que más gente sigue contando mal.</p>
+<p><strong>Hasta PostgreSQL 11, un CTE era una barrera de optimización</strong>: se calculaba entero y aparte, siempre. <strong>Desde la 12 se incorpora (<em>inline</em>) a la consulta principal</strong> si se usa una sola vez y no modifica datos.</p>
+<div class="hl"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="p">(</span><span class="n">COSTS</span><span class="w"> </span><span class="k">OFF</span><span class="p">)</span>
+<span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> HashAggregate
+   Group Key: orders.ship_country
+   Filter: (count(*) &gt; 50)
+   -&gt;  Seq Scan on orders
+</code></pre></div>
+
+<p><strong>No hay ningún <code>CTE Scan</code>.</strong> PostgreSQL fusionó el CTE con la consulta y <strong>empujó el filtro dentro del agregado</strong>. Es exactamente el mismo plan que sin CTE.</p>
+<p>Forzándolo a materializar:</p>
+<div class="hl"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="p">(</span><span class="n">COSTS</span><span class="w"> </span><span class="k">OFF</span><span class="p">)</span>
+<span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">MATERIALIZED</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> CTE Scan on t
+   Filter: (n &gt; 50)
+   CTE t
+     -&gt;  HashAggregate
+           Group Key: orders.ship_country
+           -&gt;  Seq Scan on orders
+</code></pre></div>
+
+<p>Ahora sí: <strong>se calcula el CTE entero y después se filtra encima.</strong> Se ve todavía más claro sin agregación:</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- Sin materializar: el filtro llega hasta la tabla</span>
+<span class="w"> </span><span class="k">Aggregate</span>
+<span class="w">   </span><span class="o">-&gt;</span><span class="w">  </span><span class="n">Seq</span><span class="w"> </span><span class="n">Scan</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">         </span><span class="n">Filter</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="p">)</span>
+
+<span class="c1">-- Materializado: se copian las 830 filas y luego se filtran</span>
+<span class="w"> </span><span class="k">Aggregate</span>
+<span class="w">   </span><span class="n">CTE</span><span class="w"> </span><span class="n">t</span>
+<span class="w">     </span><span class="o">-&gt;</span><span class="w">  </span><span class="n">Seq</span><span class="w"> </span><span class="n">Scan</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">orders</span>
+<span class="w">   </span><span class="o">-&gt;</span><span class="w">  </span><span class="n">CTE</span><span class="w"> </span><span class="n">Scan</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">t</span>
+<span class="w">         </span><span class="n">Filter</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Cuándo se materializa solo:</strong> cuando el CTE <strong>se referencia más de una vez</strong>.</p>
+<div class="hl"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="p">(</span><span class="n">COSTS</span><span class="w"> </span><span class="k">OFF</span><span class="p">)</span>
+<span class="k">WITH</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">ship_country</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">n</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">n</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">ship_country</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">ship_country</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> Hash Join
+   CTE t
+     -&gt;  HashAggregate
+   -&gt;  CTE Scan on t a
+   -&gt;  CTE Scan on t b
+</code></pre></div>
+
+<p><strong>Aparece el <code>CTE t</code> una sola vez y dos <code>CTE Scan</code></strong>: se calculó una vez y se leyó dos. Eso es una ventaja real frente a repetir la tabla derivada.</p>
+<p><strong>Las dos palabras clave:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Qué hace</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AS MATERIALIZED</code></td>
+<td>Fuerza a calcularlo aparte</td>
+<td>El CTE es caro y se usa varias veces; o quieres una barrera de optimización deliberada</td>
+</tr>
+<tr>
+<td><code>AS NOT MATERIALIZED</code></td>
+<td>Fuerza a incorporarlo</td>
+<td>Se usa varias veces pero es barato, y quieres que el filtro se empuje dentro</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Por defecto, no toques ninguna de las dos.</strong> El comportamiento automático acierta casi siempre. Se usan cuando <code>EXPLAIN</code> demuestra que se está equivocando.</p>
+</blockquote>
+<p>Y el mito que hay que desmontar: <strong>"los CTE son lentos" era cierto hasta PostgreSQL 11 y dejó de serlo en la 12.</strong> En SQL Server nunca fue cierto: allí siempre se han incorporado.</p>
+<h2 id="5-lo-que-un-cte-no-es">5. Lo que un CTE no es</h2>
+<table>
+<thead>
+<tr>
+<th>No es</th>
+<th>Por qué importa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Una vista</td>
+<td>Una vista se guarda en la base y la usan otras consultas. Un CTE vive una consulta (<span class="xref-pend" title="Aún no publicado">vistas</span>)</td>
+</tr>
+<tr>
+<td>Una tabla temporal</td>
+<td>No ocupa disco ni sobrevive a la sentencia</td>
+</tr>
+<tr>
+<td>Una variable reutilizable</td>
+<td>No se puede usar en la consulta siguiente</td>
+</tr>
+<tr>
+<td>Un bucle</td>
+<td>No itera... salvo <code>RECURSIVE</code> (<a class="xref" href="../cte-recursivas/">cte-recursivas</a>)</td>
+</tr>
+</tbody>
+</table>
+<p>Y algo que <strong>sí</strong> es, y sorprende: <strong>un CTE puede modificar datos</strong>.</p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">borrados</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">tabla</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">condicion</span><span class="w"> </span><span class="n">RETURNING</span><span class="w"> </span><span class="o">*</span>
+<span class="p">)</span>
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">historico</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">borrados</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Mover filas de una tabla a otra en una sola sentencia atómica. <strong>Esto es exclusivo de PostgreSQL</strong> y se ve en <span class="xref-pend" title="Aún no publicado">upsert-y-returning</span>.</p>
+<h2 id="6-errores-comunes">6. Errores comunes</h2>
+<ol>
+<li><strong>Repetir <code>WITH</code> en cada CTE.</strong> Va una sola vez; los demás se separan por coma.</li>
+<li><strong>Referenciar un CTE definido después.</strong> Solo hacia atrás, salvo <code>RECURSIVE</code>.</li>
+<li><strong>Esperar que sobreviva a la consulta.</strong> Si lo necesitas en varias, es una vista o una tabla temporal.</li>
+<li><strong>Poner <code>MATERIALIZED</code> "por si acaso".</strong> Puedes bloquear que el filtro se empuje dentro y multiplicar el trabajo.</li>
+<li><strong>Encadenar ocho CTE de una línea cada uno.</strong> El nombre debe aportar significado; <code>paso1</code>, <code>paso2</code>, <code>paso3</code> no aportan nada.</li>
+<li><strong>Usar un CTE donde bastaba un <code>WHERE</code>.</strong> Nombrar un paso trivial añade ruido.</li>
+<li><strong>Creer que un CTE materializado se puede indexar.</strong> No: si el volumen intermedio es grande y hay que filtrarlo mucho, lo que quieres es una tabla temporal.</li>
+</ol>
+<h2 id="7-diferencias-con-sql-server">7. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WITH ... AS (...)</code></td>
+<td>✅</td>
+<td>✅ <strong>Idéntico</strong></td>
+</tr>
+<tr>
+<td>Varios CTE encadenados</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>MATERIALIZED</code> / <code>NOT MATERIALIZED</code></td>
+<td>✅</td>
+<td>❌ <strong>No existen</strong></td>
+</tr>
+<tr>
+<td><code>WITH RECURSIVE</code></td>
+<td>Palabra obligatoria</td>
+<td>❌ No se escribe <code>RECURSIVE</code></td>
+</tr>
+<tr>
+<td>CTE que modifica datos (<code>DELETE ... RETURNING</code>)</td>
+<td>✅</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Punto y coma antes del <code>WITH</code></td>
+<td>Innecesario</td>
+<td><strong>Recomendado</strong> (<code>;WITH</code>) por ambigüedad del parser</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dos avisos al portar:</strong></p>
+<ul>
+<li>En SQL Server, <code>WITH</code> puede confundirse con las <em>table hints</em> si la sentencia anterior no cerró con <code>;</code>. Por eso se ve tanto <code>;WITH</code> al principio. En PostgreSQL no hace falta.</li>
+<li><strong>SQL Server siempre incorpora el CTE</strong>, no lo materializa nunca. Un CTE caro usado tres veces se ejecuta <strong>tres veces</strong>. Es lo contrario del comportamiento por defecto de PostgreSQL cuando hay varias referencias — y es una diferencia de rendimiento real, no de sintaxis.</li>
+</ul>
+<h2 id="8-ejercicios">8. Ejercicios</h2>
+<ol>
+<li>Reescribe con CTE la consulta de tablas derivadas que calcula media, máximo y mínimo de productos por categoría.</li>
+<li>Con dos CTE: productos por categoría y facturación por categoría, unidos en un solo informe.</li>
+<li>Clasifica los pedidos en <code>pequeño</code> (&lt;500), <code>mediano</code> (&lt;2000) y <code>grande</code>, y cuenta cuántos hay de cada tipo con su facturación.</li>
+<li>Los clientes que están por encima de la media en <strong>pedidos</strong> y también en <strong>facturación</strong>.</li>
+<li>Explica qué hace <code>MATERIALIZED</code> en esta consulta y si merece la pena:
+   <code>sql
+   WITH t AS MATERIALIZED (SELECT * FROM orders)
+   SELECT count(*) FROM t WHERE ship_country = 'Brazil';</code></li>
+</ol>
+<h2 id="9-pregunta-de-negocio">9. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección quiere el informe trimestral de 1997 y 1998: por trimestre, número de pedidos, clientes activos, facturación, ticket medio y la variación porcentual respecto al trimestre anterior.</em></p>
+</blockquote>
+<p>La última columna es la que decide la estructura.</p></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">por_trimestre</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">'quarter'</span><span class="p">,</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="p">)::</span><span class="nb">date</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">trimestre</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w">                             </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span><span class="w">                          </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'1997-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_date</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="s1">'1999-01-01'</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">con_anterior</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">trimestre</span><span class="p">,</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">clientes</span><span class="p">,</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">           </span><span class="n">facturacion</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">pedidos</span><span class="w">                                   </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span><span class="p">,</span>
+<span class="w">           </span><span class="n">lag</span><span class="p">(</span><span class="n">facturacion</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">trimestre</span><span class="p">)</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion_anterior</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">por_trimestre</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">trimestre</span><span class="p">,</span><span class="w"> </span><span class="s1">'YYYY-"Q"Q'</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">periodo</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">clientes</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="n">ticket_medio</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">facturacion</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">facturacion_anterior</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">facturacion_anterior</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">var_pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">con_anterior</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">trimestre</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> periodo | pedidos | clientes | facturacion | ticket_medio | var_pct
+---------+---------+----------+-------------+--------------+---------
+ 1997-Q1 |      92 |       54 |   138288.93 |      1503.14 |
+ 1997-Q2 |      93 |       56 |   143177.05 |      1539.54 |     3.5
+ 1997-Q3 |     103 |       56 |   153937.77 |      1494.54 |     7.5
+ 1997-Q4 |     120 |       60 |   181681.46 |      1514.01 |    18.0
+ 1998-Q1 |     182 |       72 |   298491.55 |      1640.06 |    64.3
+ 1998-Q2 |      88 |       56 |   142132.31 |      1615.14 |   -52.4
+</code></pre></div>
+
+<p><strong>Cuatro decisiones:</strong></p>
+<ol>
+<li><strong><code>lag()</code> obliga a dos pasos, y por eso hay dos CTE.</strong> No se puede comparar un trimestre con el anterior hasta haber calculado todos los trimestres. <code>por_trimestre</code> agrega; <code>con_anterior</code> mira hacia atrás. <strong>La estructura del CTE es la estructura del problema.</strong> (<code>lag</code> es del bloque 7: <a class="xref" href="../lag-lead-first-last-value/">lag-lead-first-last-value</a>.)</li>
+<li><strong><code>count(DISTINCT o.customer_id)</code> cuenta clientes activos, no clientes.</strong> Un cliente que compra en Q1 y en Q3 cuenta en los dos, y eso es correcto: son clientes activos <strong>por trimestre</strong>, no una suma que deba dar 89.</li>
+<li><strong>La primera fila tiene <code>var_pct</code> vacío</strong>, porque no hay trimestre anterior dentro del filtro. Es honesto: rellenarlo con <code>0</code> diría que no creció, y lo cierto es que no se sabe.</li>
+<li><strong>El −52,4% de 1998-Q2 es falso y hay que decirlo en la misma entrega.</strong> La base termina el <strong>6 de mayo de 1998</strong>: ese trimestre tiene <strong>un mes y una semana de datos</strong>, no tres meses. Comparar un trimestre incompleto con uno completo produce exactamente ese desplome.</li>
+</ol>
+<p><strong>Y esa es la parte que separa un informe entregable de uno peligroso.</strong> Si Dirección ve un −52% sin la nota, la reunión va sobre una crisis que no existe. La forma limpia de resolverlo es excluir el periodo en curso del cálculo de variación, o marcarlo como <em>parcial</em> en la propia tabla.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">por_categoria</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">productos</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">productos</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">maximo</span><span class="p">,</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">productos</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">minimo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">por_categoria</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> media | maximo | minimo
+-------+--------+--------
+  9.63 |     13 |      5
+</code></pre></div>
+
+<p>El mismo resultado que la tabla derivada, <strong>con un nombre que explica qué contiene el paso intermedio</strong>.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">productos_cat</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="k">c</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">category_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">),</span>
+<span class="n">ventas_cat</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="p">)</span><span class="w">                                    </span><span class="k">AS</span><span class="w"> </span><span class="n">unidades</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span>
+<span class="w">    </span><span class="k">JOIN</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">product_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">category_name</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">productos</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">.</span><span class="n">unidades</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">vc</span><span class="p">.</span><span class="n">facturacion</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">productos_cat</span><span class="w"> </span><span class="n">pc</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">ventas_cat</span><span class="w">    </span><span class="n">vc</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">category_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">vc</span><span class="p">.</span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Es el ejercicio 3 del tema <a class="xref" href="../joins-multiples-y-granularidad/">joins-multiples-y-granularidad</a> <strong>escrito de forma legible</strong>. Misma lógica, mismos números; <strong>la diferencia es que ahora los dos pasos tienen nombre y se ve por qué son dos.</strong></p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">totales</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">order_id</span>
+<span class="p">),</span>
+<span class="n">clasificados</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">order_id</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">           </span><span class="k">CASE</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">&lt;</span><span class="w">  </span><span class="mi">500</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'pequeño'</span>
+<span class="w">                </span><span class="k">WHEN</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2000</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'mediano'</span>
+<span class="w">                </span><span class="k">ELSE</span><span class="w">                   </span><span class="s1">'grande'</span>
+<span class="w">           </span><span class="k">END</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tamano</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">totales</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">tamano</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">totales</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">clasificados</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">tamano</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">facturacion</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> tamano  | pedidos | facturacion | pct
+---------+---------+-------------+------
+ grande  |     171 |   836177.87 | 66.1
+ mediano |     360 |   381083.05 | 30.1
+ pequeño |     299 |    48532.12 |  3.8
+</code></pre></div>
+
+<p><strong>171 pedidos de 830 —el 20,6%— son el 66,1% de la facturación.</strong> Eso sí es un 20/80, y es un hallazgo mucho más fuerte que el de los diez mayores clientes del tema anterior.</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">WITH</span><span class="w"> </span><span class="n">por_cliente</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">           </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span><span class="p">)</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">           </span><span class="k">sum</span><span class="p">(</span><span class="n">od</span><span class="p">.</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">discount</span><span class="p">))</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">order_details</span><span class="w"> </span><span class="n">od</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">od</span><span class="p">.</span><span class="n">order_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">order_id</span>
+<span class="w">    </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">),</span>
+<span class="n">medias</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">pedidos</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_pedidos</span><span class="p">,</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_total</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">por_cliente</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">customer_id</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">pedidos</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">c</span><span class="p">.</span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">por_cliente</span><span class="w"> </span><span class="k">c</span><span class="p">,</span><span class="w"> </span><span class="n">medias</span><span class="w"> </span><span class="n">m</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">pedidos</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">media_pedidos</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">total</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">media_total</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">total</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>27 clientes</strong> superan las dos medias a la vez: 39 superan la media de pedidos (9,33), 30 superan la media de facturación (14 222,39), y <strong>27 superan las dos</strong>. <strong><code>por_cliente</code> se usa dos veces</strong> (desde <code>medias</code> y desde el <code>SELECT</code> final), así que PostgreSQL lo materializa solo: se calcula una vez.</p>
+<p><strong>5.</strong> <code>MATERIALIZED</code> obliga a <strong>copiar las 830 filas de <code>orders</code> a un resultado intermedio</strong> y filtrar después. Sin él, el filtro <code>ship_country = 'Brazil'</code> se empuja hasta el <code>Seq Scan</code> y solo sobreviven 83 filas desde el principio.</p>
+<p><strong>No merece la pena: es estrictamente peor.</strong> Con 830 filas la diferencia es invisible; con 50 millones sería la diferencia entre una consulta instantánea y una que copia la tabla entera.</p>
+<p><strong>La regla:</strong> <code>MATERIALIZED</code> solo cuando el CTE es <strong>caro de calcular</strong> y <strong>se usa varias veces</strong>, o cuando quieres deliberadamente impedir que el optimizador reordene algo. Nunca "por si acaso".</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../tablas-derivadas/"><span>Anterior</span><strong>Tablas derivadas</strong></a><a class="nav-next" href="../cte-recursivas/"><span>Siguiente</span><strong>CTE recursivas</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-sintaxis">2. Sintaxis</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-rendimiento-inline-contra-materializado">4. Rendimiento: inline contra materializado</a>
+<a href="#5-lo-que-un-cte-no-es">5. Lo que un CTE no es</a>
+<a href="#6-errores-comunes">6. Errores comunes</a>
+<a href="#7-diferencias-con-sql-server">7. Diferencias con SQL Server</a>
+<a href="#8-ejercicios">8. Ejercicios</a>
+<a href="#9-pregunta-de-negocio">9. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>

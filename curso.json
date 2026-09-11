@@ -82,5 +82,180 @@
     "bloque": "2",
     "orden": 12,
     "url": "https://www.angelgarciadatablog.com/curso-sql/distinct-y-duplicados/"
+  },
+  {
+    "slug": "tipos-de-datos-en-postgresql",
+    "titulo": "Tipos de datos en PostgreSQL",
+    "bloque": "3",
+    "orden": 13,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/tipos-de-datos-en-postgresql/"
+  },
+  {
+    "slug": "funciones-dentro-del-select",
+    "titulo": "Funciones dentro del SELECT",
+    "bloque": "3",
+    "orden": 14,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/funciones-dentro-del-select/"
+  },
+  {
+    "slug": "case-condicionales-en-sql",
+    "titulo": "CASE: condicionales en SQL",
+    "bloque": "3",
+    "orden": 15,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/case-condicionales-en-sql/"
+  },
+  {
+    "slug": "funciones-de-agregacion",
+    "titulo": "Funciones de agregación",
+    "bloque": "4",
+    "orden": 16,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/funciones-de-agregacion/"
+  },
+  {
+    "slug": "group-by",
+    "titulo": "GROUP BY",
+    "bloque": "4",
+    "orden": 17,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/group-by/"
+  },
+  {
+    "slug": "having-vs-where",
+    "titulo": "HAVING vs WHERE",
+    "bloque": "4",
+    "orden": 18,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/having-vs-where/"
+  },
+  {
+    "slug": "agregacion-avanzada",
+    "titulo": "Agregación avanzada",
+    "bloque": "4",
+    "orden": 19,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/agregacion-avanzada/"
+  },
+  {
+    "slug": "inner-join",
+    "titulo": "INNER JOIN",
+    "bloque": "5",
+    "orden": 20,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/inner-join/"
+  },
+  {
+    "slug": "left-right-y-full-join",
+    "titulo": "LEFT, RIGHT y FULL JOIN",
+    "bloque": "5",
+    "orden": 21,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/left-right-y-full-join/"
+  },
+  {
+    "slug": "cross-join-y-self-join",
+    "titulo": "CROSS JOIN y self-join",
+    "bloque": "5",
+    "orden": 22,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/cross-join-y-self-join/"
+  },
+  {
+    "slug": "anti-join-y-semi-join",
+    "titulo": "Anti-join y semi-join",
+    "bloque": "5",
+    "orden": 23,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/anti-join-y-semi-join/"
+  },
+  {
+    "slug": "union-intersect-except",
+    "titulo": "UNION, INTERSECT y EXCEPT",
+    "bloque": "5",
+    "orden": 24,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/union-intersect-except/"
+  },
+  {
+    "slug": "joins-multiples-y-granularidad",
+    "titulo": "Joins múltiples y granularidad",
+    "bloque": "5",
+    "orden": 25,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/joins-multiples-y-granularidad/"
+  },
+  {
+    "slug": "subconsultas-escalares-y-multivalor",
+    "titulo": "Subconsultas escalares y multivalor",
+    "bloque": "6",
+    "orden": 26,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/subconsultas-escalares-y-multivalor/"
+  },
+  {
+    "slug": "subconsultas-correlacionadas",
+    "titulo": "Subconsultas correlacionadas",
+    "bloque": "6",
+    "orden": 27,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/subconsultas-correlacionadas/"
+  },
+  {
+    "slug": "tablas-derivadas",
+    "titulo": "Tablas derivadas",
+    "bloque": "6",
+    "orden": 28,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/tablas-derivadas/"
+  },
+  {
+    "slug": "cte-with",
+    "titulo": "CTE: la cláusula WITH",
+    "bloque": "6",
+    "orden": 29,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/cte-with/"
+  },
+  {
+    "slug": "cte-recursivas",
+    "titulo": "CTE recursivas",
+    "bloque": "6",
+    "orden": 30,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/cte-recursivas/"
+  },
+  {
+    "slug": "lateral",
+    "titulo": "LATERAL",
+    "bloque": "6",
+    "orden": 31,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/lateral/"
+  },
+  {
+    "slug": "que-es-una-funcion-de-ventana",
+    "titulo": "Qué es una función de ventana",
+    "bloque": "7",
+    "orden": 32,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/que-es-una-funcion-de-ventana/"
+  },
+  {
+    "slug": "partition-by-y-order-by",
+    "titulo": "PARTITION BY y ORDER BY",
+    "bloque": "7",
+    "orden": 33,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/partition-by-y-order-by/"
+  },
+  {
+    "slug": "el-marco-rows-vs-range",
+    "titulo": "El marco: ROWS contra RANGE",
+    "bloque": "7",
+    "orden": 34,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/el-marco-rows-vs-range/"
+  },
+  {
+    "slug": "ranking-row-number-rank-ntile",
+    "titulo": "Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE",
+    "bloque": "7",
+    "orden": 35,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/ranking-row-number-rank-ntile/"
+  },
+  {
+    "slug": "lag-lead-first-last-value",
+    "titulo": "LAG, LEAD, FIRST_VALUE y LAST_VALUE",
+    "bloque": "7",
+    "orden": 36,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/lag-lead-first-last-value/"
+  },
+  {
+    "slug": "distribucion-y-percentiles",
+    "titulo": "Distribución y percentiles",
+    "bloque": "7",
+    "orden": 37,
+    "url": "https://www.angelgarciadatablog.com/curso-sql/distribucion-y-percentiles/"
   }
 ]

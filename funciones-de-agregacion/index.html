@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Funciones de agregación · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="COUNT, SUM, AVG, MIN, MAX. COUNT(*) vs COUNT(col) vs COUNT(DISTINCT)" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/funciones-de-agregacion/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Funciones de agregación" />
+  <meta property="og:description" content="COUNT, SUM, AVG, MIN, MAX. COUNT(*) vs COUNT(col) vs COUNT(DISTINCT)" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/funciones-de-agregacion/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(16 / 63 * 100%)"></i></div>
+    <div class="cuenta">Tema 16 de 63</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details open><summary><span class="bnum">4</span>Agregar</summary><ul><li><span class="activo">Funciones de agregación</span></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 4 · Agregar</span>
+      <span class="pill">PostgreSQL 17</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Funciones de agregación</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../case-condicionales-en-sql/">case-condicionales-en-sql</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Una <strong>agregación</strong> coge muchas filas y devuelve <strong>un solo valor</strong>. Es lo contrario de las funciones escalares del tema anterior, que devuelven un valor por fila.</p>
+<div class="hl"><pre><span></span><code>77 filas de products  →  avg(unit_price)  →  1 valor: 28.83
+</code></pre></div>
+
+<p>Sin <code>GROUP BY</code>, la tabla entera es <strong>un solo grupo</strong> y la consulta devuelve exactamente una fila. Con <code>GROUP BY</code>, devuelve una fila por grupo — ese es el tema siguiente, <a class="xref" href="../group-by/">group-by</a>.</p>
+<p>Las dos reglas que gobiernan todo:</p>
+<ol>
+<li><strong>Las agregaciones ignoran los <code>NULL</code></strong> (salvo <code>count(*)</code>).</li>
+<li><strong>Sobre cero filas, <code>count</code> devuelve 0 y todas las demás devuelven <code>NULL</code>.</strong></li>
+</ol>
+<h2 id="2-las-funciones">2. Las funciones</h2>
+<table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Qué devuelve</th>
+<th>Ignora <code>NULL</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>count(*)</code></td>
+<td>Número de <strong>filas</strong></td>
+<td>❌ Cuenta todas</td>
+</tr>
+<tr>
+<td><code>count(col)</code></td>
+<td>Número de valores <strong>no nulos</strong></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>count(DISTINCT col)</code></td>
+<td>Número de valores distintos no nulos</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>sum(col)</code></td>
+<td>Suma</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>avg(col)</code></td>
+<td>Media</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>min(col)</code> / <code>max(col)</code></td>
+<td>Menor / mayor</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>string_agg(col, sep)</code></td>
+<td>Concatena los valores en un texto</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>array_agg(col)</code></td>
+<td>Los junta en un array</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>bool_and(cond)</code> / <code>bool_or(cond)</code></td>
+<td>¿Todas? / ¿alguna?</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>stddev(col)</code> / <code>variance(col)</code></td>
+<td>Dispersión</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><code>min</code> y <code>max</code> <strong>funcionan también sobre texto y fechas</strong>, no solo números: dan el primero y el último por orden.</p>
+<h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
+<p><strong>Los tres <code>count</code>, que no son lo mismo:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                   </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">)</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">enviados</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">customer_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">clientes</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> filas | enviados | clientes
+-------+----------+----------
+   830 |      809 |       89
+</code></pre></div>
+
+<p>Tres números de la misma tabla que responden a tres preguntas distintas: <strong>cuántos pedidos hay, cuántos se enviaron, y cuántos clientes compraron.</strong> Confundirlos es el error de métrica más común que existe.</p>
+<p><strong>El resumen de una columna numérica:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">minimo</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">maximo</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">stock_total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> minimo | maximo | media | stock_total
+--------+--------+-------+-------------
+   2.50 | 263.50 | 28.83 |        3119
+</code></pre></div>
+
+<p>Media 28,83 y máximo 263,50: <strong>la media está muy lejos del máximo</strong>, señal de que hay unos pocos productos caros arrastrando la cola. Ese contraste entre <code>avg</code> y <code>max</code> es lo primero que se mira para saber si una media es representativa.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="n">stddev</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">desviacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> media | desviacion
+-------+------------
+ 40.51 |      36.15
+</code></pre></div>
+
+<p><strong>Desviación casi igual que la media</strong>: los valores están dispersísimos. Una media de stock de 40 no describe a ningún producto real.</p>
+<h3>3.1 <code>avg</code> ignora los nulos — con datos reales</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                              </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">order_date</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">con_dato</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">shipped_date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">order_date</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias_medios</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> pedidos | con_dato | dias_medios
+---------+----------+-------------
+     830 |      809 |        8.49
+</code></pre></div>
+
+<p><strong>8,49 días de media para enviar un pedido</strong> — calculado sobre 809, no sobre 830. Los 21 sin enviar no cuentan.</p>
+<p>¿Está bien? <strong>Depende de la pregunta.</strong> Si es "cuánto tardamos en enviar", sí: los que no se han enviado no tienen tiempo de envío. Si es "cuánto espera un cliente", <strong>no</strong>: los 21 que llevan meses esperando son precisamente los peores casos, y quedan fuera. La media sale bonita porque excluye a los que van mal.</p>
+<h3>3.2 El vacío: <code>count</code> da 0, el resto da <code>NULL</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma</span><span class="p">,</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">maximo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Narnia'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> filas | suma | media | maximo
+-------+------+-------+--------
+     0 |      |       |
+</code></pre></div>
+
+<p><strong><code>count(*)</code> = 0; <code>sum</code>, <code>avg</code> y <code>max</code> = <code>NULL</code>.</strong> No es un capricho: la suma de nada es discutible (¿0? ¿nada?), pero la <strong>media</strong> de nada no existe, y SQL prefiere ser coherente y devolver <code>NULL</code> en las cuatro.</p>
+<p>Consecuencia práctica: si ese <code>sum</code> alimenta un cálculo posterior, el <code>NULL</code> se propaga y anula todo (<a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>). La defensa es <code>coalesce(sum(freight), 0)</code>.</p>
+<p>Y ojo — esto pasa <strong>de verdad</strong> en Northwind:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">freight</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Peru'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Devuelve <code>0</code> y <code>NULL</code>: <strong>no hay ningún pedido enviado a Perú</strong>, aunque <code>Peru</code> sí existe como país de cliente. Un informe por país que use <code>sum</code> sin <code>coalesce</code> mostrará una celda vacía en vez de un cero.</p>
+<h3>3.3 <code>min</code> y <code>max</code> sobre texto</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">company_name</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span><span class="w"> </span><span class="k">max</span><span class="p">(</span><span class="n">company_name</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       primero       |     ultimo
+---------------------+----------------
+ Alfreds Futterkiste | Wolski  Zajazd
+</code></pre></div>
+
+<p>Primero y último <strong>por orden alfabético</strong>, con las reglas del collation (<a class="xref" href="../ordenar-y-limitar/">ordenar-y-limitar</a>). Es útil para auditar rangos, y <strong>peligroso si crees que te da "el más importante"</strong>: <code>max</code> sobre texto no significa nada de negocio.</p>
+<h3>3.4 <code>string_agg</code> — juntar filas en un texto</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">string_agg</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">paises</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">suppliers</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> Australia, Brazil, Canada, Denmark, Finland, France, Germany, Italy, Japan,
+ Netherlands, Norway, Singapore, Spain, Sweden, UK, USA
+</code></pre></div>
+
+<p><strong>16 países de proveedores en una celda.</strong> Es la agregación que más se usa en informes: "los productos de este pedido, separados por coma". El <code>ORDER BY</code> va <strong>dentro</strong> de la función, que es sintaxis propia de las agregaciones.</p>
+<h3>3.5 <code>bool_and</code> y <code>bool_or</code></h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">bool_and</span><span class="p">(</span><span class="k">NOT</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">todos_activos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">bool_or</span><span class="p">(</span><span class="n">discontinued</span><span class="p">)</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">alguno_de_baja</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> todos_activos | alguno_de_baja
+---------------+----------------
+ f             | t
+</code></pre></div>
+
+<p>Responden a <em>"¿todos cumplen?"</em> y <em>"¿alguno cumple?"</em> en una sola pasada. Casi nadie las conoce y ahorran subconsultas enteras.</p>
+<h3>3.6 La media que engaña: simple contra ponderada</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                          </span><span class="k">AS</span><span class="w"> </span><span class="n">media_simple</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_ponderada</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> media_simple | media_ponderada
+--------------+-----------------
+        26.22 |           26.39
+</code></pre></div>
+
+<p><code>avg(unit_price)</code> trata igual una línea de 1 unidad y otra de 100. La <strong>ponderada</strong> pesa cada precio por lo que se vendió. Aquí la diferencia es pequeña (17 céntimos), pero el patrón es el importante:</p>
+<blockquote>
+<p><strong><code>avg()</code> de un precio casi nunca es el precio medio del negocio.</strong> El precio medio de venta es <code>sum(importe) / sum(unidades)</code>. Si el informe se llama "ticket medio" o "precio medio", pregúntate qué se está promediando.</p>
+</blockquote>
+<p>Y la variante con el mismo problema:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">discount</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w">                        </span><span class="k">AS</span><span class="w"> </span><span class="n">media_todas</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">discount</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_con_descuento</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">           </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas_con_descuento</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                                       </span><span class="k">AS</span><span class="w"> </span><span class="n">lineas</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> media_todas | media_con_descuento | lineas_con_descuento | lineas
+-------------+---------------------+----------------------+--------
+      0.0562 |              0.1444 |                  838 |   2155
+</code></pre></div>
+
+<p><strong>5,6% contra 14,4%.</strong> Son las dos respuestas correctas a dos preguntas distintas: <em>"¿cuánto descuento damos de media?"</em> (5,6%, incluyendo las 1.317 líneas sin descuento) y <em>"¿de cuánto es un descuento cuando lo damos?"</em> (14,4%). Entregar una sin decir cuál es la que engaña.</p>
+<p>Aquí los ceros <strong>sí</strong> entran en la media, porque <code>0</code> no es <code>NULL</code>. <strong>Esa es la diferencia clave entre "no hubo descuento" guardado como <code>0</code> y guardado como <code>NULL</code></strong>: con <code>0</code> baja la media, con <code>NULL</code> no la toca. El diseño de la tabla decide el resultado del informe.</p>
+<h2 id="4-errores-comunes">4. Errores comunes</h2>
+<ol>
+<li><strong><code>count(*)</code> cuando querías <code>count(DISTINCT ...)</code>.</strong> La métrica dice "clientes" y devuelve pedidos.</li>
+<li><strong><code>count(columna)</code> creyendo que cuenta filas.</strong> Cuenta las no nulas.</li>
+<li><strong>No blindar <code>sum</code> contra el vacío.</strong> <code>coalesce(sum(x), 0)</code>.</li>
+<li><strong>Interpretar una media sin mirar la dispersión.</strong> Mira también <code>min</code>, <code>max</code> y <code>stddev</code>.</li>
+<li><strong>Confundir media simple con ponderada.</strong></li>
+<li><strong>Poner una agregación en el <code>WHERE</code>.</strong> No se puede: va en <code>HAVING</code> (<a class="xref" href="../having-vs-where/">having-vs-where</a>).</li>
+<li><strong>Mezclar columna suelta y agregación sin <code>GROUP BY</code>.</strong> <code>SELECT product_name, max(unit_price) FROM products</code> da error, y es el error correcto: no hay un <code>product_name</code> para toda la tabla.</li>
+<li><strong><code>sum(DISTINCT ...)</code> para arreglar un JOIN que duplica.</strong> Ver <a class="xref" href="../distinct-y-duplicados/">distinct-y-duplicados</a>.</li>
+</ol>
+<h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contar, sumar, media</td>
+<td>Igual</td>
+<td>Igual</td>
+</tr>
+<tr>
+<td>Agregar con filtro</td>
+<td><code>count(*) FILTER (WHERE ...)</code></td>
+<td>❌ → <code>SUM(CASE WHEN ... THEN 1 ELSE 0 END)</code></td>
+</tr>
+<tr>
+<td>Juntar en texto</td>
+<td><code>string_agg(col, sep ORDER BY ...)</code></td>
+<td><code>STRING_AGG(col, sep) WITHIN GROUP (ORDER BY ...)</code></td>
+</tr>
+<tr>
+<td>¿Todas / alguna?</td>
+<td><code>bool_and</code> / <code>bool_or</code></td>
+<td>❌ No existen → <code>CASE</code> + <code>COUNT</code></td>
+</tr>
+<tr>
+<td>Desviación</td>
+<td><code>stddev</code> / <code>stddev_samp</code> / <code>stddev_pop</code></td>
+<td><code>STDEV</code> / <code>STDEVP</code></td>
+</tr>
+<tr>
+<td>Array</td>
+<td><code>array_agg</code></td>
+<td>❌ No hay arrays</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El gotcha silencioso:</strong> <code>AVG</code> sobre una columna entera en SQL Server <strong>devuelve un entero</strong>. <code>AVG(quantity)</code> sobre 1, 2 y 2 da <strong>1</strong>, no 1,67. PostgreSQL devuelve <code>numeric</code> y da 1,6667. La misma consulta, dos resultados, ningún error. Al migrar informes, ese es de los primeros números que hay que cuadrar.</p>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Cuántos productos hay, cuántos tienen proveedor asignado y cuántos proveedores distintos aparecen en <code>products</code>.</li>
+<li>El pedido más antiguo, el más reciente, y cuántos días separan ambos.</li>
+<li>La facturación total de <code>order_details</code>, con y sin aplicar el descuento. ¿Cuánto se ha dejado de facturar en descuentos?</li>
+<li>El nombre de todos los cargos de <code>employees</code> en una sola celda, separados por " | " y sin repetir.</li>
+<li>Explica por qué estas dos consultas dan números distintos:
+   <code>sql
+   SELECT avg(units_in_stock) FROM products;
+   SELECT sum(units_in_stock) / count(*) FROM products;</code></li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Dirección pide "el ticket medio de la empresa" para compararlo con el del sector. Un compañero ha entregado 26,22. ¿Es correcto?</em></p>
+</blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><p><strong>No es correcto, y de tres formas distintas.</strong></p>
+<p><code>26,22</code> es <code>avg(unit_price)</code> sobre <code>order_details</code>: <strong>el precio unitario medio de una línea de pedido.</strong> No es un ticket. Un "ticket medio" es lo que gasta un cliente en una compra:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ticket_medio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">order_id</span><span class="p">)</span><span class="w">                                                        </span><span class="k">AS</span><span class="w"> </span><span class="n">pedidos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                           </span><span class="k">AS</span><span class="w"> </span><span class="n">facturacion</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ticket_medio | pedidos | facturacion
+--------------+---------+-------------
+      1525.05 |     830 |  1265793.04
+</code></pre></div>
+
+<p><strong>1.525,05, no 26,22.</strong> Un factor de 58 de diferencia. Los tres errores del número original:</p>
+<ol>
+<li><strong>Divide entre líneas, no entre pedidos.</strong> Hay 2.155 líneas para 830 pedidos: cada pedido tiene 2,6 líneas de media.</li>
+<li><strong>Ignora la cantidad.</strong> Una línea de 100 unidades pesa lo mismo que una de 1.</li>
+<li><strong>Ignora el descuento.</strong> El ticket que paga el cliente es el neto, no el bruto.</li>
+</ol>
+<p><strong>Y la advertencia que va con el número bueno:</strong> 1.525 es la media, pero Northwind es venta mayorista y la dispersión es enorme. Antes de comparar con "el sector", hay que enseñar también la mediana y el rango — porque si la media está arrastrada por unos pocos pedidos gigantes, comparar medias no dice nada. La mediana se calcula con <code>percentile_cont</code> (<a class="xref" href="../distribucion-y-percentiles/">distribucion-y-percentiles</a>).</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">productos</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="n">supplier_id</span><span class="p">)</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">con_proveedor</span><span class="p">,</span>
+<span class="w">       </span><span class="k">count</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">supplier_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">proveedores</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> productos | con_proveedor | proveedores
+-----------+---------------+-------------
+        77 |            77 |          29
+</code></pre></div>
+
+<p>77 productos, todos con proveedor, repartidos entre 29 proveedores. <strong>Que <code>count(*)</code> y <code>count(supplier_id)</code> coincidan confirma que la columna no tiene nulos</strong> — es una comprobación de una línea, no una suposición.</p>
+<p><strong>2.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span><span class="p">,</span>
+<span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  primero   |   ultimo   | dias
+------------+------------+------
+ 1996-07-04 | 1998-05-06 |  671
+</code></pre></div>
+
+<p><strong>Se pueden usar dos agregaciones dentro de una tercera expresión.</strong> Lo que no se puede es anidar una agregación dentro de otra: <code>max(count(*))</code> da error salvo con <code>GROUP BY</code> de por medio.</p>
+<p><strong>3.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">bruto</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">discount</span><span class="p">)),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">neto</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">discount</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">en_descuentos</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   bruto    |    neto    | en_descuentos
+------------+------------+---------------
+ 1354458.59 | 1265793.04 |      88665.55
+</code></pre></div>
+
+<p><strong>88.665,55 en descuentos</strong>, un 6,5% de la facturación bruta. Fíjate en que las tres columnas cuadran exactamente: <code>bruto - en_descuentos = neto</code>. <strong>Eso solo pasa porque las columnas son <code>numeric</code></strong>; con <code>real</code> los céntimos no cerrarían (<a class="xref" href="../tipos-de-datos-en-postgresql/">tipos-de-datos-en-postgresql</a>).</p>
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">string_agg</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="s1">' | '</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">title</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cargos</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> Inside Sales Coordinator | Sales Manager | Sales Representative | Vice President, Sales
+</code></pre></div>
+
+<p><strong>5.</strong> Dan números distintos, y por <strong>dos</strong> motivos independientes:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">)</span><span class="w">             </span><span class="k">AS</span><span class="w"> </span><span class="n">avg_fn</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">)</span><span class="o">/</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">division</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">))</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo_sum</span><span class="p">,</span>
+<span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">))</span><span class="w">             </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo_count</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       avg_fn        | division | tipo_sum | tipo_count
+---------------------+----------+----------+------------
+ 40.5064935064935065 |       40 | bigint   | bigint
+</code></pre></div>
+
+<ol>
+<li><strong>División entera.</strong> <code>sum</code> devuelve <code>bigint</code> y <code>count</code> devuelve <code>bigint</code>: <code>3119 / 77</code> en aritmética entera es <strong>40</strong>, no 40,51. El mismo problema del tema <a class="xref" href="../tipos-de-datos-en-postgresql/">tipos-de-datos-en-postgresql</a>, escondido dentro de una agregación. Se arregla castando: <code>sum(units_in_stock)::numeric / count(*)</code>.</li>
+<li><strong>El denominador.</strong> Aunque castees, siguen sin ser equivalentes: <strong><code>avg</code> divide entre las filas no nulas y <code>count(*)</code> cuenta todas.</strong> Aquí coinciden porque <code>units_in_stock</code> no tiene nulos —<code>count(*)</code> y <code>count(units_in_stock)</code> dan 77 los dos— pero en cuanto haya uno, <code>avg</code> divide entre menos y da un número mayor.</li>
+</ol>
+<p><strong>Que dos consultas coincidan hoy no significa que sean equivalentes.</strong> Coinciden por una propiedad del dato, no de la consulta.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../case-condicionales-en-sql/"><span>Anterior</span><strong>CASE: condicionales en SQL</strong></a><a class="nav-next" href="../group-by/"><span>Siguiente</span><strong>GROUP BY</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-las-funciones">2. Las funciones</a>
+<a href="#3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</a>
+<a href="#4-errores-comunes">4. Errores comunes</a>
+<a href="#5-diferencias-con-sql-server">5. Diferencias con SQL Server</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>
