@@ -89,6 +89,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </tbody>
 </table>
 <p>Fíjate: en un caso es <em>"no aplica"</em>, en otro <em>"aún no", y en otro </em>"no existe"<em>. </em><em>SQL usa el mismo <code>NULL</code> para los tres.</em>* Interpretarlo es tu trabajo, no del motor.</p>
+<p><strong>Antes de seguir, una sola pregunta: ¿alguna columna que voy a usar puede tener nulos?</strong></p>
+<p>Todo lo que sigue en este tema tiene una sola causa: <strong>una columna que participa en la consulta admite <code>NULL</code></strong>. Da igual dónde participe — en una expresión del <code>SELECT</code>, dentro de una agregación, en una condición del <code>WHERE</code>, en el <code>ORDER BY</code>. </p>
+<p>Si ninguna lo admite, cada valor existe y cada comparación es cierta o falsa, y no hay nada que pensar. Así que antes de escribir la consulta, mira si las columnas que vas a tocar admiten nulos: en DBeaver, doble clic en la tabla → pestaña <em>Columns</em> → columna <em>Not Null</em>; en <code>psql</code>, <code>\d orders</code>. Es lo mismo que hiciste en <a class="xref" href="../leer-un-esquema-desconocido/">leer-un-esquema-desconocido</a>.</p>
+<p>Y ojo con la trampa: <strong>"admite nulos" no es lo mismo que "tiene nulos"</strong>. Una columna con nulos a la vista es manejable — los ves, los cuentas, decides qué hacer con ellos. La peligrosa es la que <strong>admite nulos y hoy no tiene ninguno</strong>: tu consulta funciona, la das por buena, y el día que alguien inserta la primera fila con ese hueco el resultado cambia sin que nadie toque la consulta. Lo que te protege es la restricción <code>NOT NULL</code> en el esquema, no el hecho de que hoy no haya ninguno.</p>
 <h2 id="2-sintaxis">2. Sintaxis</h2>
 <div class="hl"><pre><span></span><code><span class="n">columna</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
 <span class="n">columna</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
@@ -101,20 +105,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><strong><code>= NULL</code> no da error y nunca es cierto.</strong> Ese es el problema: no avisa.</p>
 <h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
-<p><strong>La demostración de una línea:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
-<span class="w">    </span><span class="k">NULL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">igual</span><span class="p">,</span>
-<span class="w">    </span><span class="k">NULL</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">distinto</span><span class="p">,</span>
-<span class="w">    </span><span class="k">NULL</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">es_nulo</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> igual | distinto | es_nulo
--------+----------+---------
-       |          | t
-</code></pre></div>
-
-<p>Las dos primeras columnas salen <strong>vacías</strong>: no son <code>t</code> ni <code>f</code>, son <code>NULL</code>. <em>"¿Es un desconocido igual a otro desconocido?"</em> — no se puede saber. La tercera, <code>IS NULL</code>, sí responde: <strong><code>IS NULL</code> es el único operador que pregunta por la ausencia sin caer en la trampa.</strong></p>
-<p><strong>El mismo error, en la práctica:</strong></p>
+<p><strong>El error más común, con datos reales:</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
 <span class="k">FROM</span>
@@ -130,7 +121,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <span class="w">    </span><span class="n">region</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 60</span>
 </code></pre></div>
 
-<p>La primera <strong>no da error</strong>. Devuelve cero y parece una respuesta.</p>
+<p>La primera <strong>no da error</strong>. Devuelve cero y parece una respuesta. Pero <code>region = NULL</code> es <em>"¿es este valor igual a un desconocido?"</em>, y eso no se puede saber: no es <code>t</code> ni <code>f</code>, es <code>NULL</code>, y el <code>WHERE</code> lo descarta en las 91 filas. <strong><code>IS NULL</code> es el único operador que pregunta por la ausencia sin caer en la trampa.</strong></p>
 <p><strong>Contar nulos:</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
@@ -146,7 +137,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>count(*)</code> cuenta <strong>filas</strong>. <code>count(columna)</code> cuenta <strong>valores no nulos</strong>. Restarlos es la forma más corta de auditar una columna, y conviene hacerlo con toda columna nueva antes de fiarse de ella.</p>
-<h3>3.1 La aritmética y el texto se contagian</h3>
+<h3>3.1 En el <code>SELECT</code>: la aritmética y el texto se contagian</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="s1">'Lima-'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">concatenado</span><span class="p">,</span>
 <span class="w">    </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma</span><span class="p">;</span>
@@ -157,158 +148,216 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              |
 </code></pre></div>
 
-<p><strong>Ambas dan <code>NULL</code>.</strong> Un solo <code>NULL</code> en una expresión la vuelve <code>NULL</code> entera. Si construyes una dirección concatenando calle, ciudad y región, y la región es <code>NULL</code>, <strong>te quedas sin dirección</strong>, no sin región.</p>
-<h3>3.2 Pero las agregaciones lo ignoran</h3>
+<p><strong>Ambas dan <code>NULL</code>.</strong> Un solo <code>NULL</code> en una expresión la vuelve <code>NULL</code> entera. Con datos reales se ve el daño: construye la dirección completa de cada cliente juntando calle, ciudad, región y país.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">address</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span>
+<span class="w">    </span><span class="n">region</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span>
+<span class="w">    </span><span class="n">address</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">direccion</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">customer_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            |            address            |    city     | region | country | direccion
+------------------------------------+-------------------------------+-------------+--------+---------+-----------
+ Alfreds Futterkiste                | Obere Str. 57                 | Berlin      |        | Germany |
+ Ana Trujillo Emparedados y helados | Avda. de la Constitución 2222 | México D.F. |        | Mexico  |
+ Antonio Moreno Taquería            | Mataderos  2312               | México D.F. |        | Mexico  |
+</code></pre></div>
+
+<p>Alfreds Futterkiste tiene calle, ciudad y país. Solo le falta la región, que en Alemania no se usa. Y su dirección sale <strong>vacía</strong>: tres datos válidos perdidos por uno que ni siquiera hacía falta. <strong>Te quedas sin dirección, no sin región.</strong> A escala, de 91 clientes con calle, solo 31 tienen dirección; los otros 60 salen en blanco, y la consulta no avisa.</p>
+<p>Dos formas de evitarlo. La primera protege <strong>cada pieza</strong> con <code>coalesce</code> (se explica en 3.5): si vale <code>NULL</code>, se sustituye por un texto que tú eliges. Y se protegen las cuatro, no solo <code>region</code>: hoy es la única con nulos, pero en <code>customers</code> las cuatro columnas los admiten, y lo que hoy es un dato mañana puede no serlo. Fíjate que el <code>coalesce</code> envuelve <code>', ' || city</code> entero, no solo <code>city</code>, y que el texto de relleno lleva su propia coma: así la puntuación sale bien tanto si la pieza existe como si no.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">address</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span>
+<span class="w">    </span><span class="n">region</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span>
+<span class="w">    </span><span class="k">coalesce</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="s1">'s/n calle'</span><span class="p">)</span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="s1">', s/n ciudad'</span><span class="p">)</span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="s1">', s/n región'</span><span class="p">)</span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="k">coalesce</span><span class="p">(</span><span class="s1">', '</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="s1">', s/n país'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">direccion</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">customer_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            |            address            |    city     | region | country |                           direccion
+------------------------------------+-------------------------------+-------------+--------+---------+----------------------------------------------------------------
+ Alfreds Futterkiste                | Obere Str. 57                 | Berlin      |        | Germany | Obere Str. 57, Berlin, s/n región, Germany
+ Ana Trujillo Emparedados y helados | Avda. de la Constitución 2222 | México D.F. |        | Mexico  | Avda. de la Constitución 2222, México D.F., s/n región, Mexico
+ Antonio Moreno Taquería            | Mataderos  2312               | México D.F. |        | Mexico  | Mataderos  2312, México D.F., s/n región, Mexico
+</code></pre></div>
+
+<p>La segunda usa <code>concat_ws</code> (<em>with separator</em>): pone el separador solo entre las piezas que existen y <strong>salta los <code>NULL</code></strong> sin que tengas que protegerlas una a una.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">address</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span>
+<span class="w">    </span><span class="n">region</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span>
+<span class="w">    </span><span class="n">concat_ws</span><span class="p">(</span><span class="s1">', '</span><span class="p">,</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">direccion</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">customer_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>            company_name            |            address            |    city     | region | country |                     direccion
+------------------------------------+-------------------------------+-------------+--------+---------+----------------------------------------------------
+ Alfreds Futterkiste                | Obere Str. 57                 | Berlin      |        | Germany | Obere Str. 57, Berlin, Germany
+ Ana Trujillo Emparedados y helados | Avda. de la Constitución 2222 | México D.F. |        | Mexico  | Avda. de la Constitución 2222, México D.F., Mexico
+ Antonio Moreno Taquería            | Mataderos  2312               | México D.F. |        | Mexico  | Mataderos  2312, México D.F., Mexico
+</code></pre></div>
+
+<p>Compara las dos columnas <code>direccion</code>: con <code>coalesce</code> <strong>dices</strong> qué va en el hueco (<code>s/n región</code>); con <code>concat_ws</code> el hueco <strong>desaparece</strong>. Esa es la diferencia, y por eso ninguna es mejor que la otra en abstracto. Si el que lee la etiqueta necesita saber que faltó algo, <code>coalesce</code>. Si solo quiere una dirección limpia, <code>concat_ws</code>. Ninguna de las dos inventa lo que falta: un cliente sin calle sigue sin calle, y ese paquete tampoco llega. Antes de concatenar, cuenta los nulos de cada pieza.</p>
+<h3>3.2 En las agregaciones: lo ignoran</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">filas</span><span class="p">,</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">no_nulos</span><span class="p">,</span>
 <span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma</span><span class="p">,</span>
-<span class="w">    </span><span class="k">avg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span>
+<span class="w">    </span><span class="k">avg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media</span><span class="p">,</span>
+<span class="w">    </span><span class="k">avg</span><span class="p">(</span><span class="k">coalesce</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">media_nulos_como_cero</span>
 <span class="k">FROM</span>
 <span class="w">    </span><span class="p">(</span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="mi">20</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="k">NULL</span><span class="p">))</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> filas | no_nulos | suma |        media
--------+----------+------+---------------------
-     3 |        2 |   30 | 15.0000000000000000
+<div class="hl"><pre><span></span><code> filas | no_nulos | suma |        media        | media_nulos_como_cero
+-------+----------+------+---------------------+-----------------------
+     3 |        2 |   30 | 15.0000000000000000 |   10.0000000000000000
 </code></pre></div>
 
 <p>La media es <strong>15, no 10</strong>. <code>avg</code> sumó 30 y dividió entre <strong>2</strong>, no entre 3: los <code>NULL</code> no entran en el denominador. Casi siempre es lo que quieres. <strong>Casi.</strong> Si esos nulos significaban "cero ventas", tu media está inflada y nadie te avisará.</p>
-<h3>3.3 La tabla de verdad</h3>
+<p>La última columna es la salida cuando el nulo <strong>sí</strong> significa cero: convertirlo antes de que llegue a <code>avg</code>. <code>coalesce(x, 0)</code> se lee <em>"<code>x</code>, y si <code>x</code> es <code>NULL</code>, 0"</em>. Se evalúa fila a fila: en las dos primeras gana <code>x</code> (10 y 20); en la tercera <code>x</code> es <code>NULL</code> y se pasa al siguiente candidato, 0. Así <code>avg</code> recibe <code>10, 20, 0</code> y divide entre 3. El <code>coalesce</code> va <strong>dentro</strong>, sobre el valor que puede faltar — <code>coalesce(avg(x), 0)</code> no serviría, porque para cuando <code>avg</code> termina el nulo ya fue ignorado y la media ya es 15.</p>
+<p>Pero fíjate en que la decisión no es técnica: <strong>tú tienes que saber qué significa ese nulo</strong>. Si es "no vendió nada", <code>avg(coalesce(x, 0))</code>. Si es "no reportó", <code>avg(x)</code> es la correcta, y el <code>coalesce</code> te metería ceros inventados en el denominador. El motor no puede distinguirlo; es la sección 1 otra vez.</p>
+<h3>3.3 En el <code>WHERE</code>: la fila se va sin avisar</h3>
+<p>El <code>WHERE</code> solo deja pasar <code>TRUE</code>. Cuando una condición da <code>UNKNOWN</code>, la fila <strong>se va, y no avisa</strong>. En un listado a veces se nota; en un recuento, nunca: un número no enseña qué filas le faltan.</p>
+<p>Tres preguntas de negocio sobre los pedidos a Francia. Tiene <strong>77</strong>, y 2 de ellos tienen <code>shipped_date</code> en <code>NULL</code>.</p>
+<p><strong>"¿Cuántos llegaron con retraso?"</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
-<span class="w">    </span><span class="k">true</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
-<span class="w">    </span><span class="k">false</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
-<span class="w">    </span><span class="k">true</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">c</span><span class="p">,</span>
-<span class="w">    </span><span class="k">false</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">d</span><span class="p">,</span>
-<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> a | b | c | d | e
----+---+---+---+---
-   | f | t |   |
-</code></pre></div>
-
-<table>
-<thead>
-<tr>
-<th>Expresión</th>
-<th>Resultado</th>
-<th>Por qué</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>TRUE AND NULL</code></td>
-<td><code>NULL</code></td>
-<td>Depende de lo que no sé</td>
-</tr>
-<tr>
-<td><code>FALSE AND NULL</code></td>
-<td><strong><code>FALSE</code></strong></td>
-<td>Ya es falso, da igual lo demás</td>
-</tr>
-<tr>
-<td><code>TRUE OR NULL</code></td>
-<td><strong><code>TRUE</code></strong></td>
-<td>Ya es cierto, da igual lo demás</td>
-</tr>
-<tr>
-<td><code>FALSE OR NULL</code></td>
-<td><code>NULL</code></td>
-<td>Depende de lo que no sé</td>
-</tr>
-<tr>
-<td><code>NOT NULL</code></td>
-<td><code>NULL</code></td>
-<td>Lo contrario de un desconocido sigue siendo desconocido</td>
-</tr>
-</tbody>
-</table>
-<p>Las dos filas en negrita son las únicas donde el <code>NULL</code> <strong>no</strong> contagia: cuando el otro operando ya decide el resultado por sí solo.</p>
-<h3>3.4 El complemento que no suma</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
-<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span>
 <span class="k">FROM</span>
 <span class="w">    </span><span class="n">orders</span>
 <span class="k">WHERE</span>
-<span class="w">    </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">;</span><span class="w">   </span><span class="c1">--  37</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 3</span>
+</code></pre></div>
 
-<span class="k">SELECT</span>
-<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<p>Sigue lo que hace el motor fila por fila. Francia tiene 77 pedidos. En 75 de ellos, <code>shipped_date</code> tiene valor: la comparación <code>shipped_date &gt; required_date</code> se evalúa con normalidad, da <code>TRUE</code> o <code>FALSE</code>, y el filtro se aplica — 3 pasan. En los otros 2, <code>shipped_date</code> es <code>NULL</code>: la comparación <strong>no da <code>TRUE</code> ni <code>FALSE</code>, da <code>UNKNOWN</code></strong>, y el <code>WHERE</code> los descarta <strong>sin haberlos evaluado realmente</strong>. No es que el motor haya decidido que no llegaron tarde; es que no pudo decidir nada y los tiró.</p>
+<p>Y fíjate en la otra columna de la comparación. <code>required_date</code> <strong>también admite <code>NULL</code></strong> — hoy no tiene ninguno, pero el esquema lo permite. Si mañana entra un pedido sin fecha requerida, <code>shipped_date &gt; required_date</code> da <code>UNKNOWN</code> por el otro lado, y ese pedido desaparece igual: un pedido del que no puedes saber si llegó tarde porque no tienes contra qué compararlo, y tu consulta lo quita de una sin que cambies una letra. Es el caso del paso cero: la columna peligrosa no es la que tiene nulos a la vista, sino la que los admite y hoy no los tiene.</p>
+<p><strong>La regla, en dos pasos.</strong> El 3 no está mal. Lo que no es confiable es el 3 <strong>solo</strong>. Cuando la pregunta toca columnas que admiten nulos, hay que hacer dos cosas, y son dos personas distintas las que las hacen:</p>
+<p><strong>Paso 1 — quien escribe la consulta: decir en la consulta qué se descarta.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span>
 <span class="k">FROM</span>
 <span class="w">    </span><span class="n">orders</span>
 <span class="k">WHERE</span>
-<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="p">(</span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 772</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">required_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 3</span>
 </code></pre></div>
 
-<p>37 + 772 = <strong>809</strong>. La tabla tiene <strong>830 pedidos</strong>. Faltan <strong>21</strong>: exactamente los que tienen <code>shipped_date</code> en <code>NULL</code>.</p>
-<p>Y esos 21 son los peores posibles: <strong>son los que no se han enviado todavía.</strong> Si te piden "los pedidos que no llegaron tarde" y escribes el <code>NOT</code>, dejas fuera precisamente los que están sin entregar. La respuesta correcta depende de la pregunta real, y hay que decidirla a mano:</p>
-<div class="hl"><pre><span></span><code><span class="c1">-- "no llegó tarde" incluyendo los aún no enviados como no-tarde</span>
-<span class="k">WHERE</span>
-<span class="w">    </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">required_date</span>
-<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
-</code></pre></div>
-
-<h3>3.5 La trampa grande: <code>NOT IN</code> con <code>NULL</code></h3>
-<p><em>Empleados que no son jefe de nadie.</em> La consulta natural:</p>
+<p>Esos dos <code>IS NOT NULL</code> <strong>no cambian el número</strong>: el motor ya descartaba esas filas. Lo que cambian es que la consulta ahora dice en voz alta <em>"solo cuento los que tienen las dos fechas"</em>, en vez de hacerlo en silencio. Es la diferencia entre una exclusión que decidiste y una que te pasó. Quien lea esta consulta dentro de un año —tú, probablemente— sabrá qué está midiendo.</p>
+<p><strong>Paso 2 — quien responde la pregunta: decir cuántas filas no se pudieron evaluar, y por qué.</strong></p>
+<p>Se cuentan con <strong>la misma condición que las excluyó</strong>, al revés: las que tienen nulo en cualquiera de las columnas que participan en la comparación.</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
-<span class="w">    </span><span class="n">employee_id</span><span class="p">,</span>
-<span class="w">    </span><span class="n">first_name</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">no_evaluables</span>
 <span class="k">FROM</span>
-<span class="w">    </span><span class="n">employees</span>
+<span class="w">    </span><span class="n">orders</span>
 <span class="k">WHERE</span>
-<span class="w">    </span><span class="n">employee_id</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span>
-<span class="w">        </span><span class="k">SELECT</span>
-<span class="w">            </span><span class="n">reports_to</span>
-<span class="w">        </span><span class="k">FROM</span>
-<span class="w">            </span><span class="n">employees</span>
-<span class="w">    </span><span class="p">);</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">required_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 2</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> employee_id | first_name
--------------+------------
-(0 filas)
-</code></pre></div>
-
-<p><strong>Cero filas.</strong> Y es falso: hay siete empleados que no dirigen a nadie.</p>
-<p>El motivo: <code>reports_to</code> contiene un <code>NULL</code> (Andrew, el director, no reporta a nadie). Así que <code>NOT IN</code> se convierte en:</p>
-<div class="hl"><pre><span></span><code>employee_id &lt;&gt; 2 AND employee_id &lt;&gt; 5 AND employee_id &lt;&gt; NULL
-</code></pre></div>
-
-<p>Y esa última comparación es <code>UNKNOWN</code> <strong>para todas las filas</strong>. <code>TRUE AND UNKNOWN</code> = <code>UNKNOWN</code> → no pasa el <code>WHERE</code> → <strong>ninguna fila sobrevive, pase lo que pase</strong>.</p>
-<p>Con el <code>NULL</code> fuera de la lista:</p>
+<p>Y la respuesta no es  solo <em>"3"</em> del paso 1. Es: <strong>"de los 77 pedidos a Francia, 3 llegaron con retraso. Hay 2 que no se pueden evaluar porque tienen nulos en alguna de las columnas de la condición."</strong> Ese enunciado no se puede malinterpretar: dice lo que se midió, sobre cuántos, y cuántos quedaron fuera y por qué.</p>
+<p>El paso 1 protege la consulta; el paso 2 protege la respuesta. Ninguno sustituye al otro.</p>
+<p><strong>"¿Y cuántos llegaron sin retraso?"</strong> — lo que pasa cuando no se hace ninguno de los dos.</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
-<span class="w">    </span><span class="n">employee_id</span><span class="p">,</span>
-<span class="w">    </span><span class="n">first_name</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_retraso</span>
 <span class="k">FROM</span>
-<span class="w">    </span><span class="n">employees</span>
+<span class="w">    </span><span class="n">orders</span>
 <span class="k">WHERE</span>
-<span class="w">    </span><span class="n">employee_id</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span>
-<span class="w">        </span><span class="k">SELECT</span>
-<span class="w">            </span><span class="n">reports_to</span>
-<span class="w">        </span><span class="k">FROM</span>
-<span class="w">            </span><span class="n">employees</span>
-<span class="w">        </span><span class="k">WHERE</span>
-<span class="w">            </span><span class="n">reports_to</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
-<span class="w">    </span><span class="p">);</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="p">(</span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 72</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> employee_id | first_name
--------------+------------
-           1 | Nancy
-           3 | Janet
-           4 | Margaret
-           6 | Michael
-           7 | Robert
-           8 | Laura
-           9 | Anne
+<p><strong>72 parece normal, y está mal.</strong> 3 con retraso + 72 sin retraso = 75. Francia tiene 77. Los 2 sin fecha tampoco están aquí: <code>NOT UNKNOWN</code> sigue siendo <code>UNKNOWN</code>. No están en "con retraso" ni en "sin retraso" — están en el limbo. Si esas dos cifras van a un gráfico, no suman el total; si calculas el porcentaje de retraso como 3/75 en vez de 3/77, sale inflado.</p>
+<p>Con los dos pasos se arregla solo. Paso 1: la consulta dice que excluye los nulos (<code>AND shipped_date IS NOT NULL AND required_date IS NOT NULL</code>), y el 72 pasa a significar "sin retraso <strong>entre los que se pueden evaluar</strong>". Paso 2: la respuesta es <em>"de los 77 pedidos a Francia, 72 llegaron sin retraso y 3 con retraso. Hay 2 que no se pueden evaluar porque tienen nulos en alguna de las columnas de la condición."</em> Y ahora 72 + 3 + 2 = 77: <strong>las partes suman el total</strong>. Esa suma es la comprobación más barata que existe, y cuando no cuadra, la causa son los nulos.</p>
+<p><strong>"¿Cuántos pedidos son de Francia o tienen retraso?"</strong> — el caso en que el nulo no descarta, sino que cuela.</p>
+<p>Ojo: esta pregunta ya no es dentro de Francia. Un pedido de Brasil con retraso también cuenta, así que se evalúa sobre <strong>los 830 pedidos de la tabla</strong>. Y en la tabla hay <strong>21</strong> sin <code>shipped_date</code>: los 2 de Francia y 19 de otros países.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">francia_o_retraso</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span>
+<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 111</span>
 </code></pre></div>
 
-<p>Siete. La forma <strong>inmune</strong> a este problema es <code>NOT EXISTS</code>, y está en <a class="xref" href="../anti-join-y-semi-join/">anti-join-y-semi-join</a>.</p>
+<p>Los 2 de Francia sin fecha <strong>entran</strong>, porque <code>ship_country = 'France'</code> es <code>TRUE</code> y a un <code>OR</code> le basta un lado cierto. Los 19 sin fecha de otros países <strong>se van</strong>, porque <code>FALSE OR UNKNOWN</code> es <code>UNKNOWN</code>. Los 21 tienen el mismo problema —no se sabe si llegaron con retraso— y el <code>OR</code> metió a unos y sacó a otros. El 111 mezcla lo que se evaluó con lo que se coló.</p>
+<p>Los dos pasos, otra vez. Paso 1:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">francia_o_retraso</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">shipped_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">required_date</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">ship_country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'France'</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 109</span>
+</code></pre></div>
+
+<p>Ahora la exclusión está escrita, es la misma para todos los pedidos, y el número cambió: <strong>109, no 111</strong>. Paso 2: las no evaluables, con la misma condición al revés (<code>shipped_date IS NULL OR required_date IS NULL</code>), son <strong>21</strong>. Y la respuesta: <em>"109 pedidos son de Francia o llegaron con retraso. Hay 21 que no se pueden evaluar porque tienen nulos en alguna de las columnas de la condición."</em></p>
+<p>Esta es la razón de que la regla sea de dos pasos y no de uno: en la primera pregunta el nulo descartaba y el número salía bien por casualidad; aquí el nulo cuela y el número sale mal. <strong>No puedes saber de antemano hacia qué lado va a fallar.</strong> Los <code>IS NOT NULL</code> explícitos hacen que dé igual.</p>
+<h3>3.4 En el <code>WHERE</code>: la trampa grande, <code>NOT IN</code></h3>
+<p>En <a class="xref" href="../where-y-operadores/">where-y-operadores</a> viste <code>IN</code> como la forma legible del <code>OR</code>: <code>country IN ('Austria', 'Ireland', 'Norway')</code>. <code>NOT IN</code> es lo contrario, y se escribe igual.</p>
+<p><strong>Pregunta:</strong> ¿cuántos clientes tenemos fuera de Francia, Alemania y Brasil?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">fuera_de_la_lista</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'France'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 60</span>
+</code></pre></div>
+
+<p>Ahora la misma lista con un <code>NULL</code> dentro:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">fuera_de_la_lista</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'France'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 0</span>
+</code></pre></div>
+
+<p><strong>Cero.</strong> Un solo <code>NULL</code> en la lista y no sobrevive ninguna fila, sea del país que sea.</p>
+<p>El motivo es cómo se traduce <code>NOT IN</code>. Si <code>x IN (a, b, c)</code> es <code>x = a OR x = b OR x = c</code>, entonces <code>x NOT IN (a, b, c)</code> es lo contrario, con <code>AND</code>:</p>
+<div class="hl"><pre><span></span><code>country &lt;&gt; 'France' AND country &lt;&gt; 'Germany' AND country &lt;&gt; 'Brazil' AND country &lt;&gt; NULL
+</code></pre></div>
+
+<p>Y <code>country &lt;&gt; NULL</code> es <code>UNKNOWN</code> <strong>para todas las filas</strong>, sea cual sea el país. <code>TRUE AND UNKNOWN</code> = <code>UNKNOWN</code>, no pasa el <code>WHERE</code>, y como le pasa a todas, no queda ninguna.</p>
+<p>Compáralo con <code>IN</code>, que con el mismo <code>NULL</code> funciona:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">en_la_lista</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'France'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Germany'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Brazil'</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 31</span>
+</code></pre></div>
+
+<p><code>IN</code> es una cadena de <code>OR</code>, y a un <code>OR</code> le basta con que un lado sea cierto: <code>country = 'France'</code> ya decide, el <code>NULL</code> sobra. <code>NOT IN</code> es una cadena de <code>AND</code>, y a un <code>AND</code> le basta un desconocido para no llegar nunca a <code>TRUE</code>. Es la tabla de verdad de 3.3 otra vez.</p>
+<p>¿Y quién pone un <code>NULL</code> en una lista a mano? Nadie. El <code>NULL</code> llega cuando la lista <strong>no la escribes tú</strong>: viene de otra consulta (se ve en el bloque 6, <a class="xref" href="../subconsultas-escalares-y-multivalor/">subconsultas-escalares-y-multivalor</a>) o de una aplicación que pasa los valores como parámetros. En ese momento no lo ves, y la consulta que ayer devolvía 60 hoy devuelve 0.</p>
 <blockquote>
-<p><strong>Regla: <code>NOT IN</code> sobre una subconsulta es una bomba de relojería.</strong> Si la columna admite <code>NULL</code>, algún día devolverá cero filas. Usa <code>NOT EXISTS</code>.</p>
+<p><strong>Regla: <code>NOT IN</code> es una bomba de relojería si la lista puede traer un <code>NULL</code>.</strong> Si la lista sale de otra consulta, usa <code>NOT EXISTS</code> (bloque 5, <a class="xref" href="../anti-join-y-semi-join/">anti-join-y-semi-join</a>).</p>
 </blockquote>
-<h3>3.6 Sustituir el nulo: <code>coalesce</code> y <code>nullif</code></h3>
+<h3>3.5 La herramienta: <code>coalesce</code> y <code>nullif</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
 <span class="w">    </span><span class="n">region</span><span class="p">,</span>
@@ -324,7 +373,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  Ana Trujillo Emparedados y helados |        | SIN REGION
 </code></pre></div>
 
-<p><code>coalesce</code> devuelve <strong>el primer argumento no nulo</strong>, y acepta los que quieras: <code>coalesce(movil, fijo, 'sin teléfono')</code>.</p>
+<p><code>coalesce</code> recibe <strong>una lista de candidatos</strong> —columnas, valores, los que quieras— y devuelve <strong>el primero que no sea nulo</strong>. Los recorre en orden: si el primero es <code>NULL</code>, mira el segundo; si también, el tercero; y así hasta encontrar uno con valor.</p>
+<p><strong><code>coalesce</code> frente a <code>ifnull</code> / <code>ISNULL</code>.</strong> Si vienes de MySQL conoces <code>ifnull(a, b)</code>; si vienes de SQL Server, <code>ISNULL(a, b)</code>. Evalúan cada candidato igual que <code>coalesce</code>, con una sola diferencia: <strong>su lista es de exactamente dos</strong>. <code>coalesce</code> no tiene tope: puedes darle tres columnas, cinco, las que necesites. Y en PostgreSQL <code>ifnull</code> e <code>ISNULL</code> no existen — solo hay <code>coalesce</code>.</p>
+<p>Esa diferencia se nota en cuanto la lista pasa de dos. <em>Para confirmar un pedido, prefiero el fax; si no tiene, el teléfono; si tampoco, que lo diga.</em></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">fax</span><span class="p">,</span>
+<span class="w">    </span><span class="n">phone</span><span class="p">,</span>
+<span class="w">    </span><span class="k">coalesce</span><span class="p">(</span><span class="n">fax</span><span class="p">,</span><span class="w"> </span><span class="n">phone</span><span class="p">,</span><span class="w"> </span><span class="s1">'sin contacto'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">contacto</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">customer_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      company_name       |     fax     |     phone      |    contacto
+-------------------------+-------------+----------------+----------------
+ Alfreds Futterkiste     | 030-0076545 | 030-0074321    | 030-0076545
+ Antonio Moreno Taquería |             | (5) 555-3932   | (5) 555-3932
+ B's Beverages           |             | (171) 555-1212 | (171) 555-1212
+</code></pre></div>
+
+<p>Una lista de tres —dos columnas y un texto— en una sola llamada. Con <code>ifnull</code> solo caben dos, así que habría que anidar: <code>ifnull(ifnull(fax, phone), 'sin contacto')</code>, y con cuatro candidatos, tres niveles. <code>coalesce</code> es la versión estándar, funciona en todos los motores y su lista no tiene tope: no hay motivo para usar la otra.</p>
 <p><code>nullif</code> es el inverso — convierte un valor <strong>en</strong> <code>NULL</code>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">nullif</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
@@ -336,20 +407,70 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    | 10
 </code></pre></div>
 
-<p>Su uso real es evitar la división por cero: <code>total / nullif(cantidad, 0)</code> devuelve <code>NULL</code> en vez de reventar.</p>
-<h3>3.7 <code>IS DISTINCT FROM</code> — comparar tratando <code>NULL</code> como valor</h3>
+<p>Su uso real es evitar la división por cero. <em>¿Qué porcentaje del stock de cada producto está ya pedido?</em></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
-<span class="w">    </span><span class="k">NULL</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">iguales</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">'A'</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">distintos</span><span class="p">;</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_on_order</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_pedido</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> iguales | distintos
----------+-----------
- t       | t
+<div class="hl"><pre><span></span><code>ERROR:  division by zero
 </code></pre></div>
 
-<p>Devuelve siempre <code>TRUE</code> o <code>FALSE</code>, <strong>nunca <code>UNKNOWN</code></strong>. Es lo que quieres cuando comparas dos versiones de un dato y "los dos están vacíos" debe contar como <em>iguales</em>.</p>
-<h3>3.8 Y al ordenar</h3>
+<p>Revienta entera: hay productos con <code>units_in_stock</code> en 0, y basta uno para que la consulta no devuelva nada. Con <code>nullif</code> el cero pasa a <code>NULL</code> <strong>antes</strong> de dividir, y dividir entre <code>NULL</code> no da error, da <code>NULL</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_on_order</span><span class="p">,</span>
+<span class="w">    </span><span class="n">units_in_stock</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">nullif</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct_pedido</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_id</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>      product_name      | units_on_order | units_in_stock | pct_pedido
+------------------------+----------------+----------------+------------
+ Chai                   |              0 |             39 |          0
+ Chef Anton's Gumbo Mix |              0 |              0 |
+ Outback Lager          |             10 |             15 |         66
+</code></pre></div>
+
+<p>Chef Anton's Gumbo Mix no tiene stock: su porcentaje sale vacío, que es lo honesto — no hay porcentaje de nada. Los demás se calculan con normalidad. Es el único caso en que <strong>fabricas</strong> un <code>NULL</code> a propósito: para que una fila imposible no tumbe las demás.</p>
+<h3>3.6 En el <code>WHERE</code>: <code>IS DISTINCT FROM</code>, un <code>&lt;&gt;</code> que no se rompe con <code>NULL</code></h3>
+<p><strong>Pregunta:</strong> ¿cuántos clientes no son de la región SP?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">no_son_de_sp</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="s1">'SP'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 25</span>
+</code></pre></div>
+
+<p>Hay 91 clientes y 6 son de SP, así que la respuesta debería ser 85. Da <strong>25</strong>. Los 60 con <code>region</code> en <code>NULL</code> dan <code>NULL &lt;&gt; 'SP'</code> → <code>UNKNOWN</code>, y se van. Es el mismo problema de 3.3: para el motor, un cliente sin región no es de SP, pero tampoco es <em>no</em> de SP. No se sabe.</p>
+<p>Con lo que ya tienes se arregla escribiéndolo a mano:</p>
+<div class="hl"><pre><span></span><code><span class="k">WHERE</span>
+<span class="w">    </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="s1">'SP'</span>
+<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 85</span>
+</code></pre></div>
+
+<p><code>IS DISTINCT FROM</code> es eso mismo en un solo operador:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">no_son_de_sp</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">region</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'SP'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 85</span>
+</code></pre></div>
+
+<p>Se lee <em>"es distinto de SP, contando el vacío como distinto"</em>. Trata <code>NULL</code> como un valor más: igual a sí mismo, distinto de todo lo demás. Por eso <strong>devuelve siempre <code>TRUE</code> o <code>FALSE</code>, nunca <code>UNKNOWN</code></strong>, y ninguna fila se va sin evaluar. <code>IS NOT DISTINCT FROM</code> es el <code>=</code> equivalente: <code>NULL IS NOT DISTINCT FROM NULL</code> es cierto.</p>
+<p><strong>Cuándo usar cada uno.</strong> <code>&lt;&gt;</code> es el operador normal. <code>IS DISTINCT FROM</code> es para cuando se cumplen las dos cosas a la vez: la columna admite nulos <strong>y</strong> quieres que el nulo cuente como "distinto". Si la columna es <code>NOT NULL</code>, dan lo mismo y <code>&lt;&gt;</code> es lo que todo el mundo lee. Y si lo que quieres es excluir a los desconocidos —<em>"clientes con región informada que no sea SP"</em>—, entonces el 25 es la respuesta correcta y <code>&lt;&gt;</code> es el operador correcto; solo hay que decirlo (paso 2 de 3.3).</p>
+<p>Dos avisos. No existe en SQL Server antes de 2022 ni en MySQL (ver la tabla de la sección 5). Y en PostgreSQL <strong>no usa el índice</strong> de la columna: recorre la tabla entera, mientras que <code>&lt;&gt;</code> y <code>=</code> sí lo aprovechan. En 91 clientes da igual; en millones de filas, no.</p>
+<h3>3.7 En el <code>ORDER BY</code>: dónde caen los nulos</h3>
 <p>En PostgreSQL, <code>ORDER BY</code> pone los <code>NULL</code> <strong>al final en orden ascendente</strong> y al principio en descendente. Se controla explícitamente:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
@@ -365,7 +486,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <ol>
 <li><strong><code>= NULL</code> o <code>&lt;&gt; NULL</code>.</strong> Nunca es cierto. No da error. Usa <code>IS NULL</code> / <code>IS NOT NULL</code>.</li>
 <li><strong>Creer que <code>WHERE x &lt;&gt; 'A'</code> devuelve "todo lo que no es A".</strong> Devuelve todo lo que <strong>se sabe</strong> que no es A. Los nulos se quedan fuera.</li>
-<li><strong><code>NOT IN</code> con una subconsulta que puede traer <code>NULL</code>.</strong> Cero filas silenciosas.</li>
+<li><strong><code>NOT IN</code> con una lista que puede traer <code>NULL</code>.</strong> Cero filas silenciosas, y la lista suele venir de otra consulta.</li>
 <li><strong>Concatenar sin <code>coalesce</code>.</strong> Un <code>NULL</code> en medio anula la cadena entera.</li>
 <li><strong>Confundir <code>NULL</code> con cadena vacía.</strong> <code>''</code> es un texto de longitud cero: <strong>existe</strong>. <code>''  IS NULL</code> es falso. En Oracle no —es la excepción del mundo— pero en PostgreSQL y SQL Server son cosas distintas.</li>
 <li><strong>Interpretar todos los <code>NULL</code> igual.</strong> "No aplica", "aún no" y "no lo sé" se escriben igual y significan cosas opuestas. Pregunta antes de rellenarlos.</li>
@@ -384,6 +505,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <td>Primer no nulo</td>
 <td><code>coalesce(a,b)</code></td>
 <td><code>COALESCE(a,b)</code> o <code>ISNULL(a,b)</code></td>
+</tr>
+<tr>
+<td>Concatenar saltando nulos</td>
+<td><code>concat_ws(sep, a, b)</code></td>
+<td><code>CONCAT_WS(sep, a, b)</code> desde SQL Server 2017</td>
 </tr>
 <tr>
 <td>Comparar con nulos</td>
@@ -423,7 +549,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Da el número. Y da <strong>también</strong> la frase que tienes que decir al entregarlo.</p></div>
     <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span><span class="p">,</span>
-<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">enviados</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="n">shipped_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_fecha</span><span class="p">,</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
 <span class="w">    </span><span class="n">round</span><span class="p">(</span>
 <span class="w">        </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">shipped_date</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">required_date</span><span class="p">)</span>
