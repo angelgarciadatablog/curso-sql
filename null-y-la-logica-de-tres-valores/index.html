@@ -58,7 +58,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <h1>NULL y la lógica de tres valores</h1>
     <div class="requiere"><span class="lbl">Requiere</span><a href="../where-y-operadores/">where-y-operadores</a></div>
     
-    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+    <div class="post-body"><div class="tema-video"><div class="tema-video-tit">Nulos en SQL</div><iframe src="https://www.youtube.com/embed/sGHxCf6zluo" title="Nulos en SQL" loading="lazy" allowfullscreen></iframe></div>
+<div class="tema-video"><div class="tema-video-tit">Coalesce y Nullif</div><iframe src="https://www.youtube.com/embed/z3qYccqav_Q" title="Coalesce y Nullif" loading="lazy" allowfullscreen></iframe></div>
+<h2 id="1-qu-es">1. Qué es</h2>
 <p><code>NULL</code> <strong>no es cero. No es cadena vacía. No es "falso".</strong> <code>NULL</code> significa <strong>desconocido</strong>.</p>
 <p>Y de ahí sale todo lo demás: si un valor es desconocido, <strong>cualquier comparación con él es también desconocida</strong>. No verdadera, no falsa: desconocida. SQL tiene tres valores lógicos, no dos:</p>
 <div class="hl"><pre><span></span><code>TRUE · FALSE · UNKNOWN
@@ -241,7 +243,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <h3>3.3 En el <code>WHERE</code>: la fila se va sin avisar</h3>
 <p>El <code>WHERE</code> solo deja pasar <code>TRUE</code>. Cuando una condición da <code>UNKNOWN</code>, la fila <strong>se va, y no avisa</strong>. En un listado a veces se nota; en un recuento, nunca: un número no enseña qué filas le faltan.</p>
 <p>Tres preguntas de negocio sobre los pedidos a Francia. Tiene <strong>77</strong>, y 2 de ellos tienen <code>shipped_date</code> en <code>NULL</code>.</p>
-<p><strong>"¿Cuántos llegaron con retraso?"</strong></p>
+<p><strong>"¿Cuántos pedidos son de Francia y llegaron con retraso?"</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_retraso</span>
 <span class="k">FROM</span>
