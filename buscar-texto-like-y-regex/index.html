@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/buscar-texto-like-y-regex/" />
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="../assets/curso.css?v=16" />
+  <link rel="stylesheet" href="../assets/curso.css?v=18" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
   new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
@@ -202,8 +202,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p><strong>Diferencia clave con <code>LIKE</code>: la regex busca <em>dentro</em> del texto por defecto.</strong> <code>LIKE 'Ch%'</code> significa "empieza por Ch"; <code>~ 'Ch'</code> significa "contiene Ch". Para anclar hay que poner <code>^</code>.</p>
 <h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
-<p><strong>Empieza por:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'A%'</span><span class="p">;</span>
+<p><strong>Pregunta:</strong> ¿qué clientes tienen un nombre de empresa que empieza por A?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'A%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>            company_name
@@ -212,47 +219,99 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  Ana Trujillo Emparedados y helados
  Antonio Moreno Taquería
  Around the Horn
+(4 filas)
 </code></pre></div>
 
-<p><strong>Contiene:</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">contact_title</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">contact_title</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Manager%'</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">contact_title</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<p><strong>4 de 91 clientes.</strong> <code>LIKE 'A%'</code> se lee "empieza por A y sigue lo que sea".</p>
+<p><strong>Pregunta:</strong> ¿qué clientes de Alemania tienen a algún tipo de gerente (<em>Manager</em>) como contacto?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span><span class="p">,</span>
+<span class="w">    </span><span class="n">contact_title</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">contact_title</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Manager%'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">contact_title</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>   contact_title    | count
---------------------+-------
- Marketing Manager  |    12
- Sales Manager      |    11
- Accounting Manager |    10
+<div class="hl"><pre><span></span><code>    company_name    | country |   contact_title
+--------------------+---------+--------------------
+ QUICK-Stop         | Germany | Accounting Manager
+ Frankenversand     | Germany | Marketing Manager
+ Toms Spezialitäten | Germany | Marketing Manager
+(3 filas)
 </code></pre></div>
 
-<p><strong>El comodín de un solo carácter.</strong> Productos cuya <strong>segunda</strong> letra es <code>h</code>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'_h%'</span><span class="p">;</span>
+<p><strong>Mira la columna <code>contact_title</code>:</strong> ninguno dice literalmente "Manager" a secas — dice "Accounting Manager" o "Marketing Manager". <code>%Manager%</code> los encuentra a todos sin que tengas que enumerar cada variante: el <code>%</code> a ambos lados significa "y lo que sea antes, y lo que sea después".</p>
+<p><strong>Pregunta:</strong> ¿qué productos tienen la letra <code>h</code> justo en la segunda posición del nombre?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'_h%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>         product_name
 ------------------------------
  Chai
  Chang
+ Chartreuse verte
  Chef Anton's Cajun Seasoning
  Chef Anton's Gumbo Mix
- Thüringer Rostbratwurst
- Chartreuse verte
  Chocolade
  Rhönbräu Klosterbier
+ Thüringer Rostbratwurst
+(8 filas)
 </code></pre></div>
 
 <p>8 productos. <code>_</code> ocupa exactamente un hueco: ni cero, ni dos.</p>
 <h3>3.1 Mayúsculas: <code>LIKE</code> vs <code>ILIKE</code></h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w">  </span><span class="s1">'a%'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 0</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'a%'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 4</span>
+<p><strong>Pregunta:</strong> ¿cuántos clientes tienen un nombre que empieza por "a", escrita tal cual la escribiría alguien sin pensarlo, en minúscula?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'a%'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+     0
+(1 fila)
+</code></pre></div>
+
+<p><strong>Cero.</strong> Los cuatro clientes de la sección anterior existen, pero <code>LIKE</code> distingue mayúsculas y ninguno empieza por <code>a</code> minúscula. Con <code>ILIKE</code>, que la ignora, aparecen los mismos 4:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'a%'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> count
+-------
+     4
 </code></pre></div>
 
 <p>Y el caso que enseña de verdad por qué importa:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%a%'</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<p><strong>Pregunta:</strong> ¿qué clientes NO tienen la letra "a" en su nombre?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%a%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">company_name</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>       company_name
@@ -266,8 +325,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><strong><code>Alfreds Futterkiste</code> aparece en la lista de "no contiene la letra a".</strong> Y es correcto: contiene <code>A</code>, no <code>a</code>. Si lo que querías era "sin la letra a", el patrón correcto era <code>NOT ILIKE '%a%'</code>.</p>
 <h3>3.2 Los acentos son otro carácter</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'Antonio Moreno Taquería'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Taqueria%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_tilde</span><span class="p">,</span>
-<span class="w">       </span><span class="s1">'Antonio Moreno Taquería'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Taquería%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_tilde</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="s1">'Antonio Moreno Taquería'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Taqueria%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_tilde</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'Antonio Moreno Taquería'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Taquería%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_tilde</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> sin_tilde | con_tilde
@@ -276,20 +336,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>Ni <code>LIKE</code> ni <code>ILIKE</code> ignoran acentos.</strong> Northwind está lleno de <code>Taquería</code>, <code>Côte de Blaye</code>, <code>Rhönbräu</code>, <code>Comércio</code>. Un buscador que exija la tilde exacta es un buscador roto.</p>
-<p>La solución de verdad es la extensión <code>unaccent</code>, disponible pero no instalada:</p>
-<div class="hl"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">unaccent</span><span class="p">;</span><span class="w">                          </span><span class="c1">-- una vez, por base</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">unaccent</span><span class="p">(</span><span class="s1">'Taquería'</span><span class="p">);</span><span class="w">                        </span><span class="c1">-- 'Taqueria'</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unaccent</span><span class="p">(</span><span class="n">company_name</span><span class="p">)</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="n">unaccent</span><span class="p">(</span><span class="s1">'%taqueria%'</span><span class="p">);</span>
-</code></pre></div>
-
-<blockquote>
-<p><strong>No la instales todavía en <code>northwind</code>.</strong> Cambiar la base fuera de <code>seed.sql</code> rompe la promesa de que se puede resetear. Cuando toque, va al <code>seed.sql</code> del repo (<code>postgresql-northwind</code>).</p>
-</blockquote>
+<p>Resolverlo bien no es trivial: tilde aguda, diéresis y circunflejo son marcas distintas, y un patrón que cubra una se sigue rompiendo con otra. La extensión <code>unaccent</code> —específica de PostgreSQL, no existe en SQL Server ni MySQL— lo resuelve de raíz quitando cualquier marca diacrítica sin tener que enumerarlas.</p>
 <h3>3.3 Buscar un comodín literal</h3>
 <p>Si el texto contiene <code>_</code> o <code>%</code> de verdad, hay que escaparlo con <code>\</code>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'lote_2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%\_%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">busca_guion_bajo</span><span class="p">,</span>
-<span class="w">       </span><span class="s1">'lote 2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%\_%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_espacio</span><span class="p">,</span>
-<span class="w">       </span><span class="s1">'lote 2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%_%'</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">comodin</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="s1">'lote_2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%\_%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">busca_guion_bajo</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'lote 2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%\_%'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_espacio</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'lote 2024'</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%_%'</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">comodin</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> busca_guion_bajo | con_espacio | comodin
@@ -299,24 +352,57 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>La tercera columna es la trampa: <code>'%_%'</code> <strong>no busca un guion bajo</strong>, busca "cualquier texto de al menos un carácter", así que es cierto para casi todo.</p>
 <h3>3.4 Cuando <code>LIKE</code> se queda corto: regex</h3>
-<p><em>Productos que empiezan por C o por B.</em> Con <code>LIKE</code> harían falta dos condiciones. Con regex, una:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^[CB]'</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+<p><strong>Pregunta:</strong> ¿qué productos del catálogo empiezan por C o por B?</p>
+<p>Con <code>LIKE</code> harían falta dos condiciones separadas por <code>OR</code>. Con regex, una sola clase de caracteres:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^[CB]'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>         product_name
+------------------------------
+ Boston Crab Meat
+ Camembert Pierrot
+ Carnarvon Tigers
+ Chai
+ Chang
+ Chartreuse verte
+ Chef Anton's Cajun Seasoning
+ Chef Anton's Gumbo Mix
+ Chocolade
+ Côte de Blaye
+(10 filas)
+</code></pre></div>
+
+<p>10 productos de 77 empiezan por B o por C.</p>
+<p><strong>Pregunta:</strong> ¿y si además no importan las mayúsculas — qué productos empiezan por "ch" en cualquier combinación?</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'^ch'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>         product_name
 ------------------------------
  Chai
  Chang
+ Chartreuse verte
  Chef Anton's Cajun Seasoning
  Chef Anton's Gumbo Mix
- Carnarvon Tigers
- Côte de Blaye
+ Chocolade
+(6 filas)
 </code></pre></div>
 
-<p>Y sin importar mayúsculas, con <code>~*</code>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'^ch'</span><span class="p">;</span>
-</code></pre></div>
-
+<p>Los mismos 6 de la lista anterior que empiezan por <code>Ch</code>, ni uno más — <code>~*</code> es a <code>~</code> lo que <code>ILIKE</code> es a <code>LIKE</code>.</p>
 <h2 id="4-errores-comunes">4. Errores comunes</h2>
 <ol>
 <li><strong>Usar <code>=</code> con comodines.</strong> <code>WHERE nombre = 'A%'</code> busca el texto literal <code>A%</code>. No da error; devuelve cero filas.</li>
@@ -371,15 +457,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <p><strong>Los corchetes de <code>LIKE</code> son una extensión de SQL Server, no del estándar SQL.</strong> En PostgreSQL, <code>LIKE '[CB]%'</code> no da error: busca literalmente un texto que empiece por el carácter <code>[</code>. Devuelve cero filas y no avisa. Es exactamente el tipo de consulta que se copia de un curso de SQL Server, parece funcionar y no funciona.</p>
 <p><code>SIMILAR TO</code> sí acepta corchetes y es la traducción literal:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">SIMILAR</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">'[CB]%'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="k">SIMILAR</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">'[CB]%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
-<p>Da el mismo resultado que <code>~ '^[CB]'</code>. Aun así, <strong>usa la regex</strong>: <code>SIMILAR TO</code> es un híbrido raro (comodines de <code>LIKE</code> + sintaxis de regex) que casi nadie lee bien, y la propia documentación de PostgreSQL desaconseja su uso.</p>
+<p>Da los mismos 10 productos que <code>~ '^[CB]'</code>. Aun así, <strong>usa la regex</strong>: <code>SIMILAR TO</code> es un híbrido raro (comodines de <code>LIKE</code> + sintaxis de regex) que casi nadie lee bien, y la propia documentación de PostgreSQL desaconseja su uso.</p>
 <h2 id="6-ejercicios">6. Ejercicios</h2>
 <ol>
 <li>Clientes cuyo nombre de empresa <strong>termina</strong> en <code>s</code>.</li>
 <li>Productos que contienen la palabra <code>Chocolade</code> o <code>Chocolate</code>, sin importar mayúsculas. ¿Cuántos hay de cada uno?</li>
-<li>Empleados cuyo cargo (<code>title</code>) contiene <code>Sales</code>, y cuántos son de cada cargo.</li>
+<li>Empleados cuyo cargo (<code>title</code>) contiene <code>Sales</code>. Lista su nombre completo y su cargo.</li>
 <li>Traduce a PostgreSQL esta consulta de SQL Server, que busca clientes cuya ciudad empieza por una letra entre la A y la C:
    <code>sql
    SELECT * FROM customers WHERE city LIKE '[A-C]%';</code></li>
@@ -390,10 +483,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><em>Marketing quiere lanzar una campaña a los clientes "de tipo restaurante o comida": cualquiera cuyo nombre de empresa sugiera que está en hostelería. Te piden la lista.</em></p>
 </blockquote>
 <p>No hay una columna que diga "sector". Hay que fabricarla desde el texto — y decir en qué no te fías.</p></div>
-    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">country</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">customers</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'restaurant|taquer|pizz|caf[eé]|delicat|market|grocer|food|comida|bistro'</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">country</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'restaurant|taquer|pizz|caf[eé]|delicat|market|grocer|food|comida|bistro'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>         company_name         |  country
@@ -426,57 +524,113 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </ol>
 <p>Esa última frase —<em>"esto no debería resolverse con una búsqueda de texto"</em>— es la respuesta profesional. La consulta la entregas igual.</p></div></details>
     <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%s'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%s'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>23 clientes.</strong> Y aquí aparece un matiz que conviene coger la costumbre de comprobar: <code>LIKE '%s'</code> distingue mayúsculas, así que se dejaría fuera cualquier nombre acabado en <code>S</code>. Resulta que no hay ninguno — <code>ILIKE '%s'</code> devuelve los mismos 23 — pero <strong>eso hay que verificarlo, no suponerlo</strong>.</p>
 <p><strong>2.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'%chocolad%'</span>
-<span class="w">                                     </span><span class="k">OR</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'%chocolat%'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'%chocolad%'</span>
+<span class="w">    </span><span class="k">OR</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'%chocolat%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>        product_name
 ----------------------------
- Teatime Chocolate Biscuits
  Chocolade
+ Teatime Chocolate Biscuits
 </code></pre></div>
 
 <p>Dos productos. <strong>Y falta uno.</strong> La versión con regex lo encuentra:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'cho[ck]ola'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">product_name</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">products</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">product_name</span><span class="w"> </span><span class="o">~*</span><span class="w"> </span><span class="s1">'cho[ck]ola'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">product_name</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>        product_name
 ----------------------------
- Teatime Chocolate Biscuits
- Schoggi Schokolade
  Chocolade
+ Schoggi Schokolade
+ Teatime Chocolate Biscuits
 </code></pre></div>
 
 <p>El que se escapaba es <code>Schoggi Schokolade</code>: en alemán se escribe con <strong>k</strong>, y ni <code>chocolad</code> ni <code>chocolat</code> lo pillan. Esto es lo que enseña de verdad la búsqueda de texto: <strong>el dato no está escrito como tú lo dirías.</strong> Buscar dos grafías te da una respuesta creíble y equivocada; el único motivo por el que lo has detectado es que la tabla tiene 77 filas y se puede mirar entera.</p>
 <p><strong>3.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">employees</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Sales%'</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">first_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">last_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">title</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">employees</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">title</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Sales%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">last_name</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>          title           | count
---------------------------+-------
- Inside Sales Coordinator |     1
- Sales Manager            |     1
- Sales Representative     |     6
- Vice President, Sales    |     1
+<div class="hl"><pre><span></span><code> first_name | last_name |          title
+------------+-----------+--------------------------
+ Laura      | Callahan  | Inside Sales Coordinator
+ Steven     | Buchanan  | Sales Manager
+ Nancy      | Davolio   | Sales Representative
+ Anne       | Dodsworth | Sales Representative
+ Robert     | King      | Sales Representative
+ Janet      | Leverling | Sales Representative
+ Margaret   | Peacock   | Sales Representative
+ Michael    | Suyama    | Sales Representative
+ Andrew     | Fuller    | Vice President, Sales
+(9 filas)
 </code></pre></div>
 
 <p><strong>9 empleados, que son todos.</strong> Northwind entero es un departamento comercial. El detalle que merece atención es <code>Inside Sales Coordinator</code>: contiene <code>Sales</code> <strong>en medio</strong>, no al principio. Si hubieras escrito <code>LIKE 'Sales%'</code> en vez de <code>LIKE '%Sales%'</code> habrías perdido ese y <code>Vice President, Sales</code>, y te habrías quedado con 7 de 9 sin enterarte.</p>
+<p><em>(Contar cuántos hay de cada cargo es un <code>GROUP BY</code> — se ve en el bloque 4. Aquí basta con mirar la lista y notar que <code>Sales Representative</code> se repite 6 veces.)</em></p>
 <p><strong>4.</strong> Los corchetes no existen en el <code>LIKE</code> de PostgreSQL:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">city</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^[A-C]'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">city</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">city</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^[A-C]'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">company_name</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>22 clientes.</strong> La versión ingenua —<code>LIKE '[A-C]%'</code>— devuelve <strong>0 filas sin dar error</strong>, y ese es el punto del ejercicio.</p>
 <p><strong>5.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">postal_code</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">postal_code</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'_____'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 5 guiones bajos</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">company_name</span><span class="p">,</span><span class="w"> </span><span class="n">postal_code</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">customers</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">postal_code</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^.{5}$'</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">postal_code</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">postal_code</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'_____'</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 5 guiones bajos</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">postal_code</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">postal_code</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="s1">'^.{5}$'</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Las dos devuelven <strong>50 clientes</strong>. <strong>La regex es mejor</strong>, y no por potencia: por <strong>legibilidad</strong>. <code>'_____'</code> obliga a contar guiones bajos con el dedo en la pantalla; <code>'^.{5}$'</code> dice cinco. Un patrón que hay que contar es un patrón que alguien va a escribir mal.</p>
