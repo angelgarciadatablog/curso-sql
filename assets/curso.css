@@ -224,7 +224,7 @@ h1{font-size:38px;line-height:1.15;letter-spacing:-.025em;margin:0 0 18px;
   .malla{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:720px){
-  .contenedor{padding:0 18px}
+  .contenedor{padding:0 20px}
   .hero-in{padding:38px 0 34px}
   .hero .lead{font-size:16px}
   .hero-datos{gap:24px}
