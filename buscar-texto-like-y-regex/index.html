@@ -403,6 +403,64 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Los mismos 6 de la lista anterior que empiezan por <code>Ch</code>, ni uno más — <code>~*</code> es a <code>~</code> lo que <code>ILIKE</code> es a <code>LIKE</code>.</p>
+<h3>3.5 <code>NOT LIKE</code> y los nulos: no es un complemento real</h3>
+<p><strong>Pregunta:</strong> ¿qué clientes alemanes tienen un fax que no sea de Berlín (código 030)?</p>
+<p>Alemania tiene 11 clientes.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">fax</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">fax</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'030%'</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       company_name       |     fax
+--------------------------+--------------
+ Blauer See Delikatessen  | 0621-08924
+ Die Wandernde Kuh        | 0711-035428
+ Drachenblut Delikatessen | 0241-059428
+ Frankenversand           | 089-0877451
+ Lehmanns Marktstand      | 069-0245874
+ Ottilies Käseladen       | 0221-0765721
+ Toms Spezialitäten       | 0251-035695
+(7 filas)
+</code></pre></div>
+
+<p><strong>7, y parece razonable.</strong> Solo uno de los 11 tiene fax <code>030%</code> (Alfreds Futterkiste), así que "los que no son de Berlín" debería ser el resto: 10. Faltan 3.</p>
+<p>Los 3 que faltan son <code>Königlich Essen</code>, <code>Morgenstern Gesundkost</code> y <code>QUICK-Stop</code> — y no aparecen porque <strong>no tienen <code>fax</code> en absoluto</strong>. Aquí está la trampa: es fácil asumir que "no contiene 030" ya cubre a los que no tienen nada que contener — total, si no hay fax, mal puede empezar por <code>030</code>. Pero para el motor no es así: <code>NULL NOT LIKE '030%'</code> no evalúa a <code>TRUE</code>, evalúa a <code>UNKNOWN</code>, y el <code>WHERE</code> lo descarta igual que si hubiera dado <code>FALSE</code>. La consulta no dice "estos 3 no calificaron"; simplemente los hace desaparecer.</p>
+<p>Si el objetivo real incluye a los que no tienen fax —tiene sentido, porque no tener fax también significa "no es de Berlín"—, hay que decirlo explícitamente:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">fax</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">customers</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Germany'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="p">(</span><span class="n">fax</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'030%'</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="n">fax</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">company_name</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>       company_name       |     fax
+--------------------------+--------------
+ Blauer See Delikatessen  | 0621-08924
+ Die Wandernde Kuh        | 0711-035428
+ Drachenblut Delikatessen | 0241-059428
+ Frankenversand           | 089-0877451
+ Königlich Essen          |
+ Lehmanns Marktstand      | 069-0245874
+ Morgenstern Gesundkost   |
+ Ottilies Käseladen       | 0221-0765721
+ QUICK-Stop               |
+ Toms Spezialitäten       | 0251-035695
+(10 filas)
+</code></pre></div>
+
+<p><strong>Regla:</strong> <code>NOT LIKE</code> (igual que <code>&lt;&gt;</code>) nunca es un verdadero complemento de <code>LIKE</code> cuando la columna admite nulos — deja fuera lo que no cumple <strong>y</strong> lo que no se pudo evaluar, sin distinguir entre ambos. Si quieres el complemento real, súmale <code>OR columna IS NULL</code> a propósito. Más sobre por qué pasa esto en <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>.</p>
 <h2 id="4-errores-comunes">4. Errores comunes</h2>
 <ol>
 <li><strong>Usar <code>=</code> con comodines.</strong> <code>WHERE nombre = 'A%'</code> busca el texto literal <code>A%</code>. No da error; devuelve cero filas.</li>
@@ -410,7 +468,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong>Olvidar los acentos.</strong> Igual de silencioso.</li>
 <li><strong>Creer que <code>_</code> significa guion bajo.</strong> Significa <em>un carácter cualquiera</em>.</li>
 <li><strong>Poner <code>%</code> al principio y esperar velocidad.</strong> <code>LIKE 'A%'</code> puede usar un índice; <code>LIKE '%A%'</code> <strong>no puede</strong>, obliga a leer la tabla entera. Con 91 clientes da igual; con 20 millones, no. La solución en ese caso es un índice <code>pg_trgm</code> — ver <span class="xref-pend" title="Aún no publicado">indices</span>.</li>
-<li><strong>Aplicar <code>LIKE</code> a una columna con nulos y esperar el complemento.</strong> <code>NOT LIKE</code> deja fuera los <code>NULL</code>, igual que <code>&lt;&gt;</code>. Ver <a class="xref" href="../null-y-la-logica-de-tres-valores/">null-y-la-logica-de-tres-valores</a>.</li>
+<li><strong>Aplicar <code>LIKE</code> a una columna con nulos y esperar el complemento.</strong> <code>NOT LIKE</code> deja fuera los <code>NULL</code>, igual que <code>&lt;&gt;</code>. Ver § 3.5.</li>
 </ol>
 <h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
 <p>Esta es la sección más útil del tema, porque es donde más se separan los dos motores.</p>
