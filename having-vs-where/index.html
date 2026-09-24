@@ -215,7 +215,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><strong>No son la misma pregunta y no dan la misma respuesta.</strong> La A cuenta productos activos y admite categorías que además tienen descatalogados; la B exige que la categoría entera esté limpia. La categoría <strong>2 aparece en A y no en B</strong>: tiene 11 activos y al menos uno de baja.</p>
 <p><strong><code>WHERE</code> decide qué filas entran en el grupo. <code>HAVING</code> decide qué grupos sobreviven.</strong> Cambiar una condición de sitio no es refactorizar: es cambiar la pregunta.</p>
-<h3>3.5 <code>HAVING</code> sin <code>GROUP BY</code></h3>
+<h3>3.5 Encontrar duplicados, que no es lo mismo que quitarlos</h3>
+<p><code>DISTINCT</code> los <strong>esconde</strong> (<a class="xref" href="../distinct-y-duplicados/">distinct-y-duplicados</a>). Para <strong>verlos</strong> se usa <code>GROUP BY</code> + <code>HAVING</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">order_date</span><span class="p">,</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">order_date</span>
+<span class="k">HAVING</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> customer_id | order_date | count
+-------------+------------+-------
+ LACOR       | 1998-03-24 |     2
+ LINOD       | 1998-01-19 |     2
+ SAVEA       | 1997-10-22 |     2
+</code></pre></div>
+
+<p><strong>7 casos</strong> de un cliente con dos pedidos el mismo día. ¿Son duplicados? Vamos a mirar:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">order_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">customer_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">order_date</span><span class="p">,</span>
+<span class="w">    </span><span class="n">employee_id</span><span class="p">,</span>
+<span class="w">    </span><span class="n">freight</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">orders</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">customer_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'LACOR'</span>
+<span class="w">    </span><span class="k">AND</span><span class="w"> </span><span class="n">order_date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'1998-03-24'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> order_id | customer_id | order_date | employee_id | freight
+----------+-------------+------------+-------------+---------
+    10972 | LACOR       | 1998-03-24 |           4 |    0.02
+    10973 | LACOR       | 1998-03-24 |           6 |   15.17
+</code></pre></div>
+
+<p><strong>No son duplicados.</strong> Distinto id, distinto empleado, distinto flete: son dos pedidos reales del mismo cliente el mismo día. Y esa es la lección del ejercicio:</p>
+<blockquote>
+<p><strong><code>GROUP BY ... HAVING count(*) &gt; 1</code> no encuentra duplicados. Encuentra repeticiones de la clave que tú elegiste.</strong> Si eliges mal la clave, todo parece duplicado. Decidir qué combinación de columnas <em>debería</em> ser única es una pregunta de negocio, no de SQL.</p>
+</blockquote>
+<h3>3.6 <code>HAVING</code> sin <code>GROUP BY</code></h3>
 <p>Es legal y raro. Sin <code>GROUP BY</code>, toda la tabla es un grupo, así que <code>HAVING</code> filtra <strong>esa única fila</strong>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 830</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">HAVING</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10000</span><span class="p">;</span><span class="w">  </span><span class="c1">-- 0 filas</span>
