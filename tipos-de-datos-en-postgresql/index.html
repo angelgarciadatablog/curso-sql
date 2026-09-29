@@ -271,7 +271,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong>Convertir a entero redondea, no trunca.</strong> <code>3.7 → 4</code>.</li>
 <li>Y redondea <strong>al alejarse del cero</strong>: <code>2.5 → 3</code>, no <code>2</code>. Otros lenguajes redondean al par más cercano y darían 2. <strong>Si el redondeo importa, escríbelo explícito con <code>round()</code></strong> en vez de confiar en el cast.</li>
 </ul>
-<p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. Usa <code>::</code> en tu código y <code>CAST</code> si tiene que valer también para SQL Server.</p>
+<p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. En este curso usamos <code>CAST</code> porque vale en cualquier motor; <code>::</code> lo verás mucho en código de PostgreSQL.</p>
 <p>La misma consulta con <code>CAST</code>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'10'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
 <span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'3.7'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">redondea</span><span class="p">,</span>
@@ -284,11 +284,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           15 |        4 |     4 |      3
 </code></pre></div>
 
-<p>Fíjate en <code>redondea</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. Por eso <code>::</code> es más cómodo de leer.</p>
+<p>Fíjate en <code>redondea</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. <code>::</code> es más corto; <code>CAST</code> es más explícito y portable.</p>
 <h3>3.2 Por qué nunca <code>real</code> para dinero</h3>
 <p>La demostración corta:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="p">::</span><span class="nb">real</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span>
-<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="p">::</span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">real</span><span class="p">))</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
 </code></pre></div>
 
@@ -305,8 +305,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </ol>
 <p><code>numeric</code> da exactamente eso. <strong><code>real</code> da 21,550398.</strong> El error viene de que <code>0.01</code> no existe exactamente en binario, igual que <code>1/3</code> no existe exactamente en decimal. Cada suma arrastra un poco de error y 2.155 sumas lo hacen visible.</p>
 <p>Con los datos reales de Northwind:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">numeric_exacto</span><span class="p">,</span>
-<span class="w">       </span><span class="k">sum</span><span class="p">((</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)::</span><span class="nb">real</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_real</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">numeric_exacto</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">real</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_real</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
 </code></pre></div>
 
@@ -321,7 +321,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </blockquote>
 <p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
 <h3>3.3 La división entera</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">::</span><span class="nb">numeric</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> entera |      decimal_      |      casteada
@@ -343,8 +343,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
 <h3>3.4 El desbordamiento</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">32767</span><span class="p">::</span><span class="nb">smallint</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="mi">32768</span><span class="p">::</span><span class="nb">smallint</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32767</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32768</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code>ERROR:  smallint out of range
@@ -352,8 +352,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Da error, que es lo correcto: nunca te devuelve un número equivocado en silencio. Pero es la razón de no usar <code>smallint</code> para ahorrar: <strong>el día que la tabla crece, la aplicación deja de insertar.</strong> <code>units_in_stock</code> es <code>smallint</code> en Northwind — con 39 unidades de té va sobrado, con un almacén real no.</p>
 <h3>3.5 Texto: <code>char(n)</code> y por qué no</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
-<span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
+<span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> con_char | con_varchar
@@ -362,8 +362,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong><code>char(5)</code> rellenó con dos espacios invisibles.</strong> Y <code>length()</code> no los ve:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">length</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span><span class="w">       </span><span class="k">AS</span><span class="w"> </span><span class="n">caracteres</span><span class="p">,</span>
-<span class="w">       </span><span class="k">octet_length</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">length</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span><span class="w">       </span><span class="k">AS</span><span class="w"> </span><span class="n">caracteres</span><span class="p">,</span>
+<span class="w">       </span><span class="k">octet_length</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> caracteres | bytes
@@ -395,8 +395,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Restar dos <code>date</code> da un <strong>entero de días</strong>; <code>age()</code> da un <code>interval</code> legible:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'2026-08-20'</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="s1">'2026-01-01'</span><span class="p">::</span><span class="nb">date</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span><span class="p">,</span>
-<span class="w">       </span><span class="n">age</span><span class="p">(</span><span class="s1">'2026-08-20'</span><span class="p">::</span><span class="nb">date</span><span class="p">,</span><span class="w"> </span><span class="s1">'1990-05-01'</span><span class="p">::</span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">edad</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2026-08-20'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2026-01-01'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dias</span><span class="p">,</span>
+<span class="w">       </span><span class="n">age</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2026-08-20'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">date</span><span class="p">),</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'1990-05-01'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">date</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">edad</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> dias |          edad
@@ -404,6 +404,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   231 | 36 years 3 mons 19 days
 </code></pre></div>
 
+<p><code>interval</code> no es texto: es una duración con la que se calcula. Sabe que un mes no tiene un número fijo de días:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'1996-01-31'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'1 month'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">interval</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">mes_siguiente</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'1996-01-31'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">date</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">30</span><span class="w">                          </span><span class="k">AS</span><span class="w"> </span><span class="n">mas_30_dias</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    mes_siguiente    | mas_30_dias
+---------------------+-------------
+ 1996-02-29 00:00:00 | 1996-03-01
+</code></pre></div>
+
+<p><code>+ 1 month</code> cae en el último día de febrero (1996 fue bisiesto). <code>+ 30</code> suma días a ciegas y se pasa a marzo.</p>
 <p>Que <code>order_date</code> sea <code>date</code> y no <code>timestamp</code> es lo que hace seguro el <code>BETWEEN</code> de fechas del tema <a class="xref" href="../where-y-operadores/">where-y-operadores</a>. <strong>Con <code>timestamp</code> dejaría de serlo.</strong></p>
 <h2 id="4-errores-comunes">4. Errores comunes</h2>
 <ol>
@@ -413,7 +424,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>char(n)</code>.</strong> Espacios invisibles.</li>
 <li><strong><code>smallint</code> para ahorrar.</strong> Ahorras 2 bytes y compras un incidente.</li>
 <li><strong><code>timestamp</code> sin zona en un sistema con usuarios en varios países.</strong> Guarda <code>timestamptz</code>.</li>
-<li><strong>Confiar en el redondeo implícito de un cast.</strong> <code>2.5::int</code> es 3, <code>2.5</code> en otros lenguajes es 2. Escribe <code>round()</code>.</li>
+<li><strong>Confiar en el redondeo implícito de un cast.</strong> <code>CAST(2.5 AS int)</code> es 3, <code>2.5</code> en otros lenguajes es 2. Escribe <code>round()</code>.</li>
 </ol>
 <h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
 <table>
@@ -533,7 +544,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><strong>671 días</strong>, algo menos de dos años. Ese dato conviene tenerlo presente todo el curso: cualquier análisis temporal sobre Northwind se mueve entre julio de 1996 y mayo de 1998.</p>
 <p><strong>4.</strong></p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entero</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">product_name</span><span class="p">,</span><span class="w"> </span><span class="n">unit_price</span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entero</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">unit_price</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">21</span><span class="p">.</span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="mi">22</span><span class="p">.</span><span class="mi">00</span><span class="p">)</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">unit_price</span><span class="p">;</span>
 </code></pre></div>
 
