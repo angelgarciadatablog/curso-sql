@@ -329,11 +329,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       3 | 3.5000000000000000 | 3.5000000000000000
 </code></pre></div>
 
-<p><strong><code>7/2</code> da 3.</strong> No 3,5 y no un error: <code>integer / integer</code> devuelve <code>integer</code>, y trunca. Es la causa número uno de porcentajes que salen 0.</p>
+<p><strong><code>7/2</code> da 3.</strong> No 3,5 y no un error: <code>integer / integer</code> devuelve <code>integer</code>, y trunca. Es la causa número uno de porcentajes que pierden los decimales.</p>
 <div class="hl"><pre><span></span><code><span class="c1">-- Ipoh Coffee: 10 unidades pedidas de 17 en stock</span>
 
-<span class="c1">-- MAL: da 0</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="c1">-- MAL: da 58</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Ipoh Coffee'</span><span class="p">;</span>
 
 <span class="c1">-- BIEN: da 58.82...</span>
@@ -460,7 +460,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <h2 id="6-ejercicios">6. Ejercicios</h2>
 <ol>
 <li>Averigua el tipo de todas las columnas de <code>orders</code> sin usar <code>\d</code>.</li>
-<li>Calcula qué porcentaje de su stock tiene pedido <code>Outback Lager</code>. Hazlo primero mal (que dé 0) y luego bien, con dos decimales.</li>
+<li>Calcula qué porcentaje de su stock tiene pedido <code>Outback Lager</code>. Hazlo primero mal (sin decimales) y luego bien, con dos decimales.</li>
 <li>¿Cuántos días pasaron entre el primer y el último pedido de la base?</li>
 <li>Convierte <code>unit_price</code> a entero en <code>products</code> y explica qué pasa con <code>21.35</code>.</li>
 <li>Sin ejecutarla, di qué devuelve y por qué:
@@ -495,8 +495,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>14 columnas: 3 de tipo <code>date</code>, 3 <code>integer</code>, 1 <code>numeric</code> y 7 <code>character varying</code>.</p>
 <p><strong>2.</strong></p>
 <div class="hl"><pre><span></span><code><span class="c1">-- Mal: integer / integer trunca</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Outback Lager'</span><span class="p">;</span><span class="w">          </span><span class="c1">-- 0</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Outback Lager'</span><span class="p">;</span><span class="w">          </span><span class="c1">-- 66</span>
 
 <span class="c1">-- Bien</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
@@ -508,7 +508,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  66.67
 </code></pre></div>
 
-<p><strong>Outback Lager tiene pedido el 66,67% de su stock</strong> (10 de 15). La versión mala devuelve <code>0</code> sin dar ningún error: <code>10 / 15</code> en aritmética entera es 0.</p>
+<p><strong>Outback Lager tiene pedido el 66,67% de su stock</strong> (10 de 15). La versión mala devuelve <code>66</code> sin dar ningún error: <code>1000 / 15</code> en aritmética entera es 66, y los decimales se pierden.</p>
 <p><strong>3.</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">min</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">primero</span><span class="p">,</span>
 <span class="w">       </span><span class="k">max</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ultimo</span><span class="p">,</span>
