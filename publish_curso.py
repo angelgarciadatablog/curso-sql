@@ -2,7 +2,7 @@
 """
 Genera el sitio del curso SQL desde el vault.
 
-Fuente:  ~/infinity-memory/vault/asesorias-material/sql/
+Fuente:  ~/infinity-memory/vault/asesorias/asesorias-material/sql/
 Salida:  este repo -> index.html y <slug>/index.html
 
 El HTML no se edita a mano: se regenera. Ver README.md.
@@ -12,7 +12,7 @@ from pathlib import Path
 from datetime import date
 import frontmatter, markdown
 
-SRC        = Path.home()/"infinity-memory"/"vault"/"asesorias-material"/"sql"
+SRC        = Path.home()/"infinity-memory"/"vault"/"asesorias"/"asesorias-material"/"sql"
 ROOT       = Path(__file__).parent
 ASSETS     = ROOT/"assets"
 CURSO_JSON = ROOT/"curso.json"

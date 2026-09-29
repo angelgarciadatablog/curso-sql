@@ -163,6 +163,62 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </table>
 <h3>2.4 Otros</h3>
 <p><code>boolean</code> (<code>true</code>/<code>false</code>/<code>NULL</code>), <code>uuid</code>, <code>json</code>/<code>jsonb</code>, arrays. Los tres últimos son de PostgreSQL y no tienen equivalente directo en SQL Server.</p>
+<h3>2.5 Alias</h3>
+<p>Muchos tipos tienen un nombre corto. Puedes escribir cualquiera de los dos, pero <code>pg_typeof()</code> y <code>\d</code> siempre responden con el nombre largo.</p>
+<table>
+<thead>
+<tr>
+<th>Escribes</th>
+<th>PostgreSQL responde</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code>, <code>int4</code></td>
+<td><code>integer</code></td>
+</tr>
+<tr>
+<td><code>int2</code></td>
+<td><code>smallint</code></td>
+</tr>
+<tr>
+<td><code>int8</code></td>
+<td><code>bigint</code></td>
+</tr>
+<tr>
+<td><code>decimal</code></td>
+<td><code>numeric</code></td>
+</tr>
+<tr>
+<td><code>float4</code></td>
+<td><code>real</code></td>
+</tr>
+<tr>
+<td><code>float</code>, <code>float8</code></td>
+<td><code>double precision</code></td>
+</tr>
+<tr>
+<td><code>varchar</code></td>
+<td><code>character varying</code></td>
+</tr>
+<tr>
+<td><code>char(n)</code></td>
+<td><code>character(n)</code></td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td><code>timestamp without time zone</code></td>
+</tr>
+<tr>
+<td><code>timestamptz</code></td>
+<td><code>timestamp with time zone</code></td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>boolean</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="3-ejemplos-sobre-northwind">3. Ejemplos sobre Northwind</h2>
 <p><strong>Qué tipo tiene cada cosa:</strong></p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">precio</span><span class="p">,</span>
@@ -178,6 +234,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>pg_typeof()</code> responde <em>"¿de qué tipo es esto?"</em> y sirve también sobre expresiones: es la forma rápida de descubrir por qué una división te dio 3 en vez de 3,5.</p>
+<blockquote>
+<p><strong>Nota:</strong> <code>pg_typeof()</code> = solo PostgreSQL</p>
+</blockquote>
 <p>La versión detallada, con precisión y escala:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">column_name</span><span class="p">,</span><span class="w"> </span><span class="n">data_type</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_precision</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_scale</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span>
@@ -194,52 +253,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>numeric(10,2)</code> = hasta 10 dígitos en total, 2 de ellos decimales. <code>discount</code> es <code>numeric(4,3)</code>: tres decimales, porque un descuento del 12,5% se guarda como <code>0.125</code>.</p>
-<h3>3.1 Por qué nunca <code>real</code> para dinero</h3>
-<p>La demostración corta:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="nb">real</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">g</span><span class="p">,</span><span class="w"> </span><span class="k">LATERAL</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> suma_real  | suma_numeric
-------------+--------------
- 10.0001335 |        10.00
-</code></pre></div>
-
-<p><strong>Mil céntimos sumados con <code>real</code> dan 10,0001335 euros.</strong> No 10. El error viene de que <code>0.01</code> no existe exactamente en binario, igual que <code>1/3</code> no existe exactamente en decimal. Cada suma arrastra un poco de error y mil sumas lo hacen visible.</p>
-<p>Con los datos reales de Northwind:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">numeric_exacto</span><span class="p">,</span>
-<span class="w">       </span><span class="k">sum</span><span class="p">((</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)::</span><span class="nb">real</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_real</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> numeric_exacto |   con_real
-----------------+---------------
-     1354458.59 | 1.3544585e+06
-</code></pre></div>
-
-<p>Fíjate en la segunda: ni siquiera te enseña los céntimos, te da notación científica. <strong>Un total de facturación que no sabe decirte los céntimos no es un total de facturación.</strong></p>
-<blockquote>
-<p>Esto no es teórico: fue <strong>uno de los defectos que había que arreglar</strong> al preparar esta base. El port original de Northwind a PostgreSQL traía <code>unit_price</code> como <code>real</code>. Está documentado en <code>postgresql-northwind</code>.</p>
-</blockquote>
-<p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
-<h3>3.2 La división entera</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">::</span><span class="nb">numeric</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
-</code></pre></div>
-
-<div class="hl"><pre><span></span><code> entera |      decimal_      |      casteada
---------+--------------------+--------------------
-      3 | 3.5000000000000000 | 3.5000000000000000
-</code></pre></div>
-
-<p><strong><code>7/2</code> da 3.</strong> No 3,5 y no un error: <code>integer / integer</code> devuelve <code>integer</code>, y trunca. Es la causa número uno de porcentajes que salen 0.</p>
-<div class="hl"><pre><span></span><code><span class="c1">-- MAL: siempre 0</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
-<span class="c1">-- BIEN</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
-</code></pre></div>
-
-<p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
-<h3>3.3 Conversión: <code>::</code> y <code>CAST</code></h3>
+<h3>3.1 Conversión: <code>::</code> y <code>CAST</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'10'</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
 <span class="w">       </span><span class="s1">'3.7'</span><span class="p">::</span><span class="nb">numeric</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">redondea</span><span class="p">,</span>
 <span class="w">       </span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="p">::</span><span class="nb">int</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">medio</span><span class="p">,</span>
@@ -258,6 +272,52 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li>Y redondea <strong>al alejarse del cero</strong>: <code>2.5 → 3</code>, no <code>2</code>. Otros lenguajes redondean al par más cercano y darían 2. <strong>Si el redondeo importa, escríbelo explícito con <code>round()</code></strong> en vez de confiar en el cast.</li>
 </ul>
 <p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. Usa <code>::</code> en tu código y <code>CAST</code> si tiene que valer también para SQL Server.</p>
+<h3>3.2 Por qué nunca <code>real</code> para dinero</h3>
+<p>La demostración corta:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="p">::</span><span class="nb">real</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="p">::</span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> suma_real | suma_numeric
+-----------+--------------
+ 21.550398 |        21.55
+</code></pre></div>
+
+<p>Suma un céntimo por cada una de las 2.155 filas de <code>order_details</code>. <strong>Con <code>real</code> salen 21,550398 euros.</strong> No 21,55. El error viene de que <code>0.01</code> no existe exactamente en binario, igual que <code>1/3</code> no existe exactamente en decimal. Cada suma arrastra un poco de error y 2.155 sumas lo hacen visible.</p>
+<p>Con los datos reales de Northwind:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w">         </span><span class="k">AS</span><span class="w"> </span><span class="n">numeric_exacto</span><span class="p">,</span>
+<span class="w">       </span><span class="k">sum</span><span class="p">((</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)::</span><span class="nb">real</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_real</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> numeric_exacto |   con_real
+----------------+---------------
+     1354458.59 | 1.3544585e+06
+</code></pre></div>
+
+<p>Fíjate en la segunda: ni siquiera te enseña los céntimos, te da notación científica. <strong>Un total de facturación que no sabe decirte los céntimos no es un total de facturación.</strong></p>
+<blockquote>
+<p>Esto no es teórico: fue <strong>uno de los defectos que había que arreglar</strong> al preparar esta base. El port original de Northwind a PostgreSQL traía <code>unit_price</code> como <code>real</code>. Está documentado en <code>postgresql-northwind</code>.</p>
+</blockquote>
+<p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
+<h3>3.3 La división entera</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">::</span><span class="nb">numeric</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> entera |      decimal_      |      casteada
+--------+--------------------+--------------------
+      3 | 3.5000000000000000 | 3.5000000000000000
+</code></pre></div>
+
+<p><strong><code>7/2</code> da 3.</strong> No 3,5 y no un error: <code>integer / integer</code> devuelve <code>integer</code>, y trunca. Es la causa número uno de porcentajes que salen 0.</p>
+<div class="hl"><pre><span></span><code><span class="c1">-- MAL: siempre 0</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+<span class="c1">-- BIEN</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">FILTER</span><span class="w"> </span><span class="p">(</span><span class="k">WHERE</span><span class="w"> </span><span class="n">discontinued</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
 <h3>3.4 El desbordamiento</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">32767</span><span class="p">::</span><span class="nb">smallint</span><span class="p">;</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="mi">32768</span><span class="p">::</span><span class="nb">smallint</span><span class="p">;</span>
