@@ -272,6 +272,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li>Y redondea <strong>al alejarse del cero</strong>: <code>2.5 → 3</code>, no <code>2</code>. Otros lenguajes redondean al par más cercano y darían 2. <strong>Si el redondeo importa, escríbelo explícito con <code>round()</code></strong> en vez de confiar en el cast.</li>
 </ul>
 <p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. Usa <code>::</code> en tu código y <code>CAST</code> si tiene que valer también para SQL Server.</p>
+<p>La misma consulta con <code>CAST</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'10'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'3.7'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">redondea</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">medio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">medio2</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> texto_a_int | redondea | medio | medio2
+-------------+----------+-------+--------
+          15 |        4 |     4 |      3
+</code></pre></div>
+
+<p>Fíjate en <code>redondea</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. Por eso <code>::</code> es más cómodo de leer.</p>
 <h3>3.2 Por qué nunca <code>real</code> para dinero</h3>
 <p>La demostración corta:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="p">::</span><span class="nb">real</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span>
