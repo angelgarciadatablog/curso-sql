@@ -352,16 +352,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Da error, que es lo correcto: nunca te devuelve un número equivocado en silencio. Pero es la razón de no usar <code>smallint</code> para ahorrar: <strong>el día que la tabla crece, la aplicación deja de insertar.</strong> <code>units_in_stock</code> es <code>smallint</code> en Northwind — con 39 unidades de té va sobrado, con un almacén real no.</p>
 <h3>3.5 Texto: <code>char(n)</code> y por qué no</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="s1">'|'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
-<span class="w">       </span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">'|'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
+<span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> con_char | con_varchar
 ----------+-------------
- abc|     | abc|
+ abc  |   | abc|
 </code></pre></div>
 
-<p><strong><code>char(5)</code> rellenó con dos espacios invisibles.</strong> Esos espacios rompen comparaciones, concatenaciones y <code>LIKE</code> de formas que cuesta mucho depurar. <code>char(n)</code> existe por compatibilidad histórica; no lo elijas nunca.</p>
+<p><strong><code>char(5)</code> rellenó con dos espacios invisibles.</strong> Y <code>length()</code> no los ve:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">length</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span><span class="w">       </span><span class="k">AS</span><span class="w"> </span><span class="n">caracteres</span><span class="p">,</span>
+<span class="w">       </span><span class="k">octet_length</span><span class="p">(</span><span class="s1">'abc'</span><span class="p">::</span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> caracteres | bytes
+------------+-------
+          3 |     5
+</code></pre></div>
+
+<p><code>length</code> ignora el relleno de <code>char</code>; <code>octet_length</code> cuenta lo que realmente se guarda. Esos espacios rompen comparaciones, concatenaciones y <code>LIKE</code> de formas que cuesta mucho depurar. <code>char(n)</code> existe por compatibilidad histórica; no lo elijas nunca.</p>
 <p>Y el detalle de longitud con acentos:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">length</span><span class="p">(</span><span class="s1">'café'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">caracteres</span><span class="p">,</span><span class="w"> </span><span class="k">octet_length</span><span class="p">(</span><span class="s1">'café'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">bytes</span><span class="p">;</span>
 </code></pre></div>
