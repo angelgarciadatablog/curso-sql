@@ -575,7 +575,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </blockquote>
 <p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
 <h3>3.6 La división entera</h3>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w">                  </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w">                </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span>
+<span class="w">    </span><span class="k">CAST</span><span class="p">(</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="hl"><pre><span></span><code> entera |      decimal_      |      casteada
@@ -587,15 +590,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="hl"><pre><span></span><code><span class="c1">-- Ipoh Coffee: 10 unidades pedidas de 17 en stock</span>
 
 <span class="c1">-- MAL: da 58</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Ipoh Coffee'</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Ipoh Coffee'</span><span class="p">;</span>
 
 <span class="c1">-- BIEN: da 58.82...</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Ipoh Coffee'</span><span class="p">;</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">units_on_order</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Ipoh Coffee'</span><span class="p">;</span>
+
+<span class="c1">-- BIEN también: da 58.82...</span>
+<span class="k">SELECT</span>
+<span class="w">    </span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="n">units_on_order</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pct</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">product_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Ipoh Coffee'</span><span class="p">;</span>
 </code></pre></div>
 
-<p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
+<p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>. El <code>CAST</code> hace lo mismo y deja más clara la intención: basta con que uno de los dos números sea <code>numeric</code>.</p>
+<blockquote>
+<p><strong>Nota:</strong> entero / entero = entero, siempre (<code>smallint</code>, <code>integer</code> o <code>bigint</code>).</p>
+</blockquote>
 <h3>3.7 El desbordamiento</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32767</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32768</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span>
@@ -605,6 +621,70 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Da error, que es lo correcto: nunca te devuelve un número equivocado en silencio. Pero es la razón de no usar <code>smallint</code> para ahorrar: <strong>el día que la tabla crece, la aplicación deja de insertar.</strong> <code>units_in_stock</code> es <code>smallint</code> en Northwind — con 39 unidades de té va sobrado, con un almacén real no.</p>
+<p>Los tres enteros y hasta dónde llegan:</p>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Máximo</th>
+<th>Ocupa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smallint</code></td>
+<td>32.767</td>
+<td>2 bytes</td>
+</tr>
+<tr>
+<td><code>integer</code></td>
+<td>2.147.483.647 (~2.100 millones)</td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td><code>bigint</code></td>
+<td>9.223.372.036.854.775.807</td>
+<td>8 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Lo habitual es <code>integer</code>. Pero hay datos que lo superan: <strong>la población mundial (~8.200 millones) no cabe en <code>integer</code></strong>, y lo mismo pasa con los IDs de una tabla de eventos o de logs que crece sin parar. Ahí va <code>bigint</code>.</p>
+<p><strong>El tipo de la columna no siempre es el tipo del resultado.</strong> <code>quantity</code> es <code>smallint</code>, que llega hasta 32.767. Pero su suma pasa de ese límite, y no da error:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> total |  tipo
+-------+--------
+ 51317 | bigint
+</code></pre></div>
+
+<p><code>sum()</code> elige un tipo más grande <strong>de antemano, sin mirar el total</strong>. Cuando empieza a sumar no sabe cuántas filas hay, así que usa un tipo que seguro aguanta:</p>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th><code>sum()</code> devuelve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smallint</code></td>
+<td><code>bigint</code></td>
+</tr>
+<tr>
+<td><code>integer</code></td>
+<td><code>bigint</code></td>
+</tr>
+<tr>
+<td><code>bigint</code></td>
+<td><code>numeric</code></td>
+</tr>
+</tbody>
+</table>
+<p>Con la población pasa lo mismo: cada país cabe en <code>integer</code>, y la suma de todos sale como <code>bigint</code>.</p>
 <h3>3.8 Texto: <code>char(n)</code> y por qué no</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
 <span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
@@ -670,6 +750,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p><code>+ 1 month</code> cae en el último día de febrero (1996 fue bisiesto). <code>+ 30</code> suma días a ciegas y se pasa a marzo.</p>
 <p>Que <code>order_date</code> sea <code>date</code> y no <code>timestamp</code> es lo que hace seguro el <code>BETWEEN</code> de fechas del tema <a class="xref" href="../where-y-operadores/">where-y-operadores</a>. <strong>Con <code>timestamp</code> dejaría de serlo.</strong></p>
+<p><strong>El filtro que pierde un día.</strong> Seis ventas con hora, y te piden las del 1 al 4 de octubre. Lo correcto son las cinco primeras: <strong>5 ventas, 1.500</strong>.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">ventas</span><span class="p">,</span>
+<span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">importe</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">VALUES</span>
+<span class="w">        </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="s1">'2026-10-01 09:15'</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">.</span><span class="mi">00</span><span class="p">),</span>
+<span class="w">        </span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="s1">'2026-10-03 18:40'</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">.</span><span class="mi">00</span><span class="p">),</span>
+<span class="w">        </span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="s1">'2026-10-04 00:00'</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="p">.</span><span class="mi">00</span><span class="p">),</span>
+<span class="w">        </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="s1">'2026-10-04 11:20'</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">.</span><span class="mi">00</span><span class="p">),</span>
+<span class="w">        </span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="s1">'2026-10-04 22:05'</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">.</span><span class="mi">00</span><span class="p">),</span>
+<span class="w">        </span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="s1">'2026-10-05 08:00'</span><span class="p">,</span><span class="w"> </span><span class="mi">600</span><span class="p">.</span><span class="mi">00</span><span class="p">)</span>
+<span class="w">     </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ventas</span><span class="w"> </span><span class="p">(</span><span class="n">venta_id</span><span class="p">,</span><span class="w"> </span><span class="n">vendida_en</span><span class="p">,</span><span class="w"> </span><span class="n">importe</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">vendida_en</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="s1">'2026-10-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="s1">'2026-10-04'</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ventas | total
+--------+--------
+      3 | 600.00
+</code></pre></div>
+
+<p><strong>Faltan 900.</strong> <code>'2026-10-04'</code> significa <em>4 de octubre a las 00:00</em>, así que el filtro corta justo cuando empieza el día. Entra la venta 3 porque fue exactamente a medianoche; la 4 y la 5 se pierden. Ningún error, solo un total equivocado.</p>
+<p>La forma correcta es el <strong>rango medio abierto</strong>: desde el día 1, <strong>hasta antes del día 5</strong>.</p>
+<div class="hl"><pre><span></span><code><span class="k">WHERE</span><span class="w"> </span><span class="n">vendida_en</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">'2026-10-01'</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">vendida_en</span><span class="w"> </span><span class="o">&lt;</span><span class="w">  </span><span class="s1">'2026-10-05'</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> ventas |  total
+--------+---------
+      5 | 1500.00
+</code></pre></div>
+
+<p><code>CAST(vendida_en AS date) BETWEEN '2026-10-01' AND '2026-10-04'</code> también da 5 ventas, pero aplica una función a la columna, y eso normalmente impide usar un índice sobre <code>vendida_en</code>: en una tabla grande es mucho más lento.</p>
+<blockquote>
+<p><strong>Nota:</strong> columna con hora = <code>&gt;=</code> el primer día y <code>&lt;</code> el día siguiente al último. Nunca <code>BETWEEN</code>.</p>
+</blockquote>
 <h2 id="4-errores-comunes">4. Errores comunes</h2>
 <ol>
 <li><strong><code>real</code>/<code>float</code> para dinero.</strong> El error se acumula y aparece cuando alguien cuadra contra contabilidad.</li>
