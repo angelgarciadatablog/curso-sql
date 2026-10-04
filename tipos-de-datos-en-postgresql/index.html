@@ -105,7 +105,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <td>Sensores, medidas que ya traen error</td>
 </tr>
 <tr>
-<td><code>double precision</code></td>
+<td><code>double precision</code> (<code>float</code>)</td>
 <td>Decimal <strong>aproximado</strong>, ~15 cifras en total</td>
 <td>Coordenadas, cálculos científicos</td>
 </tr>
@@ -261,6 +261,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>numeric(10,2)</code> = hasta 10 dígitos en total, 2 de ellos decimales. <code>discount</code> es <code>numeric(4,3)</code>: tres decimales, porque un descuento del 12,5% se guarda como <code>0.125</code>.</p>
+<p>Un porcentaje se puede guardar de dos formas, y el tipo depende de cuál elijas. Para admitir 12,45%:</p>
+<table>
+<thead>
+<tr>
+<th>Convención</th>
+<th>12,45% se guarda como</th>
+<th>Tipo</th>
+<th>100% se guarda como</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fracción</strong> (la de Northwind)</td>
+<td><code>0.1245</code></td>
+<td><code>numeric(5,4)</code></td>
+<td><code>1.0000</code></td>
+</tr>
+<tr>
+<td><strong>Porcentaje</strong></td>
+<td><code>12.45</code></td>
+<td><code>numeric(5,2)</code></td>
+<td><code>100.00</code></td>
+</tr>
+</tbody>
+</table>
+<p>Comprueba siempre que quepa el 100%: <code>numeric(4,4)</code> solo llega a <code>0.9999</code> y <code>numeric(4,2)</code> a <code>99.99</code>. Y <strong>no mezcles convenciones</strong> en la misma base: si una tabla guarda <code>0.125</code> y otra <code>12.5</code>, alguien acabará aplicando un descuento del 1.250%.</p>
 <h3>3.1 Conversión: <code>::</code> y <code>CAST</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'10'</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
 <span class="w">       </span><span class="s1">'3.7'</span><span class="p">::</span><span class="nb">numeric</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cast_a_int</span><span class="p">,</span>
@@ -281,15 +307,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </ul>
 <p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. En este curso usamos <code>CAST</code> porque vale en cualquier motor; <code>::</code> lo verás mucho en código de PostgreSQL.</p>
 <p>La misma consulta con <code>CAST</code>:</p>
-<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'10'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'10'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
 <span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'3.7'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cast_a_int</span><span class="p">,</span>
-<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">medio</span><span class="p">,</span>
-<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">medio2</span><span class="p">;</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cast_a_int_2</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cast_a_int_3</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> texto_a_int | cast_a_int | medio | medio2
--------------+------------+-------+--------
-          15 |          4 |     4 |      3
+<div class="hl"><pre><span></span><code> texto_a_int | cast_a_int | cast_a_int_2 | cast_a_int_3
+-------------+------------+--------------+--------------
+          10 |          4 |            4 |            3
 </code></pre></div>
 
 <p>Fíjate en <code>cast_a_int</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. <code>::</code> es más corto; <code>CAST</code> es más explícito y portable.</p>
