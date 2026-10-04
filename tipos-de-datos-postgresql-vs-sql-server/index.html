@@ -630,6 +630,11 @@ $2.70   NULL
 <td><code>ROUND(x, 2)</code> (devuelve la escala original)</td>
 </tr>
 <tr>
+<td>Texto a decimal redondeado</td>
+<td><code>round(CAST(x AS numeric), 2)</code></td>
+<td><code>ROUND(CAST(x AS decimal(18,4)), 2)</code>: el <code>(p,s)</code> es obligatorio y debe dejar sitio al redondeo</td>
+</tr>
+<tr>
 <td>Promedio con decimales</td>
 <td><code>avg(x)</code></td>
 <td><code>avg(CAST(x AS decimal(10,2)))</code></td>

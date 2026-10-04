@@ -263,14 +263,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><code>numeric(10,2)</code> = hasta 10 dígitos en total, 2 de ellos decimales. <code>discount</code> es <code>numeric(4,3)</code>: tres decimales, porque un descuento del 12,5% se guarda como <code>0.125</code>.</p>
 <h3>3.1 Conversión: <code>::</code> y <code>CAST</code></h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'10'</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">      </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
-<span class="w">       </span><span class="s1">'3.7'</span><span class="p">::</span><span class="nb">numeric</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">redondea</span><span class="p">,</span>
+<span class="w">       </span><span class="s1">'3.7'</span><span class="p">::</span><span class="nb">numeric</span><span class="p">::</span><span class="nb">int</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cast_a_int</span><span class="p">,</span>
 <span class="w">       </span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="p">::</span><span class="nb">int</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">medio</span><span class="p">,</span>
 <span class="w">       </span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="p">::</span><span class="nb">int</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">medio2</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> texto_a_int | redondea | medio | medio2
--------------+----------+-------+--------
-          15 |        4 |     4 |      3
+<div class="hl"><pre><span></span><code> texto_a_int | cast_a_int | medio | medio2
+-------------+------------+-------+--------
+          15 |          4 |     4 |      3
 </code></pre></div>
 
 <p>Tres cosas que aprender de esa fila:</p>
@@ -282,18 +282,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. En este curso usamos <code>CAST</code> porque vale en cualquier motor; <code>::</code> lo verás mucho en código de PostgreSQL.</p>
 <p>La misma consulta con <code>CAST</code>:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'10'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">texto_a_int</span><span class="p">,</span>
-<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'3.7'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">redondea</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'3.7'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">cast_a_int</span><span class="p">,</span>
 <span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">3</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">medio</span><span class="p">,</span>
 <span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                    </span><span class="k">AS</span><span class="w"> </span><span class="n">medio2</span><span class="p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code> texto_a_int | redondea | medio | medio2
--------------+----------+-------+--------
-          15 |        4 |     4 |      3
+<div class="hl"><pre><span></span><code> texto_a_int | cast_a_int | medio | medio2
+-------------+------------+-------+--------
+          15 |          4 |     4 |      3
 </code></pre></div>
 
-<p>Fíjate en <code>redondea</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. <code>::</code> es más corto; <code>CAST</code> es más explícito y portable.</p>
+<p>Fíjate en <code>cast_a_int</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. <code>::</code> es más corto; <code>CAST</code> es más explícito y portable.</p>
 <blockquote>
+<p><strong>Nota:</strong> esto muestra cómo se comporta <code>CAST</code>, no cómo redondear: ver 3.3.</p>
 <p><strong>Nota:</strong> en una migración, cuántos decimales conservar = decisión de negocio, no de sintaxis.</p>
 </blockquote>
 <h3>3.2 Cuándo falla convertir texto a número</h3>
@@ -364,7 +365,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Tres filas buenas y una mala: no hay resultado parcial, no hay nada.</p>
-<p><strong>Para encontrarlas antes de convertir</strong>, <code>pg_input_is_valid</code> (PostgreSQL 16+) comprueba cada valor sin romper:</p>
+<p><strong>Para encontrarlas antes de convertir</strong>, <code>pg_input_is_valid</code> (PostgreSQL 16+) comprueba cada valor sin romper. Comprueba si un texto concreto se puede convertir al tipo que tú le indicas en el segundo argumento:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">precio</span><span class="p">,</span><span class="w"> </span><span class="n">pg_input_is_valid</span><span class="p">(</span><span class="n">precio</span><span class="p">,</span><span class="w"> </span><span class="s1">'numeric'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valido</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">api_precios</span><span class="p">;</span>
 </code></pre></div>
@@ -382,7 +383,78 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong>El destino con <code>(p,s)</code> añade otro fallo.</strong> <code>CAST('123456789.99' AS numeric(10,2))</code> da <code>numeric field overflow</code>: tiene 9 cifras enteras y solo caben 8.</li>
 <li><strong><code>'NaN'</code> e <code>'Infinity'</code> se convierten sin error.</strong> Si la API los manda, se cuelan en tus sumas.</li>
 </ul>
-<h3>3.3 <code>round</code> contra <code>CAST</code></h3>
+<h3>3.3 Cómo redondear</h3>
+<p>La regla: <strong><code>round</code> redondea, <code>CAST</code> convierte.</strong> Cada uno hace su trabajo.</p>
+<p><code>round(x, d)</code> redondea <code>x</code> a <code>d</code> decimales. El segundo argumento decide cuántos:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">sin_redondear</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">dos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="k">AS</span><span class="w"> </span><span class="n">uno</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">))</span><span class="w">     </span><span class="k">AS</span><span class="w"> </span><span class="n">entero</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decenas</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>    sin_redondear    |  dos  | uno  | entero | decenas
+---------------------+-------+------+--------+---------
+ 28.8338961038961039 | 28.83 | 28.8 |     29 |      30
+</code></pre></div>
+
+<ul>
+<li><strong>Sin segundo argumento</strong>, <code>round(x)</code> es lo mismo que <code>round(x, 0)</code>: redondea a entero.</li>
+<li><strong>Con un número negativo</strong>, redondea a la izquierda de la coma: <code>-1</code> a decenas, <code>-2</code> a centenas.</li>
+<li><strong>Si faltan decimales, los rellena</strong>: <code>round(2.5, 2)</code> da <code>2.50</code>.</li>
+</ul>
+<p>Aquí no hay ningún <code>CAST</code> porque <code>unit_price</code> ya es <code>numeric</code>. <strong>El <code>CAST</code> solo aparece cuando el dato no es <code>numeric</code></strong>, por ejemplo cuando llega como texto.</p>
+<p><strong>Si el número viene como texto</strong>, son dos pasos y en este orden:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">round</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2.4445'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">dos</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2.4445'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">uno</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2.4445'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">))</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">entero</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> dos  | uno | entero
+------+-----+--------
+ 2.44 | 2.4 |      2
+</code></pre></div>
+
+<ol>
+<li><strong><code>CAST(... AS numeric)</code>, sin <code>(p,s)</code></strong>: convierte el texto sin perder ningún decimal.</li>
+<li><strong><code>round(..., d)</code></strong>: redondea a los decimales que tú decides.</li>
+</ol>
+<p><strong>Si además necesitas un tipo concreto</strong>, por ejemplo porque va a una columna, el <code>CAST</code> final va <strong>después</strong> del <code>round</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2.4445'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">a_decimal</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'3.7'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">                 </span><span class="k">AS</span><span class="w"> </span><span class="n">a_entero</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> a_decimal | a_entero
+-----------+----------
+      2.44 |        4
+</code></pre></div>
+
+<p>Convertir, redondear y, si hace falta, fijar el tipo. Lo que <strong>no</strong> hay que hacer:</p>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Problema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CAST(precio AS numeric(10,2))</code></td>
+<td>Redondea a escondidas y falla si el número no cabe (sección 3.4)</td>
+</tr>
+<tr>
+<td><code>CAST(precio AS int)</code></td>
+<td>Error: <code>'3.7'</code> no se puede convertir directo a entero</td>
+</tr>
+<tr>
+<td><code>round(CAST(precio AS float), 2)</code></td>
+<td>Error: <code>round</code> con decimales no existe para <code>float</code>. Y pasar por <code>float</code> mete error binario (sección 3.5)</td>
+</tr>
+</tbody>
+</table>
+<p>Y si el texto puede venir sucio, revísalo antes con <code>pg_input_is_valid</code> (sección 3.2): <code>round(CAST('abc' AS numeric), 2)</code> falla igual que el <code>CAST</code> solo.</p>
+<h3>3.4 <code>round</code> contra <code>CAST</code></h3>
 <p>Los dos pueden dejarte un número con menos decimales, pero no hacen lo mismo:</p>
 <ul>
 <li><strong><code>CAST</code> cambia el tipo.</strong> Si el tipo nuevo tiene menos decimales, redondea como efecto secundario.</li>
@@ -430,7 +502,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong>Ninguno de los dos te salva del tipo de origen.</strong> Con <code>double precision</code>, los dos dan <code>2</code>. Si el redondeo importa, el dato tiene que ser <code>numeric</code> antes de redondear: <code>round(CAST(x AS numeric), 2)</code>.</li>
 </ol>
 <p>La regla: <strong><code>CAST</code> para cambiar de tipo, <code>round</code> para redondear.</strong> Así quien lea la consulta ve dónde se pierden los decimales. <code>round</code> se ve a fondo en <a class="xref" href="../funciones-dentro-del-select/">funciones-dentro-del-select</a>.</p>
-<h3>3.4 Por qué nunca <code>real</code> para dinero</h3>
+<h3>3.5 Por qué nunca <code>real</code> para dinero</h3>
 <p>La demostración corta:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">real</span><span class="p">))</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span>
 <span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
@@ -501,7 +573,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p>Esto no es teórico: fue <strong>uno de los defectos que había que arreglar</strong> al preparar esta base. El port original de Northwind a PostgreSQL traía <code>unit_price</code> como <code>real</code>. Está documentado en <code>postgresql-northwind</code>.</p>
 </blockquote>
 <p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
-<h3>3.5 La división entera</h3>
+<h3>3.6 La división entera</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
 </code></pre></div>
 
@@ -523,7 +595,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
-<h3>3.6 El desbordamiento</h3>
+<h3>3.7 El desbordamiento</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32767</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32768</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span>
 </code></pre></div>
@@ -532,7 +604,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Da error, que es lo correcto: nunca te devuelve un número equivocado en silencio. Pero es la razón de no usar <code>smallint</code> para ahorrar: <strong>el día que la tabla crece, la aplicación deja de insertar.</strong> <code>units_in_stock</code> es <code>smallint</code> en Northwind — con 39 unidades de té va sobrado, con un almacén real no.</p>
-<h3>3.7 Texto: <code>char(n)</code> y por qué no</h3>
+<h3>3.8 Texto: <code>char(n)</code> y por qué no</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
 <span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
 </code></pre></div>
@@ -563,7 +635,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>length()</code> cuenta <strong>caracteres</strong>, <code>octet_length()</code> cuenta <strong>bytes</strong>. La <code>é</code> ocupa dos bytes en UTF-8. Si alguna vez ves un <code>varchar(50)</code> quedarse corto con 47 caracteres, esta es la razón — aunque en PostgreSQL <code>varchar(n)</code> cuenta caracteres, no bytes, así que aquí no pasa. En otros motores sí.</p>
-<h3>3.8 Fechas</h3>
+<h3>3.9 Fechas</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">fecha</span><span class="p">,</span>
 <span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">current_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">,</span>
 <span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">ahora</span>
