@@ -27,8 +27,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="topbar">
   <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
   <div class="progreso">
-    <div class="barra"><i style="width:calc(13 / 63 * 100%)"></i></div>
-    <div class="cuenta">Tema 13 de 63</div>
+    <div class="barra"><i style="width:calc(13 / 64 * 100%)"></i></div>
+    <div class="cuenta">Tema 13 de 64</div>
   </div>
 </div>
 
@@ -37,7 +37,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="side-tit">Ruta del curso</p>
     <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
 <details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
-<details open><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="activo">Tipos de datos en PostgreSQL</span></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details open><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><span class="activo">Tipos de datos en PostgreSQL</span></li><li><a href="../tipos-de-datos-postgresql-vs-sql-server/">Tipos de datos: PostgreSQL contra SQL Server</a></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
 <details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
 <details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
 <details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
@@ -100,12 +100,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <td><strong>Dinero, porcentajes, cualquier cosa que se sume</strong></td>
 </tr>
 <tr>
-<td><code>real</code> / <code>double precision</code></td>
-<td>Decimal <strong>aproximado</strong> (coma flotante)</td>
-<td>Medidas físicas, coordenadas, cálculos científicos</td>
+<td><code>real</code></td>
+<td>Decimal <strong>aproximado</strong>, ~6-7 cifras <strong>en total</strong></td>
+<td>Sensores, medidas que ya traen error</td>
+</tr>
+<tr>
+<td><code>double precision</code></td>
+<td>Decimal <strong>aproximado</strong>, ~15 cifras en total</td>
+<td>Coordenadas, cálculos científicos</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>Nota:</strong> <code>float</code> a secas = <code>double precision</code>, no <code>real</code>.</p>
+</blockquote>
 <h3>2.2 Texto</h3>
 <table>
 <thead>
@@ -269,7 +277,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <ul>
 <li><code>'10'::int</code> funciona: PostgreSQL convierte texto a número <strong>si el texto es un número</strong>. <code>'diez'::int</code> da error.</li>
 <li><strong>Convertir a entero redondea, no trunca.</strong> <code>3.7 → 4</code>.</li>
-<li>Y redondea <strong>al alejarse del cero</strong>: <code>2.5 → 3</code>, no <code>2</code>. Otros lenguajes redondean al par más cercano y darían 2. <strong>Si el redondeo importa, escríbelo explícito con <code>round()</code></strong> en vez de confiar en el cast.</li>
+<li>Con <code>numeric</code>, redondea <strong>al alejarse del cero</strong>: <code>2.5 → 3</code>, no <code>2</code>. Con <code>double precision</code> no: redondea al par más cercano y da <code>2</code>. <strong>Si el redondeo importa, no lo dejes en manos del <code>CAST</code></strong>: lo vemos en la sección 3.3.</li>
 </ul>
 <p><code>CAST(x AS tipo)</code> es la forma del estándar y <code>x::tipo</code> la de PostgreSQL. Son idénticas. En este curso usamos <code>CAST</code> porque vale en cualquier motor; <code>::</code> lo verás mucho en código de PostgreSQL.</p>
 <p>La misma consulta con <code>CAST</code>:</p>
@@ -285,7 +293,144 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Fíjate en <code>redondea</code>: la doble conversión <code>'3.7'::numeric::int</code> se convierte en dos <code>CAST</code> anidados. <code>::</code> es más corto; <code>CAST</code> es más explícito y portable.</p>
-<h3>3.2 Por qué nunca <code>real</code> para dinero</h3>
+<blockquote>
+<p><strong>Nota:</strong> en una migración, cuántos decimales conservar = decisión de negocio, no de sintaxis.</p>
+</blockquote>
+<h3>3.2 Cuándo falla convertir texto a número</h3>
+<p>El caso típico: una API te manda los precios <strong>como texto</strong> y tú los necesitas como número. <code>CAST(x AS numeric)</code>, sin paréntesis, conserva <strong>todos los decimales de la fuente</strong>: no redondea ni decide nada por ti.</p>
+<blockquote>
+<p><strong>Nota:</strong> en SQL Server, <code>decimal</code> sin paréntesis = cero decimales.</p>
+</blockquote>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">texto</span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">convertido</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.7'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.4445'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'  2.7  '</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'-3.5'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'+3.5'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'.5'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'5.'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'1e3'</span><span class="p">))</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  texto  | convertido
+---------+------------
+ 2.7     |        2.7
+ 2.4445  |     2.4445
+   2.7   |        2.7
+ -3.5    |       -3.5
+ +3.5    |        3.5
+ .5      |        0.5
+ 5.      |          5
+ 1e3     |       1000
+</code></pre></div>
+
+<p>Espacios alrededor, signos y notación científica pasan sin problema. Lo que <strong>no</strong> pasa:</p>
+<table>
+<thead>
+<tr>
+<th>Texto de la API</th>
+<th>Por qué falla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'2,7'</code></td>
+<td>Coma decimal</td>
+</tr>
+<tr>
+<td><code>'1,234.56'</code></td>
+<td>Separador de miles</td>
+</tr>
+<tr>
+<td><code>'$2.70'</code>, <code>'2.7 USD'</code></td>
+<td>Símbolo o código de moneda</td>
+</tr>
+<tr>
+<td><code>''</code></td>
+<td>Un texto vacío no es un número</td>
+</tr>
+<tr>
+<td><code>'N/A'</code>, <code>'null'</code></td>
+<td>Marcadores de "sin dato" escritos como texto</td>
+</tr>
+</tbody>
+</table>
+<p>Todos dan el mismo error:</p>
+<div class="hl"><pre><span></span><code>ERROR:  invalid input syntax for type numeric: "2,7"
+</code></pre></div>
+
+<p>Un <code>NULL</code> de verdad (no el texto <code>'null'</code>) no falla: se convierte en <code>NULL</code>.</p>
+<p><strong>Lo grave es que una sola fila mala tumba la consulta entera:</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="n">TEMP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">api_precios</span><span class="w"> </span><span class="p">(</span><span class="n">precio</span><span class="w"> </span><span class="nb">text</span><span class="p">);</span>
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">api_precios</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.7'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.4445'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'2,7834'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.9034'</span><span class="p">);</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">precio</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">api_precios</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ERROR:  invalid input syntax for type numeric: "2,7834"
+</code></pre></div>
+
+<p>Tres filas buenas y una mala: no hay resultado parcial, no hay nada.</p>
+<p><strong>Para encontrarlas antes de convertir</strong>, <code>pg_input_is_valid</code> (PostgreSQL 16+) comprueba cada valor sin romper:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">precio</span><span class="p">,</span><span class="w"> </span><span class="n">pg_input_is_valid</span><span class="p">(</span><span class="n">precio</span><span class="p">,</span><span class="w"> </span><span class="s1">'numeric'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">valido</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">api_precios</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> precio | valido
+--------+--------
+ 2.7    | t
+ 2.4445 | t
+ 2,7834 | f
+ 2.9034 | t
+</code></pre></div>
+
+<p>Dos casos más que conviene conocer:</p>
+<ul>
+<li><strong>El destino con <code>(p,s)</code> añade otro fallo.</strong> <code>CAST('123456789.99' AS numeric(10,2))</code> da <code>numeric field overflow</code>: tiene 9 cifras enteras y solo caben 8.</li>
+<li><strong><code>'NaN'</code> e <code>'Infinity'</code> se convierten sin error.</strong> Si la API los manda, se cuelan en tus sumas.</li>
+</ul>
+<h3>3.3 <code>round</code> contra <code>CAST</code></h3>
+<p>Los dos pueden dejarte un número con menos decimales, pero no hacen lo mismo:</p>
+<ul>
+<li><strong><code>CAST</code> cambia el tipo.</strong> Si el tipo nuevo tiene menos decimales, redondea como efecto secundario.</li>
+<li><strong><code>round(x, d)</code> redondea a propósito</strong> y deja el tipo como estaba.</li>
+</ul>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">4445</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_cast</span><span class="p">,</span>
+<span class="w">       </span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">4445</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w">              </span><span class="k">AS</span><span class="w"> </span><span class="n">con_round</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code> con_cast | con_round
+----------+-----------
+     2.44 |      2.44
+</code></pre></div>
+
+<p>Mismo resultado. La diferencia aparece en los bordes:</p>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th><code>CAST</code></th>
+<th><code>round</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Número que no cabe: <code>123456789.999</code></td>
+<td><code>CAST(... AS numeric(10,2))</code> → <strong>error</strong> <code>numeric field overflow</code></td>
+<td><code>round(..., 2)</code> → <code>123456790.00</code></td>
+</tr>
+<tr>
+<td><code>2.5</code> a entero, siendo <code>numeric</code></td>
+<td><code>CAST(2.5 AS int)</code> → <code>3</code></td>
+<td><code>round(2.5)</code> → <code>3</code></td>
+</tr>
+<tr>
+<td><code>2.5</code> a entero, siendo <code>double precision</code></td>
+<td><code>CAST(2.5::float8 AS int)</code> → <strong><code>2</code></strong></td>
+<td><code>round(2.5::float8)</code> → <strong><code>2</code></strong></td>
+</tr>
+</tbody>
+</table>
+<p>Dos lecturas:</p>
+<ol>
+<li><strong><code>CAST</code> a un tipo con <code>(p,s)</code> pone un límite de tamaño</strong>, y si el valor no cabe, la consulta falla. <code>round</code> solo quita decimales.</li>
+<li><strong>Ninguno de los dos te salva del tipo de origen.</strong> Con <code>double precision</code>, los dos dan <code>2</code>. Si el redondeo importa, el dato tiene que ser <code>numeric</code> antes de redondear: <code>round(CAST(x AS numeric), 2)</code>.</li>
+</ol>
+<p>La regla: <strong><code>CAST</code> para cambiar de tipo, <code>round</code> para redondear.</strong> Así quien lea la consulta ve dónde se pierden los decimales. <code>round</code> se ve a fondo en <a class="xref" href="../funciones-dentro-del-select/">funciones-dentro-del-select</a>.</p>
+<h3>3.4 Por qué nunca <code>real</code> para dinero</h3>
 <p>La demostración corta:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">real</span><span class="p">))</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_real</span><span class="p">,</span>
 <span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">suma_numeric</span>
@@ -303,7 +448,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li>En cada fila, <code>0.01</code> es el mismo número: no lee ninguna columna.</li>
 <li><code>sum()</code> suma ese <code>0.01</code> una vez por fila: 2.155 × 0.01 = <strong>21,55</strong>.</li>
 </ol>
-<p><code>numeric</code> da exactamente eso. <strong><code>real</code> da 21,550398.</strong> El error viene de que <code>0.01</code> no existe exactamente en binario, igual que <code>1/3</code> no existe exactamente en decimal. Cada suma arrastra un poco de error y 2.155 sumas lo hacen visible.</p>
+<p><code>numeric</code> da exactamente eso. <strong><code>real</code> da 21,550398.</strong> Hay dos causas, y conviene tenerlas separadas:</p>
+<ol>
+<li><strong>La mayoría de decimales no existen exactos en binario.</strong> <code>0.01</code>, <code>0.1</code> o <code>0.59</code> se guardan como una aproximación, igual que <code>1/3</code> no se puede escribir exacto en decimal (0,3333…). Solo las mitades (0,5, 0,25, 0,125…) se guardan exactas. Cada suma arrastra un poco de error y 2.155 sumas lo hacen visible.</li>
+<li><strong><code>real</code> tiene unas 7 cifras para todo el número</strong>, y la parte entera y los decimales se las reparten. <code>double precision</code> tiene unas 15: el error es más pequeño, pero la causa 1 sigue ahí.</li>
+</ol>
 <p>Con los datos reales de Northwind:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="p">)</span><span class="w">               </span><span class="k">AS</span><span class="w"> </span><span class="n">numeric_exacto</span><span class="p">,</span>
 <span class="w">       </span><span class="k">sum</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">unit_price</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">quantity</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">real</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_real</span>
@@ -315,12 +464,44 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      1354458.59 | 1.3544585e+06
 </code></pre></div>
 
-<p>Fíjate en la segunda: ni siquiera te enseña los céntimos, te da notación científica. <strong>Un total de facturación que no sabe decirte los céntimos no es un total de facturación.</strong></p>
+<p>Antes de mirar el resultado, fíjate en los tipos. <code>unit_price</code> es <code>numeric(10,2)</code>: 10 cifras en total, 2 de ellas decimales (máximo <code>99999999.99</code>). <code>quantity</code> es <code>integer</code>. Al multiplicarlos:</p>
+<ul>
+<li><strong>El 10 deja de ser límite.</strong> El resultado es <code>numeric</code> sin tope de cifras, porque la operación agranda el número.</li>
+<li><strong>Los 2 decimales se mantienen.</strong> Un precio con céntimos por una cantidad entera sigue teniendo céntimos.</li>
+</ul>
+<p>Así que cualquier total correcto <strong>tiene que tener 2 decimales</strong>. <code>numeric</code> los conserva: <code>1354458.59</code>.</p>
+<p><strong><code>real</code> da 1354458.5: perdió los 9 céntimos.</strong> La parte entera ya ocupa 7 cifras y no queda sitio para los decimales. Según el cliente lo verás como <code>1354458.5</code> (Neon, DBeaver) o como <code>1.3544585e+06</code> (psql): es el mismo número escrito de dos formas.</p>
+<p>Los dos ejemplos parecen opuestos, pero son el mismo defecto:</p>
+<table>
+<thead>
+<tr>
+<th>Ejemplo</th>
+<th><code>numeric</code></th>
+<th><code>real</code></th>
+<th>Qué pasó</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Número pequeño (21,55)</td>
+<td><code>21.55</code></td>
+<td><code>21.550398</code></td>
+<td>Le <strong>sobran</strong> decimales, y son basura</td>
+</tr>
+<tr>
+<td>Número grande (1.354.458,59)</td>
+<td><code>1354458.59</code></td>
+<td><code>1354458.5</code></td>
+<td>Le <strong>faltan</strong> decimales: perdió los céntimos</td>
+</tr>
+</tbody>
+</table>
+<p>No es que salgan muchos o pocos decimales: <strong>en ningún caso cuadra. Un total de facturación que no sabe decirte los céntimos no es un total de facturación.</strong></p>
 <blockquote>
 <p>Esto no es teórico: fue <strong>uno de los defectos que había que arreglar</strong> al preparar esta base. El port original de Northwind a PostgreSQL traía <code>unit_price</code> como <code>real</code>. Está documentado en <code>postgresql-northwind</code>.</p>
 </blockquote>
 <p><strong><code>real</code> sí es correcto</strong> para latitud/longitud, temperaturas, sensores: cosas que ya vienen con error de medición y donde el rendimiento importa. La regla es: <strong>si el valor se suma y alguien lo cuadra contra una factura, <code>numeric</code>.</strong></p>
-<h3>3.3 La división entera</h3>
+<h3>3.5 La división entera</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="mi">7</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">entera</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">decimal_</span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">numeric</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">casteada</span><span class="p">;</span>
 </code></pre></div>
 
@@ -342,7 +523,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><strong>El truco: multiplica por <code>100.0</code> (con decimal) al principio.</strong> Eso arrastra toda la expresión a <code>numeric</code>.</p>
-<h3>3.4 El desbordamiento</h3>
+<h3>3.6 El desbordamiento</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32767</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 32767, el máximo</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">32768</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">smallint</span><span class="p">);</span>
 </code></pre></div>
@@ -351,7 +532,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p>Da error, que es lo correcto: nunca te devuelve un número equivocado en silencio. Pero es la razón de no usar <code>smallint</code> para ahorrar: <strong>el día que la tabla crece, la aplicación deja de insertar.</strong> <code>units_in_stock</code> es <code>smallint</code> en Northwind — con 39 unidades de té va sobrado, con un almacén real no.</p>
-<h3>3.5 Texto: <code>char(n)</code> y por qué no</h3>
+<h3>3.7 Texto: <code>char(n)</code> y por qué no</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
 <span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
 </code></pre></div>
@@ -382,7 +563,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>length()</code> cuenta <strong>caracteres</strong>, <code>octet_length()</code> cuenta <strong>bytes</strong>. La <code>é</code> ocupa dos bytes en UTF-8. Si alguna vez ves un <code>varchar(50)</code> quedarse corto con 47 caracteres, esta es la razón — aunque en PostgreSQL <code>varchar(n)</code> cuenta caracteres, no bytes, así que aquí no pasa. En otros motores sí.</p>
-<h3>3.6 Fechas</h3>
+<h3>3.8 Fechas</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">fecha</span><span class="p">,</span>
 <span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">current_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">,</span>
 <span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">ahora</span>
@@ -424,7 +605,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>char(n)</code>.</strong> Espacios invisibles.</li>
 <li><strong><code>smallint</code> para ahorrar.</strong> Ahorras 2 bytes y compras un incidente.</li>
 <li><strong><code>timestamp</code> sin zona en un sistema con usuarios en varios países.</strong> Guarda <code>timestamptz</code>.</li>
-<li><strong>Confiar en el redondeo implícito de un cast.</strong> <code>CAST(2.5 AS int)</code> es 3, <code>2.5</code> en otros lenguajes es 2. Escribe <code>round()</code>.</li>
+<li><strong>Confiar en el redondeo implícito de un cast.</strong> <code>CAST(2.5 AS int)</code> es 3 con <code>numeric</code>, 2 con <code>double precision</code>, y en SQL Server <code>CAST(3.7 AS int)</code> es 3. Escribe <code>round()</code>.</li>
 </ol>
 <h2 id="5-diferencias-con-sql-server">5. Diferencias con SQL Server</h2>
 <table>
@@ -478,6 +659,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <li><strong><code>money</code> de SQL Server no es lo que parece.</strong> Tiene solo 4 decimales fijos y se comporta raro al dividir. La recomendación general, incluso dentro del mundo SQL Server, es usar <code>decimal</code>. En PostgreSQL existe un tipo <code>money</code> y <strong>también hay que evitarlo</strong>: depende de la configuración regional del servidor.</li>
 <li><strong><code>CONVERT</code> con estilos numéricos</strong> (<code>CONVERT(varchar, fecha, 103)</code>) no tiene equivalente. En PostgreSQL se usa <code>to_char(fecha, 'DD/MM/YYYY')</code> — ver <a class="xref" href="../funciones-dentro-del-select/">funciones-dentro-del-select</a>.</li>
 </ul>
+<p><strong>Las diferencias que cambian resultados</strong> (<code>CAST</code> a <code>int</code> que trunca, <code>decimal</code> sin <code>(p,s)</code>, <code>avg</code> de enteros, <code>ROUND</code>) tienen tema propio: <a class="xref" href="../tipos-de-datos-postgresql-vs-sql-server/">tipos-de-datos-postgresql-vs-sql-server</a>.</p>
 <h2 id="6-ejercicios">6. Ejercicios</h2>
 <ol>
 <li>Averigua el tipo de todas las columnas de <code>orders</code> sin usar <code>\d</code>.</li>
@@ -557,7 +739,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <p><code>21.35 → 21</code>: <strong>redondea, no trunca</strong> — lo que pasa es que 21,35 redondea hacia abajo. Con <code>21.60</code> daría 22. Y lo importante: <strong>el céntimo perdido no vuelve.</strong> Un informe que castea precios a entero pierde hasta 0,50 por línea, y con 2.155 líneas eso es dinero de verdad.</p>
 <p><strong>5.</strong> Devuelve <strong>105</strong>. PostgreSQL ve <code>'100'</code> sin tipo definido, encuentra un <code>+</code> con un <code>integer</code> al otro lado y deduce que el texto debe ser un número. <strong>No es una suma de textos</strong>: si intentas <code>'100' + '5'</code> da error, porque no hay nada que le diga de qué tipo son.</p>
 <p>Y el aviso: eso funciona <strong>por casualidad</strong>. <code>SELECT '100abc' + 5</code> da <code>invalid input syntax for type integer</code>. La conversión implícita de PostgreSQL es más estricta que la de otros motores, pero seguir dependiendo de ella es frágil: <strong>escribe el cast.</strong></p></div></details>
-    <nav class="navpies"><a class="nav-prev" href="../distinct-y-duplicados/"><span>Anterior</span><strong>DISTINCT y duplicados</strong></a><a class="nav-next" href="../funciones-dentro-del-select/"><span>Siguiente</span><strong>Funciones dentro del SELECT</strong></a></nav>
+    <nav class="navpies"><a class="nav-prev" href="../distinct-y-duplicados/"><span>Anterior</span><strong>DISTINCT y duplicados</strong></a><a class="nav-next" href="../tipos-de-datos-postgresql-vs-sql-server/"><span>Siguiente</span><strong>Tipos de datos: PostgreSQL contra SQL Server</strong></a></nav>
   </main>
 
   <aside class="toc">

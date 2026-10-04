@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Tipos de datos: PostgreSQL contra SQL Server · Curso SQL · Angel García</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="La misma consulta da otros números en SQL Server: CAST a int trunca, decimal sin (p,s) = 0 decimales, avg de enteros es entero, ROUND desborda" />
+  <link rel="canonical" href="https://www.angelgarciadatablog.com/curso-sql/tipos-de-datos-postgresql-vs-sql-server/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Tipos de datos: PostgreSQL contra SQL Server" />
+  <meta property="og:description" content="La misma consulta da otros números en SQL Server: CAST a int trunca, decimal sin (p,s) = 0 decimales, avg de enteros es entero, ROUND desborda" />
+  <meta property="og:url" content="https://www.angelgarciadatablog.com/curso-sql/tipos-de-datos-postgresql-vs-sql-server/" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="../assets/curso.css?v=18" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
+  new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
+  "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,"script","dataLayer","GTM-KDXJ37SD");</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="topbar">
+  <a class="marca" href="../">Curso SQL <span>· Northwind</span></a>
+  <div class="progreso">
+    <div class="barra"><i style="width:calc(14 / 64 * 100%)"></i></div>
+    <div class="cuenta">Tema 14 de 64</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="side">
+    <p class="side-tit">Ruta del curso</p>
+    <details><summary><span class="bnum">1</span>Antes de escribir SQL</summary><ul><li><a href="../conectarse-y-explorar/">Conectarse y explorar</a></li><li><a href="../el-negocio-de-northwind/">El negocio de Northwind</a></li><li><a href="../que-es-una-base-de-datos-relacional/">Qué es una base de datos relacional</a></li><li><a href="../muchos-a-muchos-y-tablas-puente/">El muchos a muchos y la tabla del medio</a></li><li><a href="../leer-un-esquema-desconocido/">Leer un esquema desconocido</a></li></ul></details>
+<details><summary><span class="bnum">2</span>La consulta</summary><ul><li><a href="../select-y-from/">SELECT y FROM</a></li><li><a href="../orden-logico-de-ejecucion/">Las cláusulas básicas y su orden de ejecución</a></li><li><a href="../where-y-operadores/">WHERE y los operadores</a></li><li><a href="../null-y-la-logica-de-tres-valores/">NULL y la lógica de tres valores</a></li><li><a href="../buscar-texto-like-y-regex/">Buscar texto: LIKE, ILIKE y expresiones regulares</a></li><li><a href="../ordenar-y-limitar/">Ordenar y limitar</a></li><li><a href="../distinct-y-duplicados/">DISTINCT y duplicados</a></li></ul></details>
+<details open><summary><span class="bnum">3</span>Transformar valores</summary><ul><li><a href="../tipos-de-datos-en-postgresql/">Tipos de datos en PostgreSQL</a></li><li><span class="activo">Tipos de datos: PostgreSQL contra SQL Server</span></li><li><a href="../funciones-dentro-del-select/">Funciones dentro del SELECT</a></li><li><a href="../case-condicionales-en-sql/">CASE: condicionales en SQL</a></li></ul></details>
+<details><summary><span class="bnum">4</span>Agregar</summary><ul><li><a href="../funciones-de-agregacion/">Funciones de agregación</a></li><li><a href="../group-by/">GROUP BY</a></li><li><a href="../having-vs-where/">HAVING vs WHERE</a></li><li><a href="../agregacion-avanzada/">Agregación avanzada</a></li></ul></details>
+<details><summary><span class="bnum">5</span>Combinar tablas</summary><ul><li><a href="../inner-join/">INNER JOIN</a></li><li><a href="../left-right-y-full-join/">LEFT, RIGHT y FULL JOIN</a></li><li><a href="../cross-join-y-self-join/">CROSS JOIN y self-join</a></li><li><a href="../anti-join-y-semi-join/">Anti-join y semi-join</a></li><li><a href="../union-intersect-except/">UNION, INTERSECT y EXCEPT</a></li><li><a href="../joins-multiples-y-granularidad/">Joins múltiples y granularidad</a></li></ul></details>
+<details><summary><span class="bnum">6</span>Consultas dentro de consultas</summary><ul><li><a href="../subconsultas-escalares-y-multivalor/">Subconsultas escalares y multivalor</a></li><li><a href="../subconsultas-correlacionadas/">Subconsultas correlacionadas</a></li><li><a href="../tablas-derivadas/">Tablas derivadas</a></li><li><a href="../cte-with/">CTE: la cláusula WITH</a></li><li><a href="../cte-recursivas/">CTE recursivas</a></li><li><a href="../lateral/">LATERAL</a></li></ul></details>
+<details><summary><span class="bnum">7</span>Funciones de ventana</summary><ul><li><a href="../que-es-una-funcion-de-ventana/">Qué es una función de ventana</a></li><li><a href="../partition-by-y-order-by/">PARTITION BY y ORDER BY</a></li><li><a href="../el-marco-rows-vs-range/">El marco: ROWS contra RANGE</a></li><li><a href="../ranking-row-number-rank-ntile/">Ranking: ROW_NUMBER, RANK, DENSE_RANK y NTILE</a></li><li><a href="../lag-lead-first-last-value/">LAG, LEAD, FIRST_VALUE y LAST_VALUE</a></li><li><a href="../distribucion-y-percentiles/">Distribución y percentiles</a></li></ul></details>
+<details><summary><span class="bnum">8</span>Modificar datos (DML)</summary><ul><li><span class="bloqueado">INSERT: añadir filas</span></li><li><span class="bloqueado">UPDATE: modificar filas</span></li><li><span class="bloqueado">DELETE y TRUNCATE: quitar filas</span></li><li><span class="bloqueado">UPSERT y RETURNING</span></li></ul></details>
+<details><summary><span class="bnum">9</span>Definir estructuras (DDL)</summary><ul><li><span class="bloqueado">CREATE TABLE: crear tablas</span></li><li><span class="bloqueado">Restricciones</span></li><li><span class="bloqueado">ALTER TABLE: cambiar lo que ya existe</span></li><li><span class="bloqueado">Vistas</span></li><li><span class="bloqueado">Crear tus propias funciones</span></li><li><span class="bloqueado">Secuencias e IDENTITY</span></li></ul></details>
+<details><summary><span class="bnum">10</span>Transacciones (TCL)</summary><ul><li><span class="bloqueado">BEGIN, COMMIT y ROLLBACK</span></li><li><span class="bloqueado">SAVEPOINT: deshacer una parte</span></li><li><span class="bloqueado">ACID y niveles de aislamiento</span></li></ul></details>
+<details><summary><span class="bnum">11</span>Rendimiento</summary><ul><li><span class="bloqueado">Índices</span></li><li><span class="bloqueado">EXPLAIN y EXPLAIN ANALYZE</span></li><li><span class="bloqueado">Escribir consultas que no se arrastren</span></li></ul></details>
+<details><summary><span class="bnum">12</span>Casuísticas</summary><ul><li><span class="bloqueado">Fechas sin actividad</span></li><li><span class="bloqueado">Máximas sesiones activas</span></li><li><span class="bloqueado">Agrupar intervalos coincidentes</span></li><li><span class="bloqueado">Islas y brechas</span></li><li><span class="bloqueado">Top N por grupo</span></li><li><span class="bloqueado">Periodo contra periodo</span></li><li><span class="bloqueado">Análisis ABC de clientes</span></li><li><span class="bloqueado">Detectar duplicados</span></li><li><span class="bloqueado">Pivotar datos</span></li><li><span class="bloqueado">Lo que las claves no garantizan</span></li></ul></details>
+  </aside>
+
+  <main>
+    <div class="eyebrow">
+      <span class="pill b">Bloque 3 · Transformar valores</span>
+      <span class="pill">PostgreSQL 17 y SQL Server (Azure SQL Database)</span>
+      <span class="pill">northwind</span>
+    </div>
+    <h1>Tipos de datos: PostgreSQL contra SQL Server</h1>
+    <div class="requiere"><span class="lbl">Requiere</span><a href="../tipos-de-datos-en-postgresql/">tipos-de-datos-en-postgresql</a></div>
+    
+    <div class="post-body"><h2 id="1-qu-es">1. Qué es</h2>
+<p>Si vienes de PostgreSQL y te toca trabajar en SQL Server, vas a escribir consultas que <strong>funcionan en los dos motores, no dan ningún error y devuelven números distintos</strong>.</p>
+<p>Este es el informe más sencillo posible: stock medio y precio medio por categoría, sobre la misma Northwind cargada en los dos motores.</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">avg</span><span class="p">(</span><span class="n">units_in_stock</span><span class="p">)</span><span class="w">          </span><span class="k">AS</span><span class="w"> </span><span class="n">stock_medio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_entero</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="p">;</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th><code>category_id</code></th>
+<th>PostgreSQL <code>stock_medio</code></th>
+<th>SQL Server <code>stock_medio</code></th>
+<th>PostgreSQL <code>precio_entero</code></th>
+<th>SQL Server <code>precio_entero</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>46.5833333333333333</td>
+<td><strong>46</strong></td>
+<td>38</td>
+<td><strong>37</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>42.2500000000000000</td>
+<td><strong>42</strong></td>
+<td>23</td>
+<td><strong>22</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>29.6923076923076923</td>
+<td><strong>29</strong></td>
+<td>25</td>
+<td>25</td>
+</tr>
+<tr>
+<td>4</td>
+<td>39.3000000000000000</td>
+<td><strong>39</strong></td>
+<td>29</td>
+<td><strong>28</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>44.0000000000000000</td>
+<td>44</td>
+<td>20</td>
+<td>20</td>
+</tr>
+<tr>
+<td>6</td>
+<td>27.5000000000000000</td>
+<td><strong>27</strong></td>
+<td>54</td>
+<td>54</td>
+</tr>
+<tr>
+<td>7</td>
+<td>20.0000000000000000</td>
+<td>20</td>
+<td>32</td>
+<td>32</td>
+</tr>
+<tr>
+<td>8</td>
+<td>58.4166666666666667</td>
+<td><strong>58</strong></td>
+<td>21</td>
+<td><strong>20</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Misma consulta, mismos datos, ningún error. <strong>El stock medio pierde los decimales en 6 de las 8 categorías y el precio sale distinto en 4.</strong> Dos comportamientos lo explican, y los dos se ven en este tema:</p>
+<ol>
+<li>En SQL Server, <strong>el promedio de enteros es un entero</strong>: <code>avg</code> corta los decimales.</li>
+<li>En SQL Server, <strong>convertir a <code>int</code> corta los decimales</strong>: no redondea.</li>
+</ol>
+<p>Todas las salidas de este tema se ejecutaron en PostgreSQL 17 (Neon) y en Azure SQL Database.</p>
+<h2 id="2-equivalencias-de-tipos">2. Equivalencias de tipos</h2>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+<th>Ojo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entero</td>
+<td><code>integer</code></td>
+<td><code>int</code></td>
+<td>Igual</td>
+</tr>
+<tr>
+<td>Decimal exacto</td>
+<td><code>numeric(p,s)</code></td>
+<td><code>decimal(p,s)</code> / <code>numeric(p,s)</code></td>
+<td>Sin <code>(p,s)</code> se comportan al revés (sección 3.2)</td>
+</tr>
+<tr>
+<td>Coma flotante 4 bytes</td>
+<td><code>real</code></td>
+<td><code>real</code></td>
+<td>Igual</td>
+</tr>
+<tr>
+<td>Coma flotante 8 bytes</td>
+<td><code>double precision</code></td>
+<td><code>float</code></td>
+<td><code>float</code> a secas es 8 bytes en los dos</td>
+</tr>
+<tr>
+<td>Texto sin tope</td>
+<td><code>text</code></td>
+<td><code>varchar(max)</code> / <code>nvarchar(max)</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Texto con tope</td>
+<td><code>varchar(n)</code></td>
+<td><code>varchar(n)</code> / <code>nvarchar(n)</code></td>
+<td>Sin <code>(n)</code> se comportan muy distinto (sección 3.6)</td>
+</tr>
+<tr>
+<td>Sí/no</td>
+<td><code>boolean</code></td>
+<td><code>bit</code> (0/1)</td>
+<td><code>bit</code> no es un booleano de verdad (sección 3.7)</td>
+</tr>
+<tr>
+<td>Fecha y hora</td>
+<td><code>timestamp</code></td>
+<td><code>datetime2</code></td>
+<td>Evita <code>datetime</code> (sección 3.8)</td>
+</tr>
+<tr>
+<td>Fecha con zona</td>
+<td><code>timestamptz</code></td>
+<td><code>datetimeoffset</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Dinero</td>
+<td><code>numeric(12,2)</code></td>
+<td><code>decimal(12,2)</code></td>
+<td><code>money</code> existe en los dos y en los dos hay que evitarlo</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-ejemplos-lado-a-lado">3. Ejemplos lado a lado</h2>
+<h3>3.1 Convertir a entero: uno redondea, el otro corta</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">3</span><span class="p">.</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">),</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">),</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">.</span><span class="mi">7</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">);</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Expresión</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CAST(3.7 AS int)</code></td>
+<td><code>4</code></td>
+<td><strong><code>3</code></strong></td>
+</tr>
+<tr>
+<td><code>CAST(2.5 AS int)</code></td>
+<td><code>3</code></td>
+<td><strong><code>2</code></strong></td>
+</tr>
+<tr>
+<td><code>CAST(-3.7 AS int)</code></td>
+<td><code>-4</code></td>
+<td><strong><code>-3</code></strong></td>
+</tr>
+<tr>
+<td><code>CAST(CAST(2.5 AS float) AS int)</code></td>
+<td><code>2</code></td>
+<td><code>2</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>PostgreSQL redondea; SQL Server trunca</strong>: tira los decimales sin mirarlos. Con <code>float</code> coinciden, pero por motivos distintos: PostgreSQL redondea al par y SQL Server corta.</p>
+<p>Es la diferencia que más dinero mueve, porque no avisa. Si una consulta convierte precios a entero, en SQL Server cada línea pierde hasta casi una unidad, siempre hacia abajo.</p>
+<p><strong>Cómo escribirlo para que dé lo mismo en los dos:</strong> redondea primero y convierte después.</p>
+<div class="hl"><pre><span></span><code><span class="k">CAST</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span>
+</code></pre></div>
+
+<p>En SQL Server eso devuelve <code>38, 23, 25, 29, 20, 54, 32, 21</code>, igual que PostgreSQL.</p>
+<h3>3.2 <code>decimal</code> sin <code>(p,s)</code>: todos los decimales o ninguno</h3>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="s1">'2.4445'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">);</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Resultado</td>
+<td><code>2.4445</code></td>
+<td><strong><code>2</code></strong></td>
+</tr>
+<tr>
+<td>Por qué</td>
+<td><code>numeric</code> sin paréntesis no tiene límite: guarda los decimales que traiga el valor</td>
+<td><code>decimal</code> sin paréntesis es <code>decimal(18,0)</code>: <strong>cero decimales</strong></td>
+</tr>
+</tbody>
+</table>
+<p>En PostgreSQL, <code>CAST(x AS numeric)</code> es la conversión más segura que hay. <strong>En SQL Server es la que más destruye.</strong> Lo que en <a class="xref" href="../tipos-de-datos-en-postgresql/">tipos-de-datos-en-postgresql</a> (sección 3.2: convertir texto a número conserva todos los decimales) es una buena práctica, en SQL Server es un error.</p>
+<p><strong>Regla para SQL Server: <code>decimal</code> siempre con <code>(p,s)</code>.</strong></p>
+<p><code>decimal(10)</code> sin escala sí coincide en los dos: escala 0, así que <code>CAST(2.7 AS decimal(10))</code> da <code>3</code> en ambos.</p>
+<h3>3.3 <code>ROUND</code> no es la misma función</h3>
+<table>
+<thead>
+<tr>
+<th>Expresión</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>round(2.4445, 2)</code></td>
+<td><code>2.44</code></td>
+<td><code>2.4400</code>: mantiene los decimales del original, rellenos con ceros</td>
+</tr>
+<tr>
+<td><code>round(2.5)</code></td>
+<td><code>3</code></td>
+<td>❌ Error: necesita siempre dos argumentos. <code>ROUND(2.5, 0)</code> → <code>3.0</code></td>
+</tr>
+<tr>
+<td><code>round(-2.5)</code> / <code>ROUND(-2.5, 0)</code></td>
+<td><code>-3</code></td>
+<td><code>-3.0</code></td>
+</tr>
+<tr>
+<td><code>round(CAST(2.4445 AS float), 2)</code></td>
+<td>❌ Error: no existe <code>round(double precision, integer)</code></td>
+<td><code>2.44</code></td>
+</tr>
+<tr>
+<td><code>round(CAST(2.5 AS float))</code> / <code>ROUND(..., 0)</code></td>
+<td><code>2</code></td>
+<td><strong><code>3</code></strong></td>
+</tr>
+<tr>
+<td><code>round(999.99, 0)</code></td>
+<td><code>1000</code></td>
+<td>❌ <strong>Error de desbordamiento</strong></td>
+</tr>
+<tr>
+<td><code>ROUND(2.4485, 2, 1)</code></td>
+<td>No existe</td>
+<td><code>2.4400</code>: el tercer argumento distinto de 0 <strong>corta</strong> en vez de redondear</td>
+</tr>
+</tbody>
+</table>
+<p>El desbordamiento es el más traicionero. <code>999.99</code> es un <code>decimal(5,2)</code>, y SQL Server intenta guardar el resultado en ese mismo tipo. <code>1000.00</code> necesita 6 cifras y no cabe:</p>
+<div class="hl"><pre><span></span><code>Msg 8115, Level 16, State 2
+Arithmetic overflow error converting expression to data type numeric.
+</code></pre></div>
+
+<p>Pasa solo cuando el redondeo añade una cifra a la parte entera, así que <strong>puede funcionar meses y romperse con un dato nuevo</strong>. La salida es darle sitio antes de redondear: <code>ROUND(CAST(999.99 AS decimal(7,2)), 0)</code> → <code>1000.00</code>.</p>
+<h3>3.4 Texto a número</h3>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CAST(' 10 ' AS int)</code></td>
+<td><code>10</code></td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>CAST('3.7' AS int)</code></td>
+<td>❌ Error</td>
+<td>❌ Error</td>
+</tr>
+<tr>
+<td><code>CAST('1e3' AS numeric(18,4))</code></td>
+<td><code>1000.0000</code></td>
+<td>❌ Error</td>
+</tr>
+<tr>
+<td><code>'2,7'</code>, <code>'N/A'</code>, <code>''</code>, <code>'$2.70'</code> a decimal</td>
+<td>❌ Error</td>
+<td>❌ Error</td>
+</tr>
+<tr>
+<td><code>'100' + 5</code></td>
+<td><code>105</code></td>
+<td><code>105</code></td>
+</tr>
+<tr>
+<td><code>'100' + '5'</code></td>
+<td>❌ Error: no sabe qué tipo son</td>
+<td><strong><code>1005</code></strong>: el <code>+</code> concatena texto</td>
+</tr>
+</tbody>
+</table>
+<p>Para revisar valores sin que falle la consulta, cada motor tiene su herramienta, y no hacen lo mismo:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Función</td>
+<td><code>pg_input_is_valid(x, 'numeric')</code></td>
+<td><code>TRY_CAST(x AS decimal(18,4))</code></td>
+</tr>
+<tr>
+<td>Devuelve</td>
+<td><code>true</code> / <code>false</code></td>
+<td>El número convertido, o <code>NULL</code> si no puede</td>
+</tr>
+<tr>
+<td>Uso típico</td>
+<td>Encontrar las filas malas</td>
+<td>Convertir y dejar en <code>NULL</code> las malas</td>
+</tr>
+</tbody>
+</table>
+<div class="hl"><pre><span></span><code><span class="c1">-- SQL Server</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">texto</span><span class="p">,</span><span class="w"> </span><span class="n">TRY_CAST</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">convertido</span>
+<span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.7'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'2.4445'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'2,7834'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'N/A'</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">''</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="s1">'$2.70'</span><span class="p">))</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>texto   convertido
+2.7     2.7000
+2.4445  2.4445
+2,7834  NULL
+N/A     NULL
+        NULL
+$2.70   NULL
+</code></pre></div>
+
+<p>Cuidado con <code>TRY_CAST</code>: <strong>convierte los datos malos en <code>NULL</code> sin avisar</strong>, y <code>sum</code> ignora los <code>NULL</code>. Si lo usas en una carga, cuenta cuántos <code>NULL</code> salieron antes de dar el total por bueno.</p>
+<h3>3.5 División y promedios</h3>
+<table>
+<thead>
+<tr>
+<th>Expresión</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>7/2</code></td>
+<td><code>3</code></td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>7.0/2</code></td>
+<td><code>3.5000000000000000</code></td>
+<td><code>3.500000</code></td>
+</tr>
+<tr>
+<td><code>1.0/3</code></td>
+<td><code>0.33333333333333333333</code></td>
+<td><code>0.333333</code></td>
+</tr>
+<tr>
+<td><code>avg</code> de <code>(1), (2)</code> como enteros</td>
+<td><code>1.5000000000000000</code></td>
+<td><strong><code>1</code></strong></td>
+</tr>
+<tr>
+<td><code>avg(quantity)</code> en <code>order_details</code></td>
+<td><code>23.8129930394431555</code></td>
+<td><strong><code>23</code></strong></td>
+</tr>
+</tbody>
+</table>
+<p>La división entera es igual en los dos. <strong>El promedio no.</strong> En PostgreSQL, <code>avg</code> de enteros devuelve <code>numeric</code>; en SQL Server devuelve un entero, así que corta los decimales. Es la causa de la columna <code>stock_medio</code> de la sección 1.</p>
+<p><strong>Cómo escribirlo para que dé lo mismo:</strong> convierte antes de promediar.</p>
+<div class="hl"><pre><span></span><code><span class="k">avg</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span>
+</code></pre></div>
+
+<p>En SQL Server devuelve <code>46.583333, 42.250000, 29.692307…</code>. Los 6 decimales son cosa de SQL Server; la parte importante, que no se pierda el promedio, ya coincide.</p>
+<h3>3.6 Texto</h3>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'abc' = 'abc   '</code></td>
+<td><code>distintos</code></td>
+<td><strong><code>iguales</code></strong>: ignora los espacios finales al comparar</td>
+</tr>
+<tr>
+<td><code>'ABC' = 'abc'</code></td>
+<td><code>distintos</code></td>
+<td><strong><code>iguales</code></strong> con la configuración habitual</td>
+</tr>
+<tr>
+<td><code>CAST('…36 caracteres…' AS varchar)</code></td>
+<td>Los 36</td>
+<td><strong>Los 30 primeros</strong></td>
+</tr>
+<tr>
+<td><code>DECLARE @v varchar = 'hola'</code></td>
+<td>(no aplica)</td>
+<td><strong><code>h</code></strong>: 1 solo carácter</td>
+</tr>
+<tr>
+<td><code>'a' + NULL</code> / <code>'a' \|\| NULL</code></td>
+<td><code>NULL</code></td>
+<td><code>NULL</code></td>
+</tr>
+<tr>
+<td><code>concat('a', NULL)</code></td>
+<td><code>a</code></td>
+<td><code>a</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tres notas:</p>
+<ul>
+<li><strong>Mayúsculas:</strong> que <code>'ABC' = 'abc'</code> dé <code>iguales</code> depende de la <em>collation</em> (las reglas de comparación de texto) de la base. La nuestra en Azure es <code>SQL_Latin1_General_CP1_CI_AS</code>, donde <code>CI</code> = <em>case insensitive</em>. Es la habitual en SQL Server, así que un <code>WHERE</code> que en PostgreSQL filtra, en SQL Server puede devolver filas de más.</li>
+<li><strong><code>varchar</code> sin longitud</strong> no da error en SQL Server: <strong>recorta sin avisar</strong>, a 30 caracteres en un <code>CAST</code> y a 1 en una variable. En PostgreSQL <code>varchar</code> sin longitud no tiene tope.</li>
+<li><strong>Concatenar con <code>NULL</code></strong> da <code>NULL</code> en los dos. <code>concat()</code> trata el <code>NULL</code> como texto vacío en los dos.</li>
+</ul>
+<h3>3.7 Booleanos: <code>bit</code> no es <code>boolean</code></h3>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tipo</td>
+<td><code>boolean</code></td>
+<td><code>bit</code></td>
+</tr>
+<tr>
+<td><code>CAST(5 AS boolean)</code> / <code>CAST(5 AS bit)</code></td>
+<td><code>true</code></td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><code>CASE WHEN columna_booleana THEN …</code></td>
+<td>Funciona</td>
+<td>❌ Error: <code>An expression of non-boolean type specified in a context where a condition is expected</code></td>
+</tr>
+</tbody>
+</table>
+<p>En SQL Server, <code>bit</code> es un número que solo vale 0 o 1. No se puede usar como condición: hay que compararlo. <code>WHERE activo</code> en PostgreSQL es <code>WHERE activo = 1</code> en SQL Server.</p>
+<h3>3.8 Fechas</h3>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'2026-10-04 12:34:56.789'</code> como <code>timestamp</code> / <code>datetime</code></td>
+<td><code>12:34:56.789</code></td>
+<td><strong><code>12:34:56.790</code></strong></td>
+</tr>
+<tr>
+<td><code>'… 12:34:56.7891234'</code> como <code>timestamp</code> / <code>datetime2</code></td>
+<td><code>12:34:56.789123</code> (6 decimales)</td>
+<td><code>12:34:56.7891234</code> (7 decimales)</td>
+</tr>
+<tr>
+<td>Días entre dos fechas</td>
+<td><code>fecha_fin - fecha_inicio</code></td>
+<td><code>DATEDIFF(day, fecha_inicio, fecha_fin)</code></td>
+</tr>
+<tr>
+<td><code>'04/10/2026'</code> como fecha</td>
+<td><code>2026-04-10</code></td>
+<td><code>2026-04-10</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>datetime</code> no guarda milisegundos exactos.</strong> Su precisión es de unos 3 milisegundos y redondea: <code>.789</code> se convierte en <code>.790</code>. Por eso en SQL Server se usa <code>datetime2</code>.</li>
+<li><strong>La fecha ambigua</strong> dio 10 de abril en los dos, pero <strong>depende de la configuración de cada servidor</strong> (idioma y formato de fecha). Escribe siempre las fechas como <code>'YYYY-MM-DD'</code>, que se lee igual en cualquier configuración.</li>
+</ul>
+<h3>3.9 Lo que sí coincide</h3>
+<p>No todo cambia. En estos casos los dos motores se comportan igual:</p>
+<ul>
+<li><strong>Desbordamiento de enteros:</strong> <code>2147483647 + 1</code> da error en los dos (<code>integer out of range</code> / <code>Arithmetic overflow error</code>).</li>
+<li><strong>División entera:</strong> <code>7/2 = 3</code>.</li>
+<li><strong>Coma flotante:</strong> <code>0.1 + 0.2</code> en 8 bytes da <code>0.30000000000000004</code> en los dos. En <code>real</code> cambia solo cómo se muestra: PostgreSQL enseña <code>0.3</code> y SQL Server <code>0.300000011920</code>. Es el mismo valor aproximado.</li>
+<li><strong><code>money</code>:</strong> se recomienda evitarlo en los dos.</li>
+</ul>
+<h2 id="4-errores-comunes-al-pasar-de-postgresql-a-sql-server">4. Errores comunes al pasar de PostgreSQL a SQL Server</h2>
+<ol>
+<li><strong><code>CAST(x AS int)</code> esperando que redondee.</strong> En SQL Server trunca. Escribe <code>CAST(ROUND(x, 0) AS int)</code>.</li>
+<li><strong><code>CAST(x AS decimal)</code> sin <code>(p,s)</code>.</strong> En SQL Server son cero decimales.</li>
+<li><strong><code>avg</code> sobre una columna entera.</strong> En SQL Server devuelve un entero. Convierte antes de promediar.</li>
+<li><strong><code>ROUND</code> sin pensar en el tamaño del tipo.</strong> Puede desbordar cuando el redondeo añade una cifra.</li>
+<li><strong><code>varchar</code> sin longitud.</strong> Recorta a 30 o a 1 sin avisar.</li>
+<li><strong>Comparar texto esperando que distinga mayúsculas.</strong> Con la <em>collation</em> habitual no las distingue.</li>
+<li><strong>Dar por bueno un total hecho con <code>TRY_CAST</code>.</strong> Los datos malos se volvieron <code>NULL</code> y no suman.</li>
+<li><strong><code>datetime</code> para registrar momentos exactos.</strong> Usa <code>datetime2</code>.</li>
+</ol>
+<h2 id="5-chuleta-de-traducci-n">5. Chuleta de traducción</h2>
+<table>
+<thead>
+<tr>
+<th>Quieres</th>
+<th>PostgreSQL</th>
+<th>SQL Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entero redondeado</td>
+<td><code>CAST(x AS int)</code> o <code>round(x)::int</code></td>
+<td><code>CAST(ROUND(x, 0) AS int)</code></td>
+</tr>
+<tr>
+<td>Entero truncado</td>
+<td><code>trunc(x)::int</code></td>
+<td><code>CAST(x AS int)</code></td>
+</tr>
+<tr>
+<td>Decimal sin perder nada</td>
+<td><code>CAST(x AS numeric)</code></td>
+<td><code>CAST(x AS decimal(p,s))</code> con <code>(p,s)</code> suficientes</td>
+</tr>
+<tr>
+<td>Redondear a 2 decimales</td>
+<td><code>round(x, 2)</code></td>
+<td><code>ROUND(x, 2)</code> (devuelve la escala original)</td>
+</tr>
+<tr>
+<td>Promedio con decimales</td>
+<td><code>avg(x)</code></td>
+<td><code>avg(CAST(x AS decimal(10,2)))</code></td>
+</tr>
+<tr>
+<td>Convertir sin romper</td>
+<td><code>pg_input_is_valid</code> + <code>CAST</code></td>
+<td><code>TRY_CAST</code></td>
+</tr>
+<tr>
+<td>Condición booleana</td>
+<td><code>WHERE activo</code></td>
+<td><code>WHERE activo = 1</code></td>
+</tr>
+<tr>
+<td>Días entre fechas</td>
+<td><code>fin - inicio</code></td>
+<td><code>DATEDIFF(day, inicio, fin)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-ejercicios">6. Ejercicios</h2>
+<ol>
+<li>Sin ejecutarla, di qué devuelve cada motor: <code>SELECT CAST(-3.7 AS int);</code></li>
+<li>En SQL Server, <code>SELECT avg(quantity) FROM order_details;</code> devuelve <code>23</code>. ¿Por qué no <code>23.81</code>, y cómo lo arreglas?</li>
+<li>Esta consulta funciona en SQL Server con casi todos los precios y falla con <code>999.99</code>. ¿Por qué, y cómo la arreglas?
+   <code>sql
+   SELECT ROUND(999.99, 0);</code></li>
+<li>Una API manda el precio <code>'2,7834'</code>. Conviértelo a decimal en SQL Server sin que la consulta falle y sin perder el valor.</li>
+</ol>
+<h2 id="7-pregunta-de-negocio">7. Pregunta de negocio</h2>
+<blockquote>
+<p><em>Te piden migrar a SQL Server el informe de la sección 1 (stock medio y precio medio entero por categoría), que hoy corre en PostgreSQL. El responsable de compras va a comparar las dos versiones. Reescríbelo para que SQL Server devuelva los mismos números y explica qué dos cambios hiciste y por qué.</em></p>
+</blockquote></div>
+    <details class="soluciones respuesta"><summary><span class="sol-ic">?</span> Respuesta<span class="sol-hint">Respóndela antes de abrir</span></summary><div class="post-body"><div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">category_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">avg</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">units_in_stock</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">stock_medio</span><span class="p">,</span>
+<span class="w">       </span><span class="k">CAST</span><span class="p">(</span><span class="n">ROUND</span><span class="p">(</span><span class="k">avg</span><span class="p">(</span><span class="n">unit_price</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">precio_entero</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">products</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">category_id</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>category_id stock_medio precio_entero
+1           46.583333   38
+2           42.250000   23
+3           29.692307   25
+4           39.300000   29
+5           44.000000   20
+6           27.500000   54
+7           20.000000   32
+8           58.416666   21
+</code></pre></div>
+
+<p>Los precios coinciden con PostgreSQL en las 8 categorías, y el stock medio ya no pierde los decimales. Los dos cambios:</p>
+<ol>
+<li><strong><code>CAST(units_in_stock AS decimal(10,2))</code> dentro del <code>avg</code>.</strong> En SQL Server, el promedio de un entero es un entero. Sin esto, la categoría 1 da <code>46</code> en vez de <code>46.58</code>.</li>
+<li><strong><code>ROUND(..., 0)</code> antes del <code>CAST</code> a <code>int</code>.</strong> SQL Server trunca al convertir a entero. Sin esto, la categoría 1 da <code>37</code> en vez de <code>38</code>.</li>
+</ol>
+<p>Lo que hay que decirle al responsable de compras: <strong>el stock medio sale con 6 decimales en SQL Server y con 16 en PostgreSQL.</strong> Es la forma de presentar de cada motor, no una diferencia en los datos. Si se compara a 2 decimales, coincide.</p></div></details>
+    <details class="soluciones"><summary><span class="sol-ic">✓</span> Soluciones<span class="sol-hint">Resuélvelos antes de abrir</span></summary><div class="post-body"><p><strong>1.</strong> PostgreSQL devuelve <strong><code>-4</code></strong> (redondea, alejándose del cero). SQL Server devuelve <strong><code>-3</code></strong> (trunca: tira los decimales).</p>
+<p><strong>2.</strong> <code>quantity</code> es <code>smallint</code>, y en SQL Server <code>avg</code> de enteros devuelve un entero: corta los decimales. Se arregla convirtiendo antes de promediar:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">quantity</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">order_details</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>avg(x * 1.0)</code> también funciona, porque <code>1.0</code> es decimal y obliga a SQL Server a promediar con decimales; pero el <code>CAST</code> deja más clara la intención.</p>
+<p><strong>3.</strong> <code>999.99</code> es un <code>decimal(5,2)</code>. <code>ROUND</code> devuelve el mismo tipo, y <code>1000.00</code> necesita 6 cifras: no cabe y da <code>Arithmetic overflow error</code>. Con <code>123.45</code> funciona porque el resultado (<code>123.00</code>) sigue cabiendo. Se arregla dando sitio antes de redondear:</p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ROUND</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="mi">999</span><span class="p">.</span><span class="mi">99</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">   </span><span class="c1">-- 1000.00</span>
+</code></pre></div>
+
+<p><strong>4.</strong></p>
+<div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">TRY_CAST</span><span class="p">(</span><span class="k">REPLACE</span><span class="p">(</span><span class="s1">'2,7834'</span><span class="p">,</span><span class="w"> </span><span class="s1">','</span><span class="p">,</span><span class="w"> </span><span class="s1">'.'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">decimal</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">4</span><span class="p">));</span><span class="w">   </span><span class="c1">-- 2.7834</span>
+</code></pre></div>
+
+<p><code>REPLACE</code> cambia la coma por punto y <code>TRY_CAST</code> devuelve <code>NULL</code> en vez de romper si aun así queda algo inválido. <code>decimal(18,4)</code> lleva <code>(p,s)</code> explícitos: con <code>decimal</code> a secas devolvería <code>3</code>.</p></div></details>
+    <nav class="navpies"><a class="nav-prev" href="../tipos-de-datos-en-postgresql/"><span>Anterior</span><strong>Tipos de datos en PostgreSQL</strong></a><a class="nav-next" href="../funciones-dentro-del-select/"><span>Siguiente</span><strong>Funciones dentro del SELECT</strong></a></nav>
+  </main>
+
+  <aside class="toc">
+    <p class="toc-tit">En este tema</p>
+    <a href="#1-qu-es">1. Qué es</a>
+<a href="#2-equivalencias-de-tipos">2. Equivalencias de tipos</a>
+<a href="#3-ejemplos-lado-a-lado">3. Ejemplos lado a lado</a>
+<a href="#4-errores-comunes-al-pasar-de-postgresql-a-sql-server">4. Errores comunes al pasar de PostgreSQL a SQL Server</a>
+<a href="#5-chuleta-de-traducci-n">5. Chuleta de traducción</a>
+<a href="#6-ejercicios">6. Ejercicios</a>
+<a href="#7-pregunta-de-negocio">7. Pregunta de negocio</a>
+  </aside>
+</div>
+</body>
+</html>
