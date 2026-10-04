@@ -400,6 +400,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <ul>
+<li><strong>¿Por qué tantos decimales?</strong> <code>avg(unit_price)</code> = <code>2220.21 / 77</code>, una división de <code>numeric</code>, y PostgreSQL le pone unos 16 decimales.</li>
 <li><strong>Sin segundo argumento</strong>, <code>round(x)</code> es lo mismo que <code>round(x, 0)</code>: redondea a entero.</li>
 <li><strong>Con un número negativo</strong>, redondea a la izquierda de la coma: <code>-1</code> a decenas, <code>-2</code> a centenas.</li>
 <li><strong>Si faltan decimales, los rellena</strong>: <code>round(2.5, 2)</code> da <code>2.50</code>.</li>
