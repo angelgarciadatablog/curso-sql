@@ -380,7 +380,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <p>Dos casos más que conviene conocer:</p>
 <ul>
-<li><strong>El destino con <code>(p,s)</code> añade otro fallo.</strong> <code>CAST('123456789.99' AS numeric(10,2))</code> da <code>numeric field overflow</code>: tiene 9 cifras enteras y solo caben 8.</li>
+<li><strong>El destino con <code>(p,s)</code> añade otro fallo.</strong> En <code>numeric(p,s)</code>, <code>p</code> (precisión) son las cifras en total y <code>s</code> (escala), cuántas de ellas van después de la coma. <code>numeric(10,2)</code> admite 10 cifras, 2 decimales, así que quedan 8 para la parte entera. <code>CAST('123456789.99' AS numeric(10,2))</code> da <code>numeric field overflow</code>: tiene 9 cifras enteras y solo caben 8.</li>
 <li><strong><code>'NaN'</code> e <code>'Infinity'</code> se convierten sin error.</strong> Si la API los manda, se cuelan en tus sumas.</li>
 </ul>
 <h3>3.3 Cómo redondear</h3>
