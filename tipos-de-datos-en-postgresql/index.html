@@ -650,7 +650,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </tbody>
 </table>
 <p>Lo habitual es <code>integer</code>. Pero hay datos que lo superan: <strong>la población mundial (~8.200 millones) no cabe en <code>integer</code></strong>, y lo mismo pasa con los IDs de una tabla de eventos o de logs que crece sin parar. Ahí va <code>bigint</code>.</p>
-<p><strong>El tipo de la columna no siempre es el tipo del resultado.</strong> <code>quantity</code> es <code>smallint</code>, que llega hasta 32.767. Pero su suma pasa de ese límite, y no da error:</p>
+<h3>3.8 El tipo de la columna no siempre es el tipo del resultado</h3>
+<p><code>quantity</code> es <code>smallint</code>, que llega hasta 32.767. Pero su suma pasa de ese límite, y no da error:</p>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span>
 <span class="w">    </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w">            </span><span class="k">AS</span><span class="w"> </span><span class="n">total</span><span class="p">,</span>
 <span class="w">    </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">tipo</span>
@@ -686,7 +687,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </tbody>
 </table>
 <p>Con la población pasa lo mismo: cada país cabe en <code>integer</code>, y la suma de todos sale como <code>bigint</code>.</p>
-<h3>3.8 Texto: <code>char(n)</code> y por qué no</h3>
+<p>En la división no pasa: <code>integer / integer</code> sigue siendo <code>integer</code> (sección 3.6). Si el tipo se agranda o no depende de la operación.</p>
+<h3>3.9 Texto: <code>char(n)</code> y por qué no</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">con_char</span><span class="p">,</span>
 <span class="w">       </span><span class="n">concat</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="s1">'abc'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span><span class="w"> </span><span class="s1">'|'</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">con_varchar</span><span class="p">;</span>
 </code></pre></div>
@@ -717,7 +719,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </code></pre></div>
 
 <p><code>length()</code> cuenta <strong>caracteres</strong>, <code>octet_length()</code> cuenta <strong>bytes</strong>. La <code>é</code> ocupa dos bytes en UTF-8. Si alguna vez ves un <code>varchar(50)</code> quedarse corto con 47 caracteres, esta es la razón — aunque en PostgreSQL <code>varchar(n)</code> cuenta caracteres, no bytes, así que aquí no pasa. En otros motores sí.</p>
-<h3>3.9 Fechas</h3>
+<h3>3.10 Fechas</h3>
 <div class="hl"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">order_date</span><span class="p">)</span><span class="w">   </span><span class="k">AS</span><span class="w"> </span><span class="n">fecha</span><span class="p">,</span>
 <span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="k">current_date</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">hoy</span><span class="p">,</span>
 <span class="w">       </span><span class="n">pg_typeof</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w">        </span><span class="k">AS</span><span class="w"> </span><span class="n">ahora</span>
